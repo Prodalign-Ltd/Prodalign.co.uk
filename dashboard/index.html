@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Company Dashboard</title>
+</head>
+<body style="font-family:system-ui; margin:40px;">
+
+<h1>Dashboard</h1>
+
+<p><strong>Company:</strong> <span id="companyName">...</span></p>
+<p><strong>Role:</strong> <span id="roleName">...</span></p>
+
+<button id="logoutBtn">Log out</button>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
+  authDomain: "prodalign-ltd.firebaseapp.com",
+  projectId: "prodalign-ltd"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(window.location.search);
+const companyId = (params.get("c") || "").toLowerCase();
+
+if (!companyId) {
+  document.body.innerHTML = "No company specified.";
+  throw new Error("Missing company id");
+}
+
+onAuthStateChanged(auth, async (user) => {
+
+  if (!user) {
+    window.location.href = `/company/?c=${companyId}`;
+    return;
+  }
+
+  try {
+
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+    if (!userSnap.exists()) throw new Error("User profile missing");
+
+    const userData = userSnap.data();
+    const userCompany = (userData.companycode || "").toLowerCase();
+    const role = userData.role || "user";
+
+    if (userCompany !== companyId) {
+      await signOut(auth);
+      window.location.href = `/company/?c=${companyId}`;
+      return;
+    }
+
+    document.getElementById("companyName").textContent = companyId;
+    document.getElementById("roleName").textContent = role;
+
+  } catch (err) {
+    document.body.innerHTML = "Access denied.";
+  }
+
+});
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = `/company/?c=${companyId}`;
+});
+
+</script>
+
+</body>
+</html>
