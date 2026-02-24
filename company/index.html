@@ -97,6 +97,11 @@
       border-color: rgba(245,124,0,0.35);
       transform: translateY(-1px);
     }
+    button:disabled{
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
     .btn-primary{
       border-color: rgba(245,124,0,0.45);
       background: linear-gradient(180deg, rgba(245,124,0,0.22), rgba(245,124,0,0.10));
@@ -383,94 +388,108 @@
       font-weight: 800;
       text-align: center;
     }
-/* ===== MODAL SYSTEM ===== */
-.modal {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(6px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 160ms ease;
-  z-index: 50;
-}
 
-.modal.open {
-  opacity: 1;
-  pointer-events: auto;
-}
+    /* ===== MODAL SYSTEM (yours) ===== */
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease;
+      z-index: 50;
+    }
 
-.modal-card {
-  width: 420px;
-  max-width: 92vw;
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: linear-gradient(180deg, rgba(11,29,42,0.98), rgba(6,19,30,0.98));
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  animation: modalPop 160ms ease;
-}
+    .modal.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
-@keyframes modalPop {
-  from { transform: scale(.96); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
+    .modal-card {
+      width: 420px;
+      max-width: 92vw;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(180deg, rgba(11,29,42,0.98), rgba(6,19,30,0.98));
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      animation: modalPop 160ms ease;
+    }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
+    @keyframes modalPop {
+      from { transform: scale(.96); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
 
-.modal-title { font-weight: 900; }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
 
-.modal-close {
-  background: transparent;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  opacity: 0.7;
-}
-.modal-close:hover { opacity: 1; }
+    .modal-title { font-weight: 900; }
 
-.modal-body {
-  padding: 16px;
-  display: grid;
-  gap: 14px;
-}
+    .modal-close {
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      opacity: 0.7;
+      padding: 6px 10px;
+    }
+    .modal-close:hover { opacity: 1; }
 
-.form-group { display: grid; gap: 6px; }
+    .modal-body {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
 
-.form-group label {
-  font-weight: 800;
-  font-size: 0.85rem;
-  opacity: 0.9;
-}
+    .form-group { display: grid; gap: 6px; }
 
-.form-group input {
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.3);
-  color: white;
-}
+    .form-group label {
+      font-weight: 800;
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
 
-.form-group input:focus {
-  outline: none;
-  border-color: rgba(245,124,0,0.7);
-  box-shadow: 0 0 0 3px rgba(245,124,0,0.15);
-}
+    .form-group input,
+    .form-group select {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.3);
+      color: white;
+    }
 
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 14px 16px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-}
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: rgba(245,124,0,0.7);
+      box-shadow: 0 0 0 3px rgba(245,124,0,0.15);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .modal-status{
+      margin-right: auto;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.75);
+      min-height: 1.2em;
+    }
+
     /* Responsive */
     @media (max-width: 980px) {
       .dashboard{
@@ -492,6 +511,9 @@
   </div>
 
   <div class="actions">
+    <!-- ✅ NEW: Add member button -->
+    <button id="addMemberBtn" class="btn-primary" type="button">Add member</button>
+
     <button id="settingsBtn" type="button">Settings</button>
     <button id="logoutBtn" class="btn-danger" type="button">Log out</button>
   </div>
@@ -602,10 +624,47 @@
   </div>
 </div>
 
+<!-- ✅ NEW: Add Member Modal -->
+<div id="addMemberModal" class="modal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="addMemberTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="addMemberTitle">Add member</div>
+      <button class="modal-close" id="closeAddMemberModal" type="button">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="memberEmail">Email</label>
+        <input id="memberEmail" type="email" placeholder="name@company.com" autocomplete="email" />
+      </div>
+
+      <div class="form-group">
+        <label for="memberRole">Role</label>
+        <select id="memberRole">
+          <option value="member" selected>Member</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+
+      <div style="color: rgba(255,255,255,0.72); font-weight: 800; font-size: 0.9rem; line-height: 1.35;">
+        This calls a Firebase Cloud Function named <b>createCompanyMember</b>.<br/>
+        If you haven’t deployed it yet, you’ll see an error — that’s normal.
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="modal-status" id="addMemberStatus"></div>
+      <button id="cancelAddMember" type="button">Cancel</button>
+      <button class="btn-primary" id="createMemberBtn" type="button">Create member</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
@@ -616,14 +675,24 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const functions = getFunctions(app);
 
   const companyLogoEl = document.getElementById("companyLogo");
   const companyNameEl = document.getElementById("companyName");
   const logoutBtn = document.getElementById("logoutBtn");
   const settingsBtn = document.getElementById("settingsBtn");
   const newItemBtn = document.getElementById("newItemBtn");
-
   const findInput = document.getElementById("findInput");
+
+  // ✅ NEW: Add member UI elements
+  const addMemberBtn = document.getElementById("addMemberBtn");
+  const addMemberModal = document.getElementById("addMemberModal");
+  const closeAddMemberModal = document.getElementById("closeAddMemberModal");
+  const cancelAddMember = document.getElementById("cancelAddMember");
+  const createMemberBtn = document.getElementById("createMemberBtn");
+  const memberEmail = document.getElementById("memberEmail");
+  const memberRole = document.getElementById("memberRole");
+  const addMemberStatus = document.getElementById("addMemberStatus");
 
   // Company id from URL
   const params = new URLSearchParams(window.location.search);
@@ -693,32 +762,93 @@
     alert("Settings (to be wired later)");
   });
 
-// ===== New Item Modal wiring =====
-const newItemModal = document.getElementById("newItemModal");
-const closeNewItemModal = document.getElementById("closeNewItemModal");
-const cancelNewItem = document.getElementById("cancelNewItem");
+  // ===== New Item Modal wiring (your existing) =====
+  const newItemModal = document.getElementById("newItemModal");
+  const closeNewItemModal = document.getElementById("closeNewItemModal");
+  const cancelNewItem = document.getElementById("cancelNewItem");
 
-function openNewItemModal() {
-  newItemModal.classList.add("open");
-}
+  function openNewItemModal() {
+    newItemModal.classList.add("open");
+  }
 
-function closeNewItemModalFn() {
-  newItemModal.classList.remove("open");
-}
+  function closeNewItemModalFn() {
+    newItemModal.classList.remove("open");
+  }
 
-newItemBtn.addEventListener("click", openNewItemModal);
-closeNewItemModal.addEventListener("click", closeNewItemModalFn);
-cancelNewItem.addEventListener("click", closeNewItemModalFn);
+  newItemBtn.addEventListener("click", openNewItemModal);
+  closeNewItemModal.addEventListener("click", closeNewItemModalFn);
+  cancelNewItem.addEventListener("click", closeNewItemModalFn);
 
-// Click outside closes
-newItemModal.addEventListener("click", (e) => {
-  if (e.target === newItemModal) closeNewItemModalFn();
-});
+  // Click outside closes
+  newItemModal.addEventListener("click", (e) => {
+    if (e.target === newItemModal) closeNewItemModalFn();
+  });
 
-// ESC closes
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeNewItemModalFn();
-});
+  // ===== Add Member Modal wiring =====
+  function openAddMemberModal() {
+    addMemberStatus.textContent = "";
+    memberEmail.value = "";
+    memberRole.value = "member";
+    addMemberModal.classList.add("open");
+    addMemberModal.setAttribute("aria-hidden", "false");
+    setTimeout(() => memberEmail.focus(), 0);
+  }
+
+  function closeAddMemberModalFn() {
+    addMemberModal.classList.remove("open");
+    addMemberModal.setAttribute("aria-hidden", "true");
+  }
+
+  addMemberBtn.addEventListener("click", openAddMemberModal);
+  closeAddMemberModal.addEventListener("click", closeAddMemberModalFn);
+  cancelAddMember.addEventListener("click", closeAddMemberModalFn);
+
+  // Click outside closes
+  addMemberModal.addEventListener("click", (e) => {
+    if (e.target === addMemberModal) closeAddMemberModalFn();
+  });
+
+  async function callCreateCompanyMember(email, role) {
+    // This must exist as a deployed callable Cloud Function:
+    // exports.createCompanyMember = onCall(...)
+    const fn = httpsCallable(functions, "createCompanyMember");
+    const res = await fn({ companyId, email, role });
+    return res.data;
+  }
+
+  createMemberBtn.addEventListener("click", async () => {
+    const email = memberEmail.value.trim().toLowerCase();
+    const role = memberRole.value === "admin" ? "admin" : "member";
+
+    if (!email || !email.includes("@")) {
+      addMemberStatus.textContent = "Enter a valid email.";
+      return;
+    }
+
+    createMemberBtn.disabled = true;
+    addMemberStatus.textContent = "Creating member…";
+
+    try {
+      const data = await callCreateCompanyMember(email, role);
+      addMemberStatus.textContent = `Member added: ${data.email || email}`;
+      setTimeout(closeAddMemberModalFn, 800);
+    } catch (err) {
+      console.error(err);
+      addMemberStatus.textContent =
+        err?.message ||
+        "Could not create member. (Have you deployed the Cloud Function?)";
+    } finally {
+      createMemberBtn.disabled = false;
+    }
+  });
+
+  // ESC closes the topmost open modal
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (addMemberModal.classList.contains("open")) closeAddMemberModalFn();
+      else if (newItemModal.classList.contains("open")) closeNewItemModalFn();
+    }
+  });
 
   // basic find UX placeholder
   findInput.addEventListener("keydown", (e) => {
@@ -728,37 +858,37 @@ document.addEventListener("keydown", (e) => {
   });
 </script>
 
-  <!-- New Item Modal -->
+<!-- New Item Modal (your existing) -->
 <div id="newItemModal" class="modal">
   <div class="modal-card">
     <div class="modal-header">
       <div class="modal-title">Create New Item</div>
-      <button class="modal-close" id="closeNewItemModal">✕</button>
+      <button class="modal-close" id="closeNewItemModal" type="button">✕</button>
     </div>
 
     <div class="modal-body">
       <div class="form-group">
-        <label>Item Code</label>
+        <label for="newItemCode">Item Code</label>
         <input type="text" id="newItemCode" placeholder="e.g. P40000">
       </div>
 
       <div class="form-group">
-        <label>Description</label>
+        <label for="newItemDescription">Description</label>
         <input type="text" id="newItemDescription" placeholder="Item description">
       </div>
 
       <div class="form-group">
-        <label>Base Cost</label>
+        <label for="newItemCost">Base Cost</label>
         <input type="number" id="newItemCost" placeholder="0.00">
       </div>
     </div>
 
     <div class="modal-footer">
-      <button id="cancelNewItem">Cancel</button>
-      <button class="btn-primary" id="saveNewItem">Create Item</button>
+      <button id="cancelNewItem" type="button">Cancel</button>
+      <button class="btn-primary" id="saveNewItem" type="button">Create Item</button>
     </div>
   </div>
 </div>
-  
+
 </body>
 </html>
