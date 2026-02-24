@@ -183,26 +183,25 @@
     const logoutLink = document.getElementById("logoutLink");
 
 async function goToCompanyPortal(user) {
-  try {
-    const ref = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
 
-    if (!snap.exists()) {
-      console.warn("No user document found for UID:", user.uid);
-      // fallback
-      window.location.href = "/company?c=prodalign";
-      return;
-    }
+  alert(
+    "UID: " + user.uid +
+    "\nDoc exists: " + snap.exists() +
+    "\nData: " + JSON.stringify(snap.exists() ? snap.data() : null, null, 2)
+  );
 
-    const data = snap.data();
-    console.log("User doc data:", data);
+  const data = snap.exists() ? snap.data() : null;
 
-    const companyCode = String(data.companyCode || "prodalign").toLowerCase();
-    window.location.href = `/company?c=${encodeURIComponent(companyCode)}`;
-  } catch (err) {
-    console.error("Failed to load user profile:", err?.code, err?.message, err);
-    alert(`Could not load your company settings (${err?.code || "error"}).`);
+  // IMPORTANT: do NOT fallback silently while debugging
+  if (!data?.companyCode) {
+    throw new Error("Missing companyCode in Firestore user doc");
   }
+
+  const companyCode = String(data.companyCode).toLowerCase();
+  window.location.href = `/company?c=${encodeURIComponent(companyCode)}`;
+}
 }
 
 // If already logged in, auto-route
