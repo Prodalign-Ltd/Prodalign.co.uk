@@ -182,18 +182,33 @@
     const passEl = document.getElementById("password");
     const logoutLink = document.getElementById("logoutLink");
 
-    async function goToCompanyPortal(user) {
-      const snap = await getDoc(doc(db, "users", user.uid));
-      const data = snap.exists() ? snap.data() : null;
+async function goToCompanyPortal(user) {
+  try {
+    const ref = doc(db, "users", user.uid);
+    const snap = await getDoc(ref);
 
-      const companyCode = (data?.companyCode || "prodalign").toLowerCase();
-      window.location.href = `/company?c=${encodeURIComponent(companyCode)}`;
+    if (!snap.exists()) {
+      console.warn("No user document found for UID:", user.uid);
+      // fallback
+      window.location.href = "/company?c=prodalign";
+      return;
     }
 
-    // If already logged in, auto-route
-    onAuthStateChanged(auth, (user) => {
-      if (user) goToCompanyPortal(user);
-    });
+    const data = snap.data();
+    console.log("User doc data:", data);
+
+    const companyCode = String(data.companyCode || "prodalign").toLowerCase();
+    window.location.href = `/company?c=${encodeURIComponent(companyCode)}`;
+  } catch (err) {
+    console.error("Failed to load user profile:", err?.code, err?.message, err);
+    alert(`Could not load your company settings (${err?.code || "error"}).`);
+  }
+}
+
+// If already logged in, auto-route
+onAuthStateChanged(auth, (user) => {
+  if (user) goToCompanyPortal(user);
+});
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -206,15 +221,10 @@ form.addEventListener("submit", async (e) => {
     );
 
     await goToCompanyPortal(cred.user);
-
-} catch (err) {
-  console.error("Login error object:", err);
-
-  const code = err && typeof err === "object" && "code" in err ? err.code : "";
-  const msg  = err && typeof err === "object" && "message" in err ? err.message : String(err);
-
-  alert(`Login failed.\ncode: ${code || "(none)"}\nmsg: ${msg || "(none)"}`);
-}
+  } catch (err) {
+    console.error("Firebase Auth error:", err?.code, err?.message, err);
+    alert(`Login failed: ${err?.code || "unknown-error"}`);
+  }
 });
 
     logoutLink.addEventListener("click", async (e) => {
