@@ -187,7 +187,7 @@
       const data = snap.exists() ? snap.data() : null;
 
       const companyCode = (data?.companyCode || "prodalign").toLowerCase();
-      window.location.href = `/company/?c=${encodeURIComponent(companyCode)}`;
+      window.location.href = `/company?c=${encodeURIComponent(companyCode)}`;
     }
 
     // If already logged in, auto-route
