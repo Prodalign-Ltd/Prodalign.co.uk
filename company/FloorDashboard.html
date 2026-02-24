@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Station Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+:root{
+  --bg:#071826;
+  --panel:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.10);
+  --text:#ffffff;
+  --muted:rgba(255,255,255,0.78);
+  --orange:#f57c00;
+  --green:#2e7d32;
+  --amber:#f9a825;
+  --gray:#90a4ae;
+  --radius:14px;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui;
+  background:linear-gradient(180deg,#071826,#06131e);
+  color:var(--text);
+}
+
+/* HEADER */
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:16px 20px;
+  background:#0b2235;
+  border-bottom:1px solid var(--border);
+}
+
+.stationTitle{
+  font-weight:900;
+  font-size:1.4rem;
+}
+
+/* PAGE */
+.page{
+  padding:20px;
+  display:grid;
+  gap:20px;
+}
+
+/* SECTION */
+.section{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+
+.sectionHeader{
+  padding:14px 16px;
+  font-weight:900;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.dot{
+  width:10px;height:10px;border-radius:999px;
+}
+
+.grid{
+  padding:20px;
+  min-height:180px;
+  display:grid;
+  place-items:center;
+  color:var(--muted);
+  font-weight:800;
+}
+
+/* COLORS */
+.wip .dot{background:var(--green)}
+.available .dot{background:var(--amber)}
+.notavailable .dot{background:var(--gray)}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="stationTitle" id="stationTitle">Bending Dashboard</div>
+</header>
+
+<div class="page">
+
+  <!-- WORK IN PROGRESS -->
+  <div class="section wip">
+    <div class="sectionHeader">
+      <div class="dot"></div>
+      Work In Progress
+    </div>
+    <div class="grid">
+      Waiting for jobs from Manager Dashboard
+    </div>
+  </div>
+
+  <!-- AVAILABLE -->
+  <div class="section available">
+    <div class="sectionHeader">
+      <div class="dot"></div>
+      Available To Work
+    </div>
+    <div class="grid">
+      Jobs ready to start will appear here
+    </div>
+  </div>
+
+  <!-- NOT AVAILABLE -->
+  <div class="section notavailable">
+    <div class="sectionHeader">
+      <div class="dot"></div>
+      Not Available
+    </div>
+    <div class="grid">
+      Waiting on previous operations
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Later this will come from Firebase user → station
+// For now we allow ?station=bending in URL
+
+const params = new URLSearchParams(window.location.search);
+const station = params.get("station");
+
+if(station){
+  document.getElementById("stationTitle").textContent =
+    station.charAt(0).toUpperCase() + station.slice(1) + " Dashboard";
+}
+</script>
+
+</body>
+</html>
