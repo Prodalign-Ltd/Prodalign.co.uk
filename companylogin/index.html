@@ -195,29 +195,24 @@
       if (user) goToCompanyPortal(user);
     });
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      try {
-        const cred = await signInWithEmailAndPassword(auth, emailEl.value.trim(), passEl.value);
-        await goToCompanyPortal(cred.user);
-      } catch (err) {
-  console.error("Firebase login error:", err?.code, err?.message, err);
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-  const code = err?.code || "";
-  let msg = "Login failed.";
+  try {
+    const cred = await signInWithEmailAndPassword(
+      auth,
+      emailEl.value.trim(),
+      passEl.value
+    );
 
-  if (code === "auth/invalid-credential") msg = "Invalid email or password.";
-  else if (code === "auth/user-not-found") msg = "No account found for that email.";
-  else if (code === "auth/wrong-password") msg = "Incorrect password.";
-  else if (code === "auth/too-many-requests") msg = "Too many attempts. Try again later.";
-  else if (code === "auth/user-disabled") msg = "This account is disabled.";
-  else if (code === "auth/network-request-failed") msg = "Network error. Check connection/adblocker.";
-  else if (code === "auth/operation-not-allowed") msg = "Email/password sign-in isn’t enabled in Firebase.";
-  else if (code === "auth/invalid-email") msg = "That email address looks invalid.";
+    await goToCompanyPortal(cred.user);
 
-  alert(msg);
-}
-    });
+  } catch (err) {
+    console.error("Firebase Auth error:", err?.code, err?.message, err);
+
+    alert(`Login failed: ${err?.code || "unknown-error"}`);
+  }
+});
 
     logoutLink.addEventListener("click", async (e) => {
       e.preventDefault();
