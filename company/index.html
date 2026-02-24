@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Company Portal | ProdAlign</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #0b1d2a;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 30px;
+      background: #102c44;
+    }
+
+    .company-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .company-info img {
+      height: 50px;
+      max-width: 200px;
+      object-fit: contain;
+    }
+
+    .company-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .logout {
+      cursor: pointer;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    .logout:hover { opacity: 1; }
+
+    main {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.06);
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 600px;
+    }
+
+    .error {
+      background: #7a1f1f;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="company-info">
+    <img id="companyLogo" src="" alt="Company Logo" />
+    <div class="company-name" id="companyName">Loading...</div>
+  </div>
+
+  <div class="logout" id="logoutBtn">Log out</div>
+</header>
+
+<main>
+  <div id="errorBox"></div>
+
+  <div class="card">
+    <h2>Welcome to your company portal</h2>
+    <p>This is your secure company workspace.</p>
+  </div>
+</main>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
+  authDomain: "prodalign-ltd.firebaseapp.com",
+  projectId: "prodalign-ltd",
+  storageBucket: "prodalign-ltd.firebasestorage.app",
+  messagingSenderId: "899967683787",
+  appId: "1:899967683787:web:b83544276739e1adcc1f4e"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const logoEl = document.getElementById("companyLogo");
+const nameEl = document.getElementById("companyName");
+const errorBox = document.getElementById("errorBox");
+const logoutBtn = document.getElementById("logoutBtn");
+
+// Get ?c= from URL
+const params = new URLSearchParams(window.location.search);
+const routeCompanyId = params.get("c");
+
+if (!routeCompanyId) {
+  window.location.href = "/companylogin/";
+}
+
+// Auth check
+onAuthStateChanged(auth, async (user) => {
+
+  if (!user) {
+    window.location.href = "/companylogin/";
+    return;
+  }
+
+  try {
+
+    // Load user profile
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+    if (!userSnap.exists()) {
+      throw new Error("User profile not found.");
+    }
+
+    const userData = userSnap.data();
+    const userCompany =
+      (userData.companycode ?? userData.companyCode ?? "")
+        .toLowerCase();
+
+    // Security check: block cross-company access
+    if (userCompany !== routeCompanyId.toLowerCase()) {
+      throw new Error("You do not have access to this company.");
+    }
+
+    // Load company document
+    const companySnap = await getDoc(doc(db, "companies", routeCompanyId));
+    if (!companySnap.exists()) {
+      throw new Error("Company not found.");
+    }
+
+    const company = companySnap.data();
+
+    // Set branding
+    nameEl.textContent = company.displayname || "Company";
+    logoEl.src = company.Logourl || "";
+
+  } catch (err) {
+
+    console.error(err);
+    errorBox.innerHTML = `
+      <div class="error">
+        ${err.message}
+      </div>
+    `;
+  }
+
+});
+
+// Logout
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "/companylogin/";
+});
+
+</script>
+</body>
+</html>
