@@ -158,79 +158,88 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+<script type="module">
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
-      authDomain: "prodalign-ltd.firebaseapp.com",
-      projectId: "prodalign-ltd",
-      storageBucket: "prodalign-ltd.firebasestorage.app",
-      messagingSenderId: "899967683787",
-      appId: "1:899967683787:web:b83544276739e1adcc1f4e",
-      measurementId: "G-PCJSZYMHYQ"
-    };
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  // 🔹 Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
+    authDomain: "prodalign-ltd.firebaseapp.com",
+    projectId: "prodalign-ltd",
+    storageBucket: "prodalign-ltd.firebasestorage.app",
+    messagingSenderId: "899967683787",
+    appId: "1:899967683787:web:b83544276739e1adcc1f4e",
+    measurementId: "G-PCJSZYMHYQ"
+  };
 
-    const form = document.getElementById("companyLoginForm");
-    const emailEl = document.getElementById("email");
-    const passEl = document.getElementById("password");
-    const logoutLink = document.getElementById("logoutLink");
+  // 🔹 Init Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-async function goToCompanyPortal(user) {
-  const ref = doc(db, "users", user.uid);
-  const snap = await getDoc(ref);
+  // 🔹 DOM elements
+  const form = document.getElementById("companyLoginForm");
+  const emailEl = document.getElementById("email");
+  const passEl = document.getElementById("password");
+  const logoutLink = document.getElementById("logoutLink");
 
-  alert(
-    "UID: " + user.uid +
-    "\nDoc exists: " + snap.exists() +
-    "\nData: " + JSON.stringify(snap.exists() ? snap.data() : null, null, 2)
-  );
+  // 🔹 Redirect logic
+  async function goToCompanyPortal(user) {
+    let companyCode = "prodalign"; // fallback
 
-  const data = snap.exists() ? snap.data() : null;
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid));
+      const data = snap.exists() ? snap.data() : null;
 
-  // IMPORTANT: do NOT fallback silently while debugging
-  if (!data?.companyCode) {
-    throw new Error("Missing companyCode in Firestore user doc");
+      if (data?.companyCode) {
+        companyCode = String(data.companyCode).toLowerCase();
+      }
+
+      console.log("Redirecting with companyCode:", companyCode);
+
+    } catch (err) {
+      console.error("Failed to read user document:", err?.code, err?.message);
+    }
+
+    window.location.href = `/company/?c=${encodeURIComponent(companyCode)}`;
   }
 
-  const companyCode = String(data.companyCode).toLowerCase();
-  window.location.href = `/company/index.html?c=${encodeURIComponent(companyCode)}`;
-}
-}
+  // 🔹 Auto-redirect if already logged in
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      goToCompanyPortal(user);
+    }
+  });
 
-// If already logged in, auto-route
-onAuthStateChanged(auth, (user) => {
-  if (user) goToCompanyPortal(user);
-});
+  // 🔹 Login submit
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+    try {
+      const cred = await signInWithEmailAndPassword(
+        auth,
+        emailEl.value.trim(),
+        passEl.value
+      );
 
-  try {
-    const cred = await signInWithEmailAndPassword(
-      auth,
-      emailEl.value.trim(),
-      passEl.value
-    );
+      await goToCompanyPortal(cred.user);
 
-    await goToCompanyPortal(cred.user);
-  } catch (err) {
-    console.error("Firebase Auth error:", err?.code, err?.message, err);
-    alert(`Login failed: ${err?.code || "unknown-error"}`);
-  }
-});
+    } catch (err) {
+      console.error("Login failed:", err?.code, err?.message);
+      alert("Login failed. Please check email and password.");
+    }
+  });
 
-    logoutLink.addEventListener("click", async (e) => {
-      e.preventDefault();
-      await signOut(auth);
-      alert("Logged out.");
-    });
-  </script>
+  // 🔹 Logout
+  logoutLink.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await signOut(auth);
+    alert("Logged out.");
+  });
+
+</script>
 </body>
 </html>
