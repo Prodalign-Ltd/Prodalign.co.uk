@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>ProdAlign Ltd | Company Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ProdAlign Ltd Secure Company Login Portal">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ProdAlign Ltd Secure Company Login Portal" />
 
   <style>
     :root {
@@ -31,7 +31,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 35px;
+      gap: 24px;
       padding: 20px;
       width: 100%;
     }
@@ -40,7 +40,9 @@
       width: 420px;
       max-width: 95%;
       height: auto;
-      margin: -150px -100px; /* your preferred positioning */
+      margin: -140px -100px; /* keep your preferred positioning */
+      user-select: none;
+      -webkit-user-drag: none;
     }
 
     .login-card {
@@ -49,24 +51,31 @@
       border-radius: 18px;
       padding: 40px;
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       color: white;
       box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
     }
 
     .login-card h2 {
-      margin-top: 0;
-      margin-bottom: 25px;
+      margin: 0 0 10px 0;
       text-align: center;
-      font-weight: 700;
-      letter-spacing: 0.5px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
       color: var(--flame);
+    }
+
+    .sub {
+      margin: 0 0 22px 0;
+      text-align: center;
+      font-size: 0.92rem;
+      opacity: 0.8;
+      line-height: 1.35;
     }
 
     form {
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
     }
 
     label {
@@ -95,14 +104,46 @@
       background: linear-gradient(135deg, #ff4b2b, #e53935);
       color: white;
       font-size: 1rem;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
-      transition: box-shadow 0.2s ease;
+      transition: box-shadow 0.2s ease, transform 0.05s ease;
     }
 
-    button:hover {
-      box-shadow: 0 8px 20px rgba(255, 75, 43, 0.4);
+    button:hover { box-shadow: 0 8px 20px rgba(255, 75, 43, 0.4); }
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      opacity: 0.85;
     }
+
+    .row a {
+      color: #fff;
+      opacity: 0.9;
+      text-decoration: none;
+    }
+    .row a:hover { opacity: 1; text-decoration: underline; }
+
+    .msg {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.25);
+      font-size: 0.92rem;
+      line-height: 1.35;
+      display: none;
+      white-space: pre-line;
+    }
+
+    .msg.show { display: block; }
+    .msg.ok { border: 1px solid rgba(60, 200, 120, 0.35); }
+    .msg.err { border: 1px solid rgba(255, 80, 80, 0.35); }
 
     .footer {
       margin-top: 18px;
@@ -111,136 +152,230 @@
       opacity: 0.6;
     }
 
-    .mini {
-      margin-top: 10px;
-      text-align: center;
-      font-size: 0.85rem;
-      opacity: 0.75;
-    }
-
-    .mini a { color: #fff; opacity: 0.85; }
-    .mini a:hover { opacity: 1; }
-
     @media (max-width: 480px) {
       .login-card { padding: 30px; }
+      .logo { margin: -120px -60px; }
     }
   </style>
 </head>
 
 <body>
   <div class="page-wrapper">
-    <img src="/logo.png" alt="ProdAlign Ltd Logo" class="logo">
+    <!-- This is your site/app logo (not the company logo) -->
+    <img src="/logo.png" alt="ProdAlign Ltd Logo" class="logo" />
 
     <div class="login-card">
       <h2>Company Login</h2>
+      <p class="sub">
+        Sign in to access your company portal.
+      </p>
 
       <form id="companyLoginForm">
         <div>
           <label for="email">Email Address</label>
-          <input type="email" id="email" required autocomplete="email">
+          <input type="email" id="email" required autocomplete="email" />
         </div>
 
         <div>
           <label for="password">Password</label>
-          <input type="password" id="password" required autocomplete="current-password">
+          <input type="password" id="password" required autocomplete="current-password" />
         </div>
 
-        <button type="submit">Secure Login</button>
+        <button id="loginBtn" type="submit">Secure Login</button>
       </form>
 
-      <div class="mini">
-        <a href="/companylogin">Refresh</a>
-        &nbsp;•&nbsp;
-        <a href="#" id="logoutLink">Log out</a>
+      <div id="message" class="msg"></div>
+
+      <div class="row">
+        <a href="/companylogin/">Refresh</a>
+        <span>•</span>
+        <a href="javascript:void(0)" id="logoutLink">Log out</a>
       </div>
 
       <div class="footer">© 2026 ProdAlign Ltd. All rights reserved.</div>
     </div>
   </div>
 
-<script type="module">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    // ✅ Firebase config (client-side keys are expected to be public; security comes from Rules)
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
+      authDomain: "prodalign-ltd.firebaseapp.com",
+      projectId: "prodalign-ltd",
+      storageBucket: "prodalign-ltd.firebasestorage.app",
+      messagingSenderId: "899967683787",
+      appId: "1:899967683787:web:b83544276739e1adcc1f4e",
+      measurementId: "G-PCJSZYMHYQ"
+    };
 
-  // 🔹 Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
-    authDomain: "prodalign-ltd.firebaseapp.com",
-    projectId: "prodalign-ltd",
-    storageBucket: "prodalign-ltd.firebasestorage.app",
-    messagingSenderId: "899967683787",
-    appId: "1:899967683787:web:b83544276739e1adcc1f4e",
-    measurementId: "G-PCJSZYMHYQ"
-  };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  // 🔹 Init Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    // DOM
+    const form = document.getElementById("companyLoginForm");
+    const emailEl = document.getElementById("email");
+    const passEl = document.getElementById("password");
+    const logoutLink = document.getElementById("logoutLink");
+    const loginBtn = document.getElementById("loginBtn");
+    const messageEl = document.getElementById("message");
 
-  // 🔹 DOM elements
-  const form = document.getElementById("companyLoginForm");
-  const emailEl = document.getElementById("email");
-  const passEl = document.getElementById("password");
-  const logoutLink = document.getElementById("logoutLink");
-
-  // 🔹 Redirect logic
-  async function goToCompanyPortal(user) {
-    let companyCode = "prodalign"; // fallback
-
-    try {
-      const snap = await getDoc(doc(db, "users", user.uid));
-      const data = snap.exists() ? snap.data() : null;
-
-          // Your Firestore field is companycode (lowercase)
-    if (data?.companycode) {
-      companyCode = String(data.companycode).toLowerCase();
+    function showMsg(text, type = "ok") {
+      messageEl.textContent = text;
+      messageEl.classList.remove("ok", "err", "show");
+      messageEl.classList.add("show", type === "err" ? "err" : "ok");
     }
 
-      console.log("Redirecting with companyCode:", companyCode);
-
-    } catch (err) {
-      console.error("Failed to read user document:", err?.code, err?.message);
+    function clearMsg() {
+      messageEl.textContent = "";
+      messageEl.classList.remove("ok", "err", "show");
     }
 
-    window.location.href = `/company/?c=${encodeURIComponent(companyCode)}`;
-  }
-
-  // 🔹 Auto-redirect if already logged in
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      goToCompanyPortal(user);
+    function setLoading(isLoading) {
+      loginBtn.disabled = isLoading;
+      loginBtn.textContent = isLoading ? "Signing in..." : "Secure Login";
     }
-  });
 
-  // 🔹 Login submit
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    // --- Company routing logic ---
+    // Your Firestore user doc contains: companycode (lowercase) per your screenshot.
+    // It also may contain companyName, role, etc.
+    async function getCompanyCodeForUser(uid) {
+      const userSnap = await getDoc(doc(db, "users", uid));
+      if (!userSnap.exists()) return null;
 
-    try {
-      const cred = await signInWithEmailAndPassword(
-        auth,
-        emailEl.value.trim(),
-        passEl.value
-      );
+      const data = userSnap.data();
 
-      await goToCompanyPortal(cred.user);
+      // Support both spellings to avoid future mismatch:
+      //   - companycode (your current)
+      //   - companyCode (if you later rename)
+      const rawCode = data.companycode ?? data.companyCode;
+      if (!rawCode) return null;
 
-    } catch (err) {
-      console.error("Login failed:", err?.code, err?.message);
-      alert("Login failed. Please check email and password.");
+      return String(rawCode).trim().toLowerCase();
     }
-  });
 
-  // 🔹 Logout
-  logoutLink.addEventListener("click", async (e) => {
-    e.preventDefault();
-    await signOut(auth);
-    alert("Logged out.");
-  });
+    async function goToCompanyPortal(user) {
+      // if your user profile doc is missing, show a helpful message instead of guessing
+      try {
+        const companyCode = await getCompanyCodeForUser(user.uid);
 
-</script>
+        if (!companyCode) {
+          showMsg(
+            "Signed in, but your account hasn't been assigned to a company yet.\n" +
+            "Ask an admin to add your user record in Firestore: users/{uid}.companycode",
+            "err"
+          );
+          return;
+        }
+
+        // Optional: sanity-check the company doc exists (nice for debugging)
+        // You can remove this check later for speed.
+        const companySnap = await getDoc(doc(db, "companies", companyCode));
+        if (!companySnap.exists()) {
+          showMsg(
+            `Signed in, but company '${companyCode}' was not found in Firestore (companies/${companyCode}).`,
+            "err"
+          );
+          return;
+        }
+
+        // Redirect to your company portal screen
+        window.location.assign(`/company/?c=${encodeURIComponent(companyCode)}`);
+
+      } catch (err) {
+        console.error("Redirect failed:", err?.code, err?.message, err);
+        showMsg(
+          "Couldn't load your company profile.\n" +
+          "If you see 'permission-denied', update Firestore Rules to allow reading users/{uid}.\n\n" +
+          `Error: ${err?.code || "unknown"}`,
+          "err"
+        );
+      }
+    }
+
+    // Prevent "can't log out" loops:
+    // We set a session flag before signOut, so auth state change doesn't re-route.
+    function isLoggingOut() {
+      return sessionStorage.getItem("loggingOut") === "1";
+    }
+
+    function setLoggingOut(flag) {
+      if (flag) sessionStorage.setItem("loggingOut", "1");
+      else sessionStorage.removeItem("loggingOut");
+    }
+
+    // Auto-redirect if already logged in
+    onAuthStateChanged(auth, (user) => {
+      if (isLoggingOut()) {
+        // Wait until Firebase confirms signed-out, then clear the flag
+        if (!user) setLoggingOut(false);
+        return;
+      }
+
+      if (user) {
+        // Already signed in -> go straight to portal
+        goToCompanyPortal(user);
+      }
+    });
+
+    // Login
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearMsg();
+      setLoading(true);
+
+      try {
+        const email = emailEl.value.trim();
+        const pass = passEl.value;
+
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+
+        // Now route based on Firestore users/{uid}.companycode
+        await goToCompanyPortal(cred.user);
+
+      } catch (err) {
+        console.error("Login failed:", err?.code, err?.message, err);
+
+        // Friendly message
+        const code = err?.code || "";
+        let msg = "Login failed. Please check email and password.";
+        if (code.includes("auth/too-many-requests")) msg = "Too many attempts. Try again in a few minutes.";
+        if (code.includes("auth/user-not-found")) msg = "No account found for that email.";
+        if (code.includes("auth/wrong-password")) msg = "Incorrect password.";
+        if (code.includes("auth/invalid-email")) msg = "That email address looks invalid.";
+
+        showMsg(msg, "err");
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Logout
+    logoutLink.addEventListener("click", async (e) => {
+      e.preventDefault();
+      clearMsg();
+
+      try {
+        setLoggingOut(true);
+        await signOut(auth);
+
+        // Hard redirect back to login page
+        window.location.assign("/companylogin/");
+      } catch (err) {
+        console.error("Logout failed:", err?.code, err?.message, err);
+        showMsg("Logout failed. Please refresh the page and try again.", "err");
+        setLoggingOut(false);
+      }
+    });
+  </script>
 </body>
 </html>
