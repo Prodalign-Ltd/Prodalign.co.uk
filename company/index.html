@@ -2,504 +2,280 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Company Portal | ProdAlign</title>
+  <title>Company Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    :root {
-      --accent: #e53935;
-      --flame: #ff4b2b;
-      --bg: radial-gradient(circle at 30% 25%, rgba(255, 120, 0, 0.25), transparent 40%),
-            radial-gradient(circle at 70% 70%, rgba(0, 60, 140, 0.4), transparent 50%),
-            linear-gradient(135deg, #0b1d2a, #102c44, #07131f);
-    }
-
-    * { box-sizing: border-box; }
-
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: system-ui, sans-serif;
+      background: #0b1d2a;
+      color: #fff;
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: var(--bg);
-      color: #fff;
     }
 
-    .page-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 24px;
-      padding: 20px;
-      width: 100%;
-    }
-
-    /* Company logo shown on the login view */
-    .logo {
-      width: 420px;
-      max-width: 95%;
-      height: auto;
-      margin: -140px -100px; /* keeps your preferred positioning */
-      user-select: none;
-      -webkit-user-drag: none;
-      display: none; /* shown after company loads */
-    }
-
-    .card {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(16px);
-      border-radius: 18px;
-      padding: 40px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-    }
-
-    h2 {
-      margin: 0 0 10px 0;
-      text-align: center;
-      font-weight: 800;
-      letter-spacing: 0.3px;
-      color: var(--flame);
-    }
-
-    .sub {
-      margin: 0 0 22px 0;
-      text-align: center;
-      font-size: 0.92rem;
-      opacity: 0.8;
-      line-height: 1.35;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    label {
-      font-size: 0.85rem;
-      margin-bottom: 6px;
-      display: block;
-      color: rgba(255,255,255,0.85);
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      font-size: 1rem;
-    }
-
-    input:focus { outline: 2px solid var(--accent); }
-
-    button {
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      background: linear-gradient(135deg, #ff4b2b, #e53935);
-      color: white;
-      font-size: 1rem;
-      font-weight: 800;
-      cursor: pointer;
-      transition: box-shadow 0.2s ease, transform 0.05s ease;
-    }
-
-    button:hover { box-shadow: 0 8px 20px rgba(255, 75, 43, 0.4); }
-    button:active { transform: translateY(1px); }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      opacity: 0.85;
-    }
-
-    .row a {
-      color: #fff;
-      opacity: 0.9;
-      text-decoration: none;
-    }
-
-    .row a:hover { opacity: 1; text-decoration: underline; }
-
-    .msg {
-      margin-top: 14px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      background: rgba(0,0,0,0.25);
-      font-size: 0.92rem;
-      line-height: 1.35;
-      display: none;
-      white-space: pre-line;
-    }
-
-    .msg.show { display: block; }
-    .msg.ok { border: 1px solid rgba(60, 200, 120, 0.35); }
-    .msg.err { border: 1px solid rgba(255, 80, 80, 0.35); }
-
-    .footer {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 0.8rem;
-      opacity: 0.6;
-    }
-
-    /* Portal view (shown after login) */
-    .portal {
-      display: none;
-      width: 100%;
-      max-width: 900px;
-    }
-
-    .portal-header {
-      width: 100%;
+    header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 18px;
-      gap: 12px;
+      padding: 16px 20px;
+      background: #102c44;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
-    .portal-brand {
+    .brand {
       display: flex;
       align-items: center;
       gap: 12px;
       min-width: 0;
     }
 
-    .portal-brand img {
+    .brand img {
       height: 44px;
-      max-width: 240px;
+      max-width: 220px;
       object-fit: contain;
       border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      padding: 6px;
+      display: none; /* show when loaded */
     }
 
-    .portal-title {
+    .brand .name {
       font-weight: 800;
       font-size: 1.05rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 60vw;
     }
 
-    .pill {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
       background: rgba(255,255,255,0.10);
-      font-size: 0.85rem;
-      opacity: 0.9;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    button:hover { background: rgba(255,255,255,0.16); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      grid-template-rows: auto 1fr;
+      gap: 16px;
+      padding: 16px;
+      height: calc(100vh - 73px); /* header height approx */
+      box-sizing: border-box;
     }
 
-    .portal-card {
+    .panel {
       background: rgba(255,255,255,0.06);
-      border-radius: 18px;
-      padding: 22px;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 14px;
     }
 
-    @media (max-width: 480px) {
-      .card { padding: 30px; }
-      .logo { margin: -120px -60px; }
+    .panel h2 {
+      margin: 0 0 10px 0;
+      font-size: 1rem;
+    }
+
+    /* Top area: Create Parts */
+    #createParts {
+      grid-column: 1 / span 2;
+      grid-row: 1;
+      min-height: 140px;
+    }
+
+    /* Bottom-left: Dropzone */
+    #dropzone {
+      grid-column: 1;
+      grid-row: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 220px;
+      border-style: dashed;
+      border-width: 2px;
+      border-color: rgba(255,255,255,0.20);
+      text-align: center;
+      opacity: 0.95;
+    }
+
+    /* Bottom-right: placeholder content area */
+    #mainArea {
+      grid-column: 2;
+      grid-row: 2;
+      min-height: 220px;
+    }
+
+    .small {
+      opacity: 0.8;
+      font-size: 0.9rem;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        height: auto;
+      }
+      #createParts { grid-column: 1; }
+      #dropzone { grid-column: 1; grid-row: 2; }
+      #mainArea { grid-column: 1; grid-row: 3; }
+      .brand .name { max-width: 50vw; }
     }
   </style>
 </head>
 
 <body>
-  <div class="page-wrapper">
 
-    <!-- Company logo (loaded from Firestore companies/{c}) -->
-    <img id="companyLogoTop" src="" alt="Company Logo" class="logo" />
-
-    <!-- LOGIN VIEW -->
-    <div id="loginView" class="card">
-      <h2 id="loginHeading">Company Login</h2>
-      <p class="sub" id="loginSub">Sign in to access your company portal.</p>
-
-      <form id="loginForm">
-        <div>
-          <label for="email">Email Address</label>
-          <input type="email" id="email" required autocomplete="email" />
-        </div>
-
-        <div>
-          <label for="password">Password</label>
-          <input type="password" id="password" required autocomplete="current-password" />
-        </div>
-
-        <button id="loginBtn" type="submit">Secure Login</button>
-      </form>
-
-      <div id="message" class="msg"></div>
-
-      <div class="row">
-        <a id="refreshLink" href="#">Refresh</a>
-        <span>•</span>
-        <a href="javascript:void(0)" id="logoutLink">Log out</a>
-      </div>
-
-      <div class="footer">© 2026 ProdAlign Ltd. All rights reserved.</div>
-    </div>
-
-    <!-- PORTAL VIEW -->
-    <div id="portalView" class="portal">
-      <div class="portal-header">
-        <div class="portal-brand">
-          <img id="companyLogoSmall" src="" alt="Company Logo" />
-          <div class="portal-title" id="companyName">Loading...</div>
-        </div>
-
-        <div style="display:flex; gap:10px; align-items:center;">
-          <span class="pill" id="rolePill">role: ...</span>
-          <a class="pill" href="javascript:void(0)" id="portalLogout">Log out</a>
-        </div>
-      </div>
-
-      <div class="portal-card">
-        <h2 style="margin-top:0; color: var(--flame);">Welcome</h2>
-        <p style="opacity:0.9; margin: 0;">
-          You’re signed in to this company portal.
-          Next step is we’ll show different screens based on role (admin/user/operator).
-        </p>
-      </div>
-
-      <div class="footer" style="margin-top: 18px;">© 2026 ProdAlign Ltd. All rights reserved.</div>
-    </div>
-
+<header>
+  <div class="brand">
+    <img id="companyLogo" alt="Company Logo" />
+    <div class="name" id="companyName">Loading...</div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getAuth,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  <div class="actions">
+    <button id="settingsBtn" type="button">Settings</button>
+    <button id="logoutBtn" type="button">Log out</button>
+  </div>
+</header>
 
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
-      authDomain: "prodalign-ltd.firebaseapp.com",
-      projectId: "prodalign-ltd",
-      storageBucket: "prodalign-ltd.firebasestorage.app",
-      messagingSenderId: "899967683787",
-      appId: "1:899967683787:web:b83544276739e1adcc1f4e",
-      measurementId: "G-PCJSZYMHYQ"
-    };
+<div class="layout">
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  <div id="createParts" class="panel">
+    <h2>Create Parts</h2>
+    <div class="small">
+      Placeholder area for your “create parts” flow (forms/buttons/tables).<br/>
+      We’ll wire this up next.
+    </div>
+  </div>
 
-    // URL param ?c=
-    const params = new URLSearchParams(window.location.search);
-    const routeCompanyId = (params.get("c") || "").trim().toLowerCase();
+  <div id="dropzone" class="panel">
+    <h2 style="margin-bottom:6px;">Dropzone</h2>
+    <div class="small">
+      Drag &amp; drop files here (we’ll hook to Firebase Storage later).
+    </div>
+  </div>
 
-    // DOM
-    const companyLogoTop = document.getElementById("companyLogoTop");
-    const companyLogoSmall = document.getElementById("companyLogoSmall");
-    const companyNameEl = document.getElementById("companyName");
-    const loginHeading = document.getElementById("loginHeading");
-    const loginSub = document.getElementById("loginSub");
+  <div id="mainArea" class="panel">
+    <h2>Main Area</h2>
+    <div class="small">
+      Placeholder for dashboards, lists, operator view, etc.
+    </div>
+  </div>
 
-    const loginView = document.getElementById("loginView");
-    const portalView = document.getElementById("portalView");
+</div>
 
-    const form = document.getElementById("loginForm");
-    const emailEl = document.getElementById("email");
-    const passEl = document.getElementById("password");
-    const loginBtn = document.getElementById("loginBtn");
-    const msgEl = document.getElementById("message");
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    const logoutLink = document.getElementById("logoutLink");
-    const portalLogout = document.getElementById("portalLogout");
-    const rolePill = document.getElementById("rolePill");
-    const refreshLink = document.getElementById("refreshLink");
+  const firebaseConfig = {
+    apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
+    authDomain: "prodalign-ltd.firebaseapp.com",
+    projectId: "prodalign-ltd"
+  };
 
-    refreshLink.href = routeCompanyId ? `/company/?c=${encodeURIComponent(routeCompanyId)}` : "/companylogin/";
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    function showMsg(text, type = "ok") {
-      msgEl.textContent = text;
-      msgEl.classList.remove("ok", "err", "show");
-      msgEl.classList.add("show", type === "err" ? "err" : "ok");
+  const companyLogoEl = document.getElementById("companyLogo");
+  const companyNameEl = document.getElementById("companyName");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const settingsBtn = document.getElementById("settingsBtn");
+
+  // Company id from URL
+  const params = new URLSearchParams(window.location.search);
+  const companyId = (params.get("c") || "").trim().toLowerCase();
+
+  if (!companyId) {
+    companyNameEl.textContent = "Missing company id (?c=...)";
+    // You can redirect somewhere else if you want:
+    // window.location.assign("/companylogin/");
+    throw new Error("Missing ?c=");
+  }
+
+  async function loadCompanyBranding(companyId) {
+    const snap = await getDoc(doc(db, "companies", companyId));
+    if (!snap.exists()) {
+      companyNameEl.textContent = `Company '${companyId}' not found`;
+      return;
     }
 
-    function clearMsg() {
-      msgEl.textContent = "";
-      msgEl.classList.remove("ok", "err", "show");
+    const company = snap.data();
+    const name = company.displayname || "Company";
+    const logoUrl = company.Logourl || "";
+
+    companyNameEl.textContent = name;
+
+    if (logoUrl) {
+      companyLogoEl.src = logoUrl;
+      companyLogoEl.style.display = "block";
     }
 
-    function setLoading(isLoading) {
-      loginBtn.disabled = isLoading;
-      loginBtn.textContent = isLoading ? "Signing in..." : "Secure Login";
+    document.title = `${name} | Dashboard`;
+  }
+
+  async function enforceUserCompany(user, companyId) {
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+    if (!userSnap.exists()) throw new Error("User profile missing (users/{uid}).");
+
+    const data = userSnap.data();
+    const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
+
+    if (!userCompany) throw new Error("User profile missing companycode.");
+    if (userCompany !== companyId) throw new Error("Access denied for this company.");
+
+    // If you want role later:
+    // const role = String(data.role ?? "user").toLowerCase();
+    // return role;
+
+    return true;
+  }
+
+  // Auth gate
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+      return;
     }
 
-    function showLogin() {
-      portalView.style.display = "none";
-      loginView.style.display = "block";
+    try {
+      await enforceUserCompany(user, companyId);
+      await loadCompanyBranding(companyId);
+    } catch (err) {
+      console.error(err);
+      // If logged in but wrong company, sign out and go to login
+      try { await signOut(auth); } catch {}
+      window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
     }
+  });
 
-    function showPortal() {
-      loginView.style.display = "none";
-      portalView.style.display = "block";
-    }
+  // Logout
+  logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+  });
 
-    // Prevent "can't log out" redirect loops
-    function isLoggingOut() {
-      return sessionStorage.getItem("loggingOut") === "1";
-    }
-    function setLoggingOut(flag) {
-      if (flag) sessionStorage.setItem("loggingOut", "1");
-      else sessionStorage.removeItem("loggingOut");
-    }
+  // Settings placeholder
+  settingsBtn.addEventListener("click", () => {
+    alert("Settings (to be wired later)");
+  });
+</script>
 
-    // 1) Load company branding from Firestore
-    async function loadCompanyBranding(companyId) {
-      if (!companyId) {
-        // No company id -> send them to your main company login selector page
-        window.location.assign("/companylogin/");
-        return;
-      }
-
-      const companySnap = await getDoc(doc(db, "companies", companyId));
-      if (!companySnap.exists()) {
-        showMsg(
-          `Company '${companyId}' not found.\nCheck the URL matches your Firestore doc id (e.g. ?c=beckettt).`,
-          "err"
-        );
-        // Still show login UI but with default headings
-        return;
-      }
-
-      const company = companySnap.data();
-
-      // Your field names from Firestore:
-      const displayName = company.displayname || "Company";
-      const logoUrl = company.Logourl || "";
-
-      document.title = `${displayName} | Login`;
-      loginHeading.textContent = `${displayName} Login`;
-      loginSub.textContent = "Sign in to access your company portal.";
-
-      if (logoUrl) {
-        companyLogoTop.src = logoUrl;
-        companyLogoSmall.src = logoUrl;
-        companyLogoTop.style.display = "block";
-      }
-
-      companyNameEl.textContent = displayName;
-    }
-
-    // 2) Load user profile + enforce company membership
-    async function loadUserProfileAndEnforceCompany(user, companyId) {
-      const userSnap = await getDoc(doc(db, "users", user.uid));
-      if (!userSnap.exists()) {
-        throw new Error(
-          "Your account exists in Auth, but no user profile exists in Firestore.\n" +
-          "Create users/{uid} with companycode + role."
-        );
-      }
-
-      const data = userSnap.data();
-      const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
-      const role = String(data.role ?? "user").trim().toLowerCase();
-
-      if (!userCompany) throw new Error("Your Firestore user profile is missing companycode.");
-      if (userCompany !== companyId) throw new Error("You do not have access to this company.");
-
-      rolePill.textContent = `role: ${role}`;
-      return { role, userCompany };
-    }
-
-    // Boot
-    await loadCompanyBranding(routeCompanyId);
-
-    // Auth state
-    onAuthStateChanged(auth, async (user) => {
-      if (isLoggingOut()) {
-        if (!user) setLoggingOut(false);
-        showLogin();
-        return;
-      }
-
-      if (!user) {
-        showLogin();
-        return;
-      }
-
-      try {
-        clearMsg();
-        await loadUserProfileAndEnforceCompany(user, routeCompanyId);
-        showPortal();
-      } catch (err) {
-        console.error(err);
-        showMsg(err?.message || "Access check failed.", "err");
-        // If they're signed in but not allowed, sign them out
-        try { await signOut(auth); } catch {}
-        showLogin();
-      }
-    });
-
-    // Login submit
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      clearMsg();
-      setLoading(true);
-
-      try {
-        const cred = await signInWithEmailAndPassword(
-          auth,
-          emailEl.value.trim(),
-          passEl.value
-        );
-
-        // Enforce company match (prevents logging into the wrong company URL)
-        await loadUserProfileAndEnforceCompany(cred.user, routeCompanyId);
-        showPortal();
-
-      } catch (err) {
-        console.error("Login failed:", err?.code, err?.message, err);
-
-        const code = err?.code || "";
-        let msg = "Login failed. Please check email and password.";
-        if (code.includes("auth/too-many-requests")) msg = "Too many attempts. Try again in a few minutes.";
-        if (code.includes("auth/user-not-found")) msg = "No account found for that email.";
-        if (code.includes("auth/wrong-password")) msg = "Incorrect password.";
-        if (code.includes("auth/invalid-email")) msg = "That email address looks invalid.";
-
-        // Firestore permission issues
-        if ((err?.message || "").toLowerCase().includes("permission")) {
-          msg = "Permission denied reading your user/company profile.\nCheck Firestore rules allow reading users/{uid} and companies/{company}.";
-        }
-
-        showMsg(msg, "err");
-      } finally {
-        setLoading(false);
-      }
-    });
-
-    async function doLogout() {
-      try {
-        setLoggingOut(true);
-        await signOut(auth);
-      } finally {
-        window.location.assign(`/company/?c=${encodeURIComponent(routeCompanyId)}`);
-      }
-    }
-
-    logoutLink.addEventListener("click", (e) => { e.preventDefault(); doLogout(); });
-    portalLogout.addEventListener("click", (e) => { e.preventDefault(); doLogout(); });
-
-  </script>
 </body>
 </html>
