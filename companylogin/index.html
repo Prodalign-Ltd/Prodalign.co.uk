@@ -207,11 +207,14 @@ form.addEventListener("submit", async (e) => {
 
     await goToCompanyPortal(cred.user);
 
-  } catch (err) {
-    console.error("Firebase Auth error:", err?.code, err?.message, err);
+} catch (err) {
+  console.error("Login error object:", err);
 
-    alert(`Login failed: ${err?.code || "unknown-error"}`);
-  }
+  const code = err && typeof err === "object" && "code" in err ? err.code : "";
+  const msg  = err && typeof err === "object" && "message" in err ? err.message : String(err);
+
+  alert(`Login failed.\ncode: ${code || "(none)"}\nmsg: ${msg || "(none)"}`);
+}
 });
 
     logoutLink.addEventListener("click", async (e) => {
