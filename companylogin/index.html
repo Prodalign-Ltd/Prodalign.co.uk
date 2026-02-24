@@ -194,9 +194,10 @@
       const snap = await getDoc(doc(db, "users", user.uid));
       const data = snap.exists() ? snap.data() : null;
 
-      if (data?.companyCode) {
-        companyCode = String(data.companyCode).toLowerCase();
-      }
+          // Your Firestore field is companycode (lowercase)
+    if (data?.companycode) {
+      companyCode = String(data.companycode).toLowerCase();
+    }
 
       console.log("Redirecting with companyCode:", companyCode);
 
