@@ -1634,36 +1634,60 @@ document.addEventListener("keydown", (e) => {
 });
 
 // Firestore write: creates a "job" for operators to pick up
+async function getItemOpsInOrder(itemCode){
+  const snap = await getDoc(doc(db, "companies", companyId, "items", itemCode));
+  if (!snap.exists()) throw new Error(`Item ${itemCode} not found.`);
+  const data = snap.data() || {};
+
+  // Your items store operations like: [{code:"LASER", iph:0}, {code:"BEND", iph:0}]
+  const ops = normalizeOperations(data.operations);
+
+  if (!ops.length) {
+    throw new Error(`Item ${itemCode} has no operations. Add operations first.`);
+  }
+
+  return ops; // already ordered
+}
+
 async function sendOrderToOperators({ code, type }){
   const itemCode = String(code || "").trim().toUpperCase();
   if (!itemCode) throw new Error("Missing item code.");
 
-  // Block operations from being "order ready"
+  // Block sending an OPERATION item as a job
   const resolvedType = await resolveItemType(itemCode, type);
   if (resolvedType === "operation") {
-    throw new Error("You can’t send an Operation as an Order Ready job. Drop a normal item.");
+    throw new Error("Drop a normal item (not an Operation).");
   }
 
   const orderNo = String(orderReadyOrderNo.value || "").trim();
   const qty = Math.max(1, Math.floor(Number(orderReadyQty.value || 1)));
-
   if (!orderNo) throw new Error("Order number is required.");
 
-  // ✅ Where the operator dashboard should listen:
-  // companies/{companyId}/jobs (or rename to orders/workOrders if you prefer)
+  // ✅ Pull the ordered operation list from the item
+  const ops = await getItemOpsInOrder(itemCode);
+
   const jobsRef = collection(db, "companies", companyId, "jobs");
 
-  // Suggested schema (operators can filter by status/station/etc.)
   await addDoc(jobsRef, {
     itemCode,
     orderNo,
     qty,
 
-    status: "ready",          // ready | in_progress | complete
-    currentStationIndex: 0,   // you can move it along stations later
+    ops,                    // ordered queue: [{code, iph}, ...]
+    currentOpIndex: 0,
+    currentOpCode: ops[0].code,
+
+    status: "ready",        // ready -> in_progress -> ready -> ... -> complete
     createdBy: getUserIdentifier(),
     createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
+    updatedAt: serverTimestamp(),
+
+    // optional history trail
+    history: [{
+      event: "created",
+      at: Date.now(),
+      by: getUserIdentifier()
+    }]
   });
 }
 
