@@ -6,53 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-
-    .containsTable{
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-.containsTable th,
-.containsTable td{
-  padding: 8px 8px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  vertical-align: middle;
-}
-.containsTable th{
-  text-align: left;
-  color: rgba(255,255,255,0.75);
-  font-weight: 950;
-  font-size: 0.78rem;
-  letter-spacing: 0.2px;
-}
-.containsCode{
-  font-weight: 950;
-}
-.qtyInput{
-  width: 72px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.25);
-  color: #fff;
-  outline: none;
-}
-.qtyInput:focus{
-  border-color: rgba(245,124,0,0.6);
-  box-shadow: 0 0 0 3px rgba(245,124,0,0.12);
-}
-.rowBtn{
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
-  padding: 8px 10px;
-  border-radius: 10px;
-  font-weight: 900;
-  cursor: pointer;
-}
-.rowBtn:hover{
-  border-color: rgba(211,47,47,0.45);
-  background: rgba(211,47,47,0.12);
-}
     :root{
       --bg: #071826;
       --bg-2:#0b2235;
@@ -243,7 +196,6 @@
       overflow: auto;
     }
 
-    /* Tree row now supports a delete button */
     .tree-item{
       padding: 10px 10px;
       border-radius: 12px;
@@ -389,29 +341,8 @@
       color: var(--muted);
       font-size: 0.9rem;
       line-height: 1.35;
+      overflow:auto;
     }
-
-    .pill{
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(0,0,0,0.18);
-      margin: 6px 6px 0 0;
-      color: #fff;
-      font-weight: 800;
-      font-size: 0.86rem;
-    }
-    .pill::before{
-      content:"";
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--orange);
-    }
-    .pill.red::before{ background: var(--red); }
 
     .details {
       min-height: 0;
@@ -454,6 +385,56 @@
       color: rgba(255,255,255,0.65);
       font-weight: 800;
       text-align: center;
+    }
+
+    /* ===== TABLES (contains items / ops) ===== */
+    .containsTable{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .containsTable th,
+    .containsTable td{
+      padding: 8px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      vertical-align: middle;
+    }
+    .containsTable th{
+      text-align: left;
+      color: rgba(255,255,255,0.75);
+      font-weight: 950;
+      font-size: 0.78rem;
+      letter-spacing: 0.2px;
+    }
+    .containsCode{
+      font-weight: 950;
+      color: #fff;
+    }
+    .qtyInput{
+      width: 86px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.25);
+      color: #fff;
+      outline: none;
+    }
+    .qtyInput:focus{
+      border-color: rgba(245,124,0,0.6);
+      box-shadow: 0 0 0 3px rgba(245,124,0,0.12);
+    }
+    .rowBtn{
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .rowBtn:hover{
+      border-color: rgba(211,47,47,0.45);
+      background: rgba(211,47,47,0.12);
+      transform:none;
     }
 
     /* ===== MODAL SYSTEM ===== */
@@ -644,13 +625,13 @@
       <div class="panel-body">
         <div class="detailsGrid">
           <div class="card">
-<div class="kv">
-  <div><b>Item:</b> <span id="detailItem">—</span></div>
-  <div><b>Type:</b> <span id="detailType">—</span></div>
-  <div><b>Item Cost:</b> <span id="detailCost">—</span></div>
-  <div><b>Operation Time:</b> <span id="detailTime">—</span></div>
-  <div><b>Description:</b> <span id="detailEtc">—</span></div>
-</div>
+            <div class="kv">
+              <div><b>Item:</b> <span id="detailItem">—</span></div>
+              <div><b>Type:</b> <span id="detailType">—</span></div>
+              <div><b>Item Cost:</b> <span id="detailCost">—</span></div>
+              <div><b>Operation Time:</b> <span id="detailTime">—</span></div>
+              <div><b>Description:</b> <span id="detailEtc">—</span></div>
+            </div>
           </div>
 
           <div class="emptyHint">
@@ -706,34 +687,32 @@
       <button class="modal-close" id="closeNewItemModal" type="button">✕</button>
     </div>
 
-<div class="modal-body">
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="newItemCode">Item Code</label>
+        <input type="text" id="newItemCode" placeholder="e.g. P40000" autocomplete="off">
+      </div>
 
-  <div class="form-group">
-    <label for="newItemCode">Item Code</label>
-    <input type="text" id="newItemCode" placeholder="e.g. P40000" autocomplete="off">
-  </div>
+      <div class="form-group">
+        <label for="newItemType">Item Type</label>
+        <select id="newItemType">
+          <option value="raw_material">Raw material</option>
+          <option value="bought_out">Bought out item</option>
+          <option value="final_saleable" selected>Final Saleable</option>
+          <option value="operation">Operation</option>
+        </select>
+      </div>
 
-  <div class="form-group">
-    <label for="newItemType">Item Type</label>
-    <select id="newItemType">
-      <option value="raw_material">Raw material</option>
-      <option value="bought_out">Bought out item</option>
-      <option value="final_saleable" selected>Final Saleable</option>
-      <option value="operation">Operation</option>
-    </select>
-  </div>
+      <div class="form-group">
+        <label for="newItemDescription">Description</label>
+        <input type="text" id="newItemDescription" placeholder="Item description" autocomplete="off">
+      </div>
 
-  <div class="form-group">
-    <label for="newItemDescription">Description</label>
-    <input type="text" id="newItemDescription" placeholder="Item description" autocomplete="off">
-  </div>
-
-  <div class="form-group">
-    <label for="newItemCost">Base Cost</label>
-    <input type="number" id="newItemCost" placeholder="0.00" inputmode="decimal">
-  </div>
-
-</div>
+      <div class="form-group">
+        <label for="newItemCost">Base Cost</label>
+        <input type="number" id="newItemCost" placeholder="0.00" inputmode="decimal">
+      </div>
+    </div>
 
     <div class="modal-footer">
       <div class="modal-status" id="newItemStatus"></div>
@@ -790,6 +769,13 @@
     projectId: "prodalign-ltd"
   };
 
+  const TYPE_LABELS = {
+    raw_material: "Raw material",
+    bought_out: "Bought out item",
+    final_saleable: "Final Saleable",
+    operation: "Operation"
+  };
+
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
@@ -817,10 +803,10 @@
 
   // Detail UI
   const detailItem = document.getElementById("detailItem");
+  const detailType = document.getElementById("detailType");
   const detailCost = document.getElementById("detailCost");
   const detailTime = document.getElementById("detailTime");
   const detailEtc = document.getElementById("detailEtc");
-  const detailType = document.getElementById("detailType");
 
   // Add member UI
   const addMemberBtn = document.getElementById("addMemberBtn");
@@ -838,10 +824,10 @@
   const cancelNewItem = document.getElementById("cancelNewItem");
   const saveNewItem = document.getElementById("saveNewItem");
   const newItemCode = document.getElementById("newItemCode");
+  const newItemType = document.getElementById("newItemType");
   const newItemDescription = document.getElementById("newItemDescription");
   const newItemCost = document.getElementById("newItemCost");
   const newItemStatus = document.getElementById("newItemStatus");
-  const newItemType = document.getElementById("newItemType");
 
   // Delete modal UI
   const deleteItemModal = document.getElementById("deleteItemModal");
@@ -853,33 +839,19 @@
   const deleteStatus = document.getElementById("deleteStatus");
   let pendingDeleteCode = null;
 
-  // ✅ Active item tracking (needed for contains table edits)
+  // Active item tracking
   let activeItemCode = null;
   let activeItemData = null;
+
+  // Cache latest items for type validation + active refresh
+  const itemsByCode = new Map(); // code -> item data
 
   if (!companyId) {
     companyNameEl.textContent = "Missing company id (?c=...)";
     throw new Error("Missing ?c=");
   }
 
-  // ---------- Helpers ----------
-  function renderPills(container, values, isRed, emptyText){
-    container.innerHTML = "";
-    if (!Array.isArray(values) || values.length === 0) {
-      container.style.color = "rgba(255,255,255,0.65)";
-      container.textContent = emptyText;
-      return;
-    }
-    container.style.color = "";
-    values.forEach(v => {
-      const span = document.createElement("span");
-      span.className = `pill${isRed ? " red" : ""}`;
-      span.textContent = v;
-      container.appendChild(span);
-    });
-  }
-
-  // supports legacy contains: ["P10000"] and new contains: [{code,qty}]
+  // ---------- Normalizers + renderers ----------
   function normalizeContains(contains){
     if (!Array.isArray(contains)) return [];
     return contains
@@ -890,6 +862,22 @@
           const qtyN = Number(x.qty);
           const qty = Number.isFinite(qtyN) && qtyN > 0 ? Math.floor(qtyN) : 1;
           return code ? { code, qty } : null;
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }
+
+  function normalizeOperations(ops){
+    if (!Array.isArray(ops)) return [];
+    return ops
+      .map(x => {
+        if (typeof x === "string") return { code: x.trim().toUpperCase(), iph: 0 };
+        if (x && typeof x === "object") {
+          const code = String(x.code || "").trim().toUpperCase();
+          const iphN = Number(x.iph);
+          const iph = Number.isFinite(iphN) && iphN >= 0 ? iphN : 0;
+          return code ? { code, iph } : null;
         }
         return null;
       })
@@ -919,12 +907,40 @@
           ${rows.map(r => `
             <tr data-code="${r.code}">
               <td class="containsCode">${r.code}</td>
-              <td>
-                <input class="qtyInput" type="number" min="1" step="1" value="${r.qty}" />
-              </td>
-              <td style="text-align:right;">
-                <button class="rowBtn" type="button" data-remove="1">Remove</button>
-              </td>
+              <td><input class="qtyInput" type="number" min="1" step="1" value="${r.qty}" /></td>
+              <td style="text-align:right;"><button class="rowBtn" type="button" data-remove="1">Remove</button></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderOperationsTable(container, opsArr){
+    const rows = normalizeOperations(opsArr);
+
+    if (rows.length === 0) {
+      container.style.color = "rgba(255,255,255,0.65)";
+      container.innerHTML = "No operations";
+      return;
+    }
+
+    container.style.color = "";
+    container.innerHTML = `
+      <table class="containsTable">
+        <thead>
+          <tr>
+            <th style="width:55%;">Operation</th>
+            <th style="width:25%;">Items/hr</th>
+            <th style="width:20%;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr data-code="${r.code}">
+              <td class="containsCode">${r.code}</td>
+              <td><input class="qtyInput opIphInput" type="number" min="0" step="0.1" value="${r.iph}" /></td>
+              <td style="text-align:right;"><button class="rowBtn" type="button" data-op-remove="1">Remove</button></td>
             </tr>
           `).join("")}
         </tbody>
@@ -939,21 +955,19 @@
 
     activeItemIdEl.textContent = code;
 
-    // ✅ contains as table
     renderContainsTable(containsItemsEl, item?.contains);
+    renderOperationsTable(containsOpsEl, item?.operations);
 
-    // ops still as pills
-    renderPills(containsOpsEl, item?.operations, true, "No operations");
-
-detailItem.textContent = code;
-detailType.textContent = item?.type ?? "—";
-detailCost.textContent = (item?.baseCost ?? "—");
-detailTime.textContent = (item?.operationTime ?? "—");
-detailEtc.textContent = (item?.description ?? "—");
+    detailItem.textContent = code;
+    detailType.textContent = TYPE_LABELS[item?.type] || "—";
+    detailCost.textContent = (item?.baseCost ?? "—");
+    detailTime.textContent = (item?.operationTime ?? "—");
+    detailEtc.textContent = (item?.description ?? "—");
   }
 
-  // ---------- Firestore writes for contains ----------
+  // ---------- Firestore save helpers ----------
   let qtySaveTimer = null;
+  let iphSaveTimer = null;
 
   async function saveContainsToActive(newContains){
     if (!activeItemCode) return;
@@ -968,17 +982,32 @@ detailEtc.textContent = (item?.description ?? "—");
     }, 250);
   }
 
-  // Qty input handler (event delegation)
+  async function saveOperationsToActive(newOperations){
+    if (!activeItemCode) return;
+    const ref = doc(db, "companies", companyId, "items", activeItemCode);
+    await setDoc(ref, { operations: newOperations, updatedAt: serverTimestamp() }, { merge: true });
+  }
+
+  function scheduleIphSave(newOperations){
+    clearTimeout(iphSaveTimer);
+    iphSaveTimer = setTimeout(() => {
+      saveOperationsToActive(newOperations).catch(console.error);
+    }, 250);
+  }
+
+  // ---------- Editable tables: qty + remove ----------
   containsItemsEl.addEventListener("input", (e) => {
     const input = e.target;
     if (!(input instanceof HTMLInputElement)) return;
     if (!input.classList.contains("qtyInput")) return;
+    if (input.classList.contains("opIphInput")) return;
 
     const tr = input.closest("tr");
     const code = tr?.dataset?.code;
     if (!code || !activeItemData) return;
 
     const qty = Math.max(1, Math.floor(Number(input.value || 1)));
+    input.value = String(qty);
 
     const normalized = normalizeContains(activeItemData.contains);
     const next = normalized.map(r => r.code === code ? ({ ...r, qty }) : r);
@@ -987,7 +1016,6 @@ detailEtc.textContent = (item?.description ?? "—");
     scheduleQtySave(next);
   });
 
-  // Remove handler (event delegation)
   containsItemsEl.addEventListener("click", (e) => {
     const btn = e.target;
     if (!(btn instanceof HTMLElement)) return;
@@ -1001,18 +1029,67 @@ detailEtc.textContent = (item?.description ?? "—");
     const next = normalized.filter(r => r.code !== code);
 
     activeItemData = { ...activeItemData, contains: next, code: activeItemCode };
-    renderContainsTable(containsItemsEl, next); // instant UI
+    renderContainsTable(containsItemsEl, next);
     saveContainsToActive(next).catch(console.error);
   });
 
-  // ---------- Drag & drop into Contains Items ----------
-  function setContainsDropActive(isActive) {
-    const panel = containsItemsEl.closest(".miniPanel");
+  // ---------- Editable tables: items/hr + remove ----------
+  containsOpsEl.addEventListener("input", (e) => {
+    const input = e.target;
+    if (!(input instanceof HTMLInputElement)) return;
+    if (!input.classList.contains("opIphInput")) return;
+
+    const tr = input.closest("tr");
+    const code = tr?.dataset?.code;
+    if (!code || !activeItemData) return;
+
+    const raw = Number(input.value);
+    const iph = Number.isFinite(raw) && raw >= 0 ? raw : 0;
+    input.value = String(iph);
+
+    const normalized = normalizeOperations(activeItemData.operations);
+    const next = normalized.map(r => r.code === code ? ({ ...r, iph }) : r);
+
+    activeItemData = { ...activeItemData, operations: next, code: activeItemCode };
+    scheduleIphSave(next);
+  });
+
+  containsOpsEl.addEventListener("click", (e) => {
+    const btn = e.target;
+    if (!(btn instanceof HTMLElement)) return;
+    if (!btn.dataset.opRemove) return;
+
+    const tr = btn.closest("tr");
+    const code = tr?.dataset?.code;
+    if (!code || !activeItemData) return;
+
+    const normalized = normalizeOperations(activeItemData.operations);
+    const next = normalized.filter(r => r.code !== code);
+
+    activeItemData = { ...activeItemData, operations: next, code: activeItemCode };
+    renderOperationsTable(containsOpsEl, next);
+    saveOperationsToActive(next).catch(console.error);
+  });
+
+  // ---------- Drag/drop UI helpers ----------
+  function setDropActive(el, isActive){
+    const panel = el.closest(".miniPanel");
     if (!panel) return;
     panel.style.borderColor = isActive ? "rgba(245,124,0,0.65)" : "rgba(255,255,255,0.10)";
     panel.style.boxShadow = isActive ? "0 0 0 4px rgba(245,124,0,0.12)" : "none";
   }
 
+  function readDragPayload(dt){
+    // preferred: application/json payload {code,type}
+    try {
+      const raw = dt.getData("application/json");
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    const code = (dt.getData("text/plain") || "").trim().toUpperCase();
+    return code ? { code, type: "" } : null;
+  }
+
+  // ---------- Drop into Contains Items (any item types allowed; stores qty) ----------
   async function addContainedItemToActiveItem(containedCode) {
     if (!activeItemCode) {
       alert("Select an item first (the one that will contain the part).");
@@ -1038,41 +1115,107 @@ detailEtc.textContent = (item?.description ?? "—");
 
     const next = [...current, { code: child, qty: 1 }];
 
-    await setDoc(parentRef, {
-      contains: next,
-      updatedAt: serverTimestamp()
-    }, { merge: true });
+    await setDoc(parentRef, { contains: next, updatedAt: serverTimestamp() }, { merge: true });
 
-    // local immediate feedback
     activeItemData = { ...(activeItemData || {}), code: activeItemCode, contains: next };
     renderContainsTable(containsItemsEl, next);
   }
 
-  containsItemsEl.addEventListener("dragenter", (e) => {
-    e.preventDefault();
-    setContainsDropActive(true);
-  });
-
-  containsItemsEl.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "copy";
-  });
-
+  containsItemsEl.addEventListener("dragenter", (e) => { e.preventDefault(); setDropActive(containsItemsEl, true); });
+  containsItemsEl.addEventListener("dragover", (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; });
   containsItemsEl.addEventListener("dragleave", (e) => {
     if (e.relatedTarget && containsItemsEl.contains(e.relatedTarget)) return;
-    setContainsDropActive(false);
+    setDropActive(containsItemsEl, false);
   });
-
   containsItemsEl.addEventListener("drop", async (e) => {
     e.preventDefault();
-    setContainsDropActive(false);
+    setDropActive(containsItemsEl, false);
 
-    const droppedCode = e.dataTransfer.getData("text/plain");
+    const payload = readDragPayload(e.dataTransfer);
+    if (!payload?.code) return;
+
     try {
-      await addContainedItemToActiveItem(droppedCode);
+      await addContainedItemToActiveItem(payload.code);
     } catch (err) {
       console.error(err);
       alert(err?.message || "Failed to add contained item.");
+    }
+  });
+
+  // ---------- Drop into Contains Operations (ONLY operation-type items; stores iph) ----------
+  async function resolveItemType(code, fallbackType){
+    const clean = String(code || "").trim().toUpperCase();
+    const typeLower = String(fallbackType || "").toLowerCase();
+    if (typeLower) return typeLower;
+
+    const cached = itemsByCode.get(clean);
+    if (cached?.type) return String(cached.type).toLowerCase();
+
+    // last resort: fetch
+    try {
+      const snap = await getDoc(doc(db, "companies", companyId, "items", clean));
+      if (!snap.exists()) return "";
+      return String(snap.data()?.type || "").toLowerCase();
+    } catch {
+      return "";
+    }
+  }
+
+  async function addOperationToActiveItem(opCode){
+    if (!activeItemCode) {
+      alert("Select an item first (the one that will contain the operation).");
+      return;
+    }
+
+    const child = String(opCode || "").trim().toUpperCase();
+    if (!child) return;
+
+    if (child === activeItemCode) {
+      alert("An item cannot contain itself.");
+      return;
+    }
+
+    const parentRef = doc(db, "companies", companyId, "items", activeItemCode);
+    const snap = await getDoc(parentRef);
+    if (!snap.exists()) throw new Error(`Active item '${activeItemCode}' no longer exists.`);
+
+    const data = snap.data() || {};
+    const current = normalizeOperations(data.operations);
+
+    if (current.some(r => r.code === child)) return;
+
+    const next = [...current, { code: child, iph: 0 }];
+
+    await setDoc(parentRef, { operations: next, updatedAt: serverTimestamp() }, { merge: true });
+
+    activeItemData = { ...(activeItemData || {}), code: activeItemCode, operations: next };
+    renderOperationsTable(containsOpsEl, next);
+  }
+
+  containsOpsEl.addEventListener("dragenter", (e) => { e.preventDefault(); setDropActive(containsOpsEl, true); });
+  containsOpsEl.addEventListener("dragover", (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; });
+  containsOpsEl.addEventListener("dragleave", (e) => {
+    if (e.relatedTarget && containsOpsEl.contains(e.relatedTarget)) return;
+    setDropActive(containsOpsEl, false);
+  });
+  containsOpsEl.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    setDropActive(containsOpsEl, false);
+
+    const payload = readDragPayload(e.dataTransfer);
+    if (!payload?.code) return;
+
+    const type = await resolveItemType(payload.code, payload.type);
+    if (type !== "operation") {
+      alert("Only items with Item Type = Operation can be dropped into Contains Operations.");
+      return;
+    }
+
+    try {
+      await addOperationToActiveItem(payload.code);
+    } catch (err) {
+      console.error(err);
+      alert(err?.message || "Failed to add operation.");
     }
   });
 
@@ -1082,6 +1225,7 @@ detailEtc.textContent = (item?.description ?? "—");
 
     onSnapshot(itemsRef, (snap) => {
       treeListEl.innerHTML = "";
+      itemsByCode.clear();
 
       if (snap.empty) {
         treeListEl.style.color = "rgba(255,255,255,0.65)";
@@ -1098,15 +1242,16 @@ detailEtc.textContent = (item?.description ?? "—");
         const item = d.data();
         const code = (item.code || d.id || "").toUpperCase();
         const normalized = { ...item, code };
+        itemsByCode.set(code, normalized);
 
         if (!first) first = normalized;
 
         const row = document.createElement("div");
         row.className = "tree-item";
-
-        // draggable from tree
         row.draggable = true;
+
         row.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("application/json", JSON.stringify({ code, type: item.type || "" }));
           e.dataTransfer.setData("text/plain", code);
           e.dataTransfer.effectAllowed = "copy";
         });
@@ -1117,6 +1262,7 @@ detailEtc.textContent = (item?.description ?? "—");
           <strong>${code}</strong>
           <div class="muted">${item.description || "—"}</div>
         `;
+
         left.addEventListener("click", () => setActiveItem(normalized));
 
         const del = document.createElement("button");
@@ -1133,7 +1279,10 @@ detailEtc.textContent = (item?.description ?? "—");
         treeListEl.appendChild(row);
       });
 
+      // ✅ Keep the right-side panels truly realtime
       if (!activeItemCode && first) setActiveItem(first);
+      else if (activeItemCode && itemsByCode.has(activeItemCode)) setActiveItem(itemsByCode.get(activeItemCode));
+      else if (first) setActiveItem(first);
     }, (err) => {
       console.error("Tree listener error:", err);
       treeListEl.innerHTML = `<div style="color:#ffb4b4;font-weight:900;">
@@ -1203,16 +1352,16 @@ detailEtc.textContent = (item?.description ?? "—");
   });
 
   // ---------- New Item modal ----------
-function openNewItemModal() {
-  newItemStatus.textContent = "";
-  newItemCode.value = "";
-  newItemDescription.value = "";
-  newItemCost.value = "";
-  newItemType.value = "final_saleable"; // ✅ added
-  newItemModal.classList.add("open");
-  newItemModal.setAttribute("aria-hidden", "false");
-  setTimeout(() => newItemCode.focus(), 0);
-}
+  function openNewItemModal() {
+    newItemStatus.textContent = "";
+    newItemCode.value = "";
+    newItemType.value = "final_saleable";
+    newItemDescription.value = "";
+    newItemCost.value = "";
+    newItemModal.classList.add("open");
+    newItemModal.setAttribute("aria-hidden", "false");
+    setTimeout(() => newItemCode.focus(), 0);
+  }
   function closeNewItemModalFn() {
     newItemModal.classList.remove("open");
     newItemModal.setAttribute("aria-hidden", "true");
@@ -1248,16 +1397,16 @@ function openNewItemModal() {
         return;
       }
 
-await setDoc(itemRef, {
-  code,
-  type, // ✅ added
-  description,
-  baseCost: Number.isFinite(baseCost) ? baseCost : 0,
-  contains: [],
-  operations: [],
-  createdAt: serverTimestamp(),
-  updatedAt: serverTimestamp()
-});
+      await setDoc(itemRef, {
+        code,
+        type,
+        description,
+        baseCost: Number.isFinite(baseCost) ? baseCost : 0,
+        contains: [],
+        operations: [],
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
 
       newItemStatus.textContent = "Saved!";
       setTimeout(closeNewItemModalFn, 350);
