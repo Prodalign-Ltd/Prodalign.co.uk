@@ -6,6 +6,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
+
+    /* Make date headers vertical */
+.dateHead{
+  width: 36px;          /* controls column width */
+  min-width: 36px;
+  padding: 0;
+  text-align: center;
+}
+
+.verticalDate{
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);   /* makes text read bottom-to-top correctly */
+  white-space: nowrap;
+  font-weight: 900;
+  padding: 6px 2px;
+  font-size: 12px;
+}
+    
     :root{
       --bg: #071826;
       --panel: rgba(255,255,255,0.06);
@@ -361,7 +379,11 @@
         <thead>
           <tr>
             <th class="leftHead">Part (Order)</th>
-            ${dateKeys.map(dk => `<th>${formatHeaderDate(dk)}</th>`).join("")}
+            ${dateKeys.map(dk => `
+  <th class="dateHead">
+    <div class="verticalDate">${formatHeaderDate(dk)}</div>
+  </th>
+`).join("")}
           </tr>
         </thead>
       `;
