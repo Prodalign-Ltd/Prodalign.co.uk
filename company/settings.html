@@ -401,11 +401,11 @@
       overflow: auto;
     }
     .detailsGrid{
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 14px;
-      align-items: start;
-    }
+  display: grid;
+  grid-template-columns: minmax(420px, 40%) 1fr;
+  gap: 14px;
+  align-items: start;
+}
     .card {
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.10);
@@ -471,9 +471,10 @@
 }
 
 .itemCard #detailEtc{
-  white-space: normal;
-  overflow: visible;
-  text-overflow: unset;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-break: break-word;
   line-height: 1.35;
   color: rgba(255,255,255,0.80);
   font-weight: 800;
