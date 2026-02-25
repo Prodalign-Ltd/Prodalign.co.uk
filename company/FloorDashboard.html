@@ -633,7 +633,7 @@ const jobsRef = collection(db, "companies", companyId, "jobs");
   }
 
   async function startJob(jobId, stationCode){
-  const jobRef = doc(db, "stations", stationCode, "jobs", jobId);
+  const jobRef = doc(db, "companies", companyId, "jobs", jobId);
 
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(jobRef);
@@ -656,7 +656,7 @@ const jobsRef = collection(db, "companies", companyId, "jobs");
 }
 
 async function completeJobStep(jobId, stationCode){
-  const jobRef = doc(db, "stations", stationCode, "jobs", jobId);
+  const jobRef = doc(db, "companies", companyId, "jobs", jobId);
 
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(jobRef);
