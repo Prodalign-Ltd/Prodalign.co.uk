@@ -2305,7 +2305,7 @@
 
     const ops = await getItemOpsInOrder(itemCode);
     const stationId = ops[0].code; // first op code, since you use stationId = OPCODE
-const jobsRef = collection(db, "stations", stationId, "jobs");
+const jobsRef = collection(db, "companies", companyId, "jobs");
 await addDoc(jobsRef, {
   companyId,
   itemCode,
