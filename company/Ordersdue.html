@@ -6,46 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-
-    /* ===== TODAY LINE ===== */
-
-.dateHead.today,
-.dueCell.today{
-  border-left: 3px solid #f57c00; /* Prodalign orange */
-}
-
-/* Make the header orange too (optional glow) */
-.dateHead.today{
-  box-shadow: inset 3px 0 0 #f57c00;
-}
-
-/* ===== Quantity coloring ===== */
-
-.dueCell.past{
-  color: #d32f2f !important;  /* red */
-}
-
-.dueCell.future{
-  color: #ffffff !important;  /* white */
-}
-
-    /* Make date headers vertical */
-.dateHead{
-  width: 36px;          /* controls column width */
-  min-width: 36px;
-  padding: 0;
-  text-align: center;
-}
-
-.verticalDate{
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);   /* makes text read bottom-to-top correctly */
-  white-space: nowrap;
-  font-weight: 900;
-  padding: 6px 2px;
-  font-size: 12px;
-}
-    
     :root{
       --bg: #071826;
       --panel: rgba(255,255,255,0.06);
@@ -54,7 +14,12 @@
       --muted: rgba(255,255,255,0.75);
       --orange: #f57c00;
       --radius: 14px;
+
+      /* JS sets these dynamically */
+      --leftCol: 220px;
+      --dateCols: 1;
     }
+
     *{ box-sizing:border-box; }
 
     body{
@@ -173,6 +138,7 @@
       display:flex;
       align-items:center;
       gap: 8px;
+      white-space: nowrap;
     }
     .panel-title .dot{
       width: 8px; height: 8px; border-radius: 999px;
@@ -181,43 +147,50 @@
       display:inline-block;
     }
 
+    .hint{
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 0.9rem;
+      line-height: 1.35;
+      white-space: nowrap;
+    }
+
     .panel-body{
       padding: 12px;
       min-height: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
     }
 
-    /* ===== Grid Table ===== */
+    /* ===== Grid Table wrapper ===== */
     #gridWrap{
-      overflow:auto;
       border:1px solid rgba(255,255,255,0.12);
       border-radius: 12px;
       background: rgba(0,0,0,0.18);
       min-height: 0;
       flex: 1;
+
+      overflow-y: auto;
+      overflow-x: hidden; /* shrink columns instead of horizontal scroll */
     }
 
-    .dueTable tbody th{
-      position: sticky;
-      left: 0;
-      z-index: 2;
-      background: rgba(0,0,0,0.24);
-      font-weight: 950;
-      text-align: left;
-    
-      width: max-content;      /* 👈 auto-size to content */
-      min-width: max-content;  /* 👈 prevents stretching */
-      white-space: nowrap;     /* 👈 single line only */
-      padding-right: 14px;
+    /* ===== Table layout: fill screen evenly ===== */
+    .dueTable{
+      width: 100%;
+      table-layout: fixed;     /* key */
+      border-collapse: collapse;
+      font-size: 13px;
     }
 
     .dueTable th, .dueTable td{
       border-bottom: 1px solid rgba(255,255,255,0.08);
       border-right: 1px solid rgba(255,255,255,0.06);
       padding: 6px 8px;
-      white-space: nowrap;
       vertical-align: middle;
     }
 
+    /* Sticky header */
     .dueTable thead th{
       position: sticky;
       top: 0;
@@ -227,21 +200,24 @@
       text-align: center;
     }
 
+    /* Sticky left header cell */
     .dueTable thead th.leftHead{
       text-align: left;
-      width: max-content;
-      min-width: max-content;
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: rgba(11,29,42,0.98);
+
+      width: var(--leftCol);
+      min-width: var(--leftCol);
+      max-width: var(--leftCol);
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       padding-right: 14px;
     }
 
-    .dueTable .leftHead{
-      position: sticky;
-      left: 0;
-      z-index: 4;
-      background: rgba(11,29,42,0.98);
-    }
-
+    /* Sticky row labels */
     .dueTable tbody th{
       position: sticky;
       left: 0;
@@ -249,37 +225,64 @@
       background: rgba(0,0,0,0.24);
       font-weight: 950;
       text-align: left;
-      max-width: 380px;
+
+      width: var(--leftCol);
+      min-width: var(--leftCol);
+      max-width: var(--leftCol);
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      padding-right: 14px;
     }
 
+    /* Date columns share remaining width evenly */
+    .dateHead,
     .dueCell{
+      width: calc((100% - var(--leftCol)) / var(--dateCols));
+      min-width: 0; /* allow shrinking */
       text-align: center;
+    }
+
+    /* Vertical dates */
+    .dateHead{
+      padding: 0;
+    }
+    .verticalDate{
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      white-space: nowrap;
+      font-weight: 900;
+      padding: 6px 2px;
+      font-size: 12px;
+      margin: 0 auto;
+    }
+
+    /* Cells */
+    .dueCell{
       font-weight: 950;
-      min-width: 54px;
       height: 26px;
     }
-
     .dueCell.empty{
       color: rgba(255,255,255,0.18);
       font-weight: 800;
     }
-
     .dueCell.filled{
       color: #fff;
     }
 
-    .hint{
-      color: var(--muted);
-      font-weight: 800;
-      font-size: 0.9rem;
-      line-height: 1.35;
+    /* ===== Today orange line ===== */
+    .dateHead.today,
+    .dueCell.today{
+      border-left: 4px solid #f57c00 !important;
+      box-shadow: inset 4px 0 0 rgba(245,124,0,0.30);
     }
+
+    /* ===== Quantity coloring ===== */
+    .dueCell.past.filled{ color:#d32f2f !important; }   /* red */
+    .dueCell.future.filled{ color:#ffffff !important; } /* white */
 
     @media (max-width: 980px){
       .brand .name{ max-width: 48vw; }
-      .dueTable tbody th{ max-width: 240px; }
     }
   </style>
 </head>
@@ -304,7 +307,7 @@
         <div class="hint" id="statusText">Reading jobs…</div>
       </div>
 
-      <div class="panel-body" style="display:flex; flex-direction:column; gap:12px; min-height:0;">
+      <div class="panel-body">
         <div id="gridWrap"></div>
       </div>
     </div>
@@ -317,7 +320,7 @@
       getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    // ===== Firebase config (same as your other page) =====
+    // ===== Firebase config =====
     const firebaseConfig = {
       apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
       authDomain: "prodalign-ltd.firebaseapp.com",
@@ -346,13 +349,12 @@
       throw new Error("Missing ?c=");
     }
 
-    // ===== helpers =====
+    // ===== Helpers =====
     function dateKeyFromDue(dueAt){
-      // Firestore Timestamp -> JS Date
       const d = dueAt?.toDate ? dueAt.toDate() : (dueAt instanceof Date ? dueAt : new Date(dueAt));
       if (!d || Number.isNaN(d.getTime())) return null;
 
-      // LOCAL date-only key YYYY-MM-DD
+      // LOCAL YYYY-MM-DD
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, "0");
       const day = String(d.getDate()).padStart(2, "0");
@@ -360,7 +362,7 @@
     }
 
     function formatHeaderDate(yyyyMmDd){
-      // You can change this format any time
+      // Keep as YYYY-MM-DD (matches key). If you want prettier, ask and we’ll keep key separate.
       return yyyyMmDd;
     }
 
@@ -388,27 +390,27 @@
 
         if (!rowMap.has(label)) rowMap.set(label, { label, cells: new Map() });
 
-        // If multiple docs land in same cell, SUM quantities
         const prev = rowMap.get(label).cells.get(dk) || 0;
         rowMap.get(label).cells.set(dk, prev + qty);
       }
 
       const dateKeys = Array.from(dateKeysSet).sort();
       const rows = Array.from(rowMap.values()).sort((a,b) => a.label.localeCompare(b.label));
-
       return { dateKeys, rows };
     }
 
-// ✅ REPLACE YOUR ENTIRE renderGrid(...) FUNCTION WITH THIS ONE
-
-    function renderGrid({ dateKeys, rows }){
-      // Today in YYYY-MM-DD (LOCAL time)
+    function todayKeyLocal(){
       const now = new Date();
-      const todayKey =
+      return (
         now.getFullYear() + "-" +
         String(now.getMonth() + 1).padStart(2,"0") + "-" +
-        String(now.getDate()).padStart(2,"0");
-    
+        String(now.getDate()).padStart(2,"0")
+      );
+    }
+
+    function renderGrid({ dateKeys, rows }){
+      const todayKey = todayKeyLocal();
+
       if (!dateKeys.length || !rows.length){
         gridWrap.innerHTML = `
           <div style="padding:12px;color:rgba(255,255,255,0.7);font-weight:900;">
@@ -416,71 +418,161 @@
           </div>`;
         return;
       }
-    
-      // If you are using the "fit evenly across screen" feature:
+
+      // evenly-distributed columns
       gridWrap.style.setProperty("--dateCols", String(dateKeys.length || 1));
-    
+
       const thead = `
-        <thead>
-          <tr>
-            <th class="leftHead">Part (Order)</th>
-            ${dateKeys.map(dk => {
-              const isToday = dk === todayKey;
+        <table class="dueTable">
+          <thead>
+            <tr>
+              <th class="leftHead">Part (Order)</th>
+              ${dateKeys.map(dk => {
+                const isToday = dk === todayKey;
+                return `
+                  <th class="dateHead ${isToday ? "today" : ""}">
+                    <div class="verticalDate">${formatHeaderDate(dk)}</div>
+                  </th>
+                `;
+              }).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r => {
+              const tds = dateKeys.map(dk => {
+                const v = r.cells.get(dk);
+                const isToday = dk === todayKey;
+                const isPast = dk < todayKey; // works for YYYY-MM-DD
+                if (!v){
+                  return `<td class="dueCell empty ${isToday ? "today" : ""}"></td>`;
+                }
+                const colorClass = isPast ? "past" : "future";
+                return `<td class="dueCell filled ${colorClass} ${isToday ? "today" : ""}">${v}</td>`;
+              }).join("");
+
               return `
-                <th class="dateHead ${isToday ? "today" : ""}">
-                  <div class="verticalDate">${formatHeaderDate(dk)}</div>
-                </th>
+                <tr>
+                  <th title="${r.label}">${r.label}</th>
+                  ${tds}
+                </tr>
               `;
             }).join("")}
-          </tr>
-        </thead>
+          </tbody>
+        </table>
       `;
-    
-      const tbody = `
-        <tbody>
-          ${rows.map(r => {
-            const tds = dateKeys.map(dk => {
-              const v = r.cells.get(dk);
-              const isToday = dk === todayKey;
-              const isPast = dk < todayKey; // safe because YYYY-MM-DD string compares correctly
-    
-              if (!v){
-                return `<td class="dueCell empty ${isToday ? "today" : ""}"></td>`;
-              }
-    
-              const colorClass = isPast ? "past" : "future";
-    
-              return `
-                <td class="dueCell filled ${colorClass} ${isToday ? "today" : ""}">
-                  ${v}
-                </td>
-              `;
-            }).join("");
-    
-            return `
-              <tr>
-                <th title="${r.label}">${r.label}</th>
-                ${tds}
-              </tr>
-            `;
-          }).join("")}
-        </tbody>
-      `;
-    
-      gridWrap.innerHTML = `<table class="dueTable">${thead}${tbody}</table>`;
-    
-      // If you are also using "fit evenly + snap left column":
+
+      gridWrap.innerHTML = thead;
+
+      // Measure longest row label -> set left col width (clamped)
       requestAnimationFrame(() => {
         const rowHeads = gridWrap.querySelectorAll(".dueTable tbody th");
         let max = 0;
         rowHeads.forEach(th => { max = Math.max(max, th.scrollWidth); });
-    
-        const minPx = 160;
-        const maxPx = Math.min(420, Math.floor(window.innerWidth * 0.45));
+
+        const minPx = 150;
+        const maxPx = Math.min(420, Math.floor(window.innerWidth * 0.45)); // <=45% of screen
         const leftPx = Math.max(minPx, Math.min(max, maxPx));
         gridWrap.style.setProperty("--leftCol", `${leftPx}px`);
       });
     }
+
+    // Recalc left column on resize
+    window.addEventListener("resize", () => {
+      const table = gridWrap.querySelector(".dueTable");
+      if (!table) return;
+
+      const rowHeads = gridWrap.querySelectorAll(".dueTable tbody th");
+      let max = 0;
+      rowHeads.forEach(th => { max = Math.max(max, th.scrollWidth); });
+
+      const minPx = 150;
+      const maxPx = Math.min(420, Math.floor(window.innerWidth * 0.45));
+      const leftPx = Math.max(minPx, Math.min(max, maxPx));
+      gridWrap.style.setProperty("--leftCol", `${leftPx}px`);
+    });
+
+    // ===== Branding + auth enforcement (same pattern as your other pages) =====
+    async function loadCompanyBranding(companyId) {
+      const snap = await getDoc(doc(db, "companies", companyId));
+      if (!snap.exists()) {
+        companyNameEl.textContent = `Company '${companyId}' not found`;
+        return;
+      }
+
+      const company = snap.data() || {};
+      const name = company.displayname || "Company";
+      const logoUrl = company.Logourl || "";
+
+      companyNameEl.textContent = name;
+      if (logoUrl) {
+        companyLogoEl.src = logoUrl;
+        companyLogoEl.style.display = "block";
+      }
+
+      document.title = `${name} | Orders Due`;
+    }
+
+    async function enforceUserCompany(user, companyId) {
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      if (!userSnap.exists()) throw new Error("User profile missing (users/{uid}).");
+
+      const data = userSnap.data() || {};
+      const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
+
+      if (!userCompany) throw new Error("User profile missing companycode.");
+      if (userCompany !== companyId) throw new Error("Access denied for this company.");
+      return true;
+    }
+
+    function watchJobs(companyId){
+      const jobsRef = collection(db, "companies", companyId, "jobs");
+      const qy = query(jobsRef, orderBy("dueAt", "asc"));
+
+      onSnapshot(qy, (snap) => {
+        const jobs = [];
+        snap.forEach(ds => jobs.push({ id: ds.id, ...ds.data() }));
+
+        const model = buildGridModel(jobs);
+        renderGrid(model);
+
+        statusText.textContent = `Jobs: ${jobs.length}`;
+      }, (err) => {
+        console.error(err);
+        statusText.textContent = "Error loading jobs";
+        gridWrap.innerHTML = `
+          <div style="padding:12px;color:#ffb4b4;font-weight:900;">
+            Error loading jobs: ${err.message}
+          </div>`;
+      });
+    }
+
+    // ===== Buttons =====
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+    });
+
+    backBtn.addEventListener("click", () => {
+      window.location.assign(`./index.html?c=${encodeURIComponent(companyId)}`);
+    });
+
+    // ===== Start =====
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+        return;
+      }
+
+      try{
+        await enforceUserCompany(user, companyId);
+        await loadCompanyBranding(companyId);
+        watchJobs(companyId);
+      } catch (err){
+        console.error(err);
+        try { await signOut(auth); } catch {}
+        window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+      }
+    });
   </script>
 </body>
 </html>
