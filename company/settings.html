@@ -196,21 +196,44 @@
       overflow: auto;
     }
 
+    /* Tree row now supports a delete button */
     .tree-item{
       padding: 10px 10px;
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.08);
       background: rgba(255,255,255,0.04);
       margin-bottom: 10px;
-      cursor: pointer;
-      user-select: none;
+
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+
+      user-select:none;
     }
     .tree-item:hover{
       border-color: rgba(245,124,0,0.28);
       background: rgba(255,255,255,0.06);
     }
+    .tree-item .left{ min-width:0; cursor:pointer; flex:1; }
     .tree-item strong{ display:block; font-size: 0.92rem; }
     .tree-item .muted{ opacity: 0.75; font-size: 0.86rem; margin-top: 6px; }
+
+    .tree-item .del{
+      border: 1px solid rgba(211,47,47,0.45);
+      background: rgba(211,47,47,0.12);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-weight: 950;
+      cursor: pointer;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+    .tree-item .del:hover{
+      background: rgba(211,47,47,0.20);
+      border-color: rgba(211,47,47,0.65);
+      transform:none;
+    }
 
     .order-ready {
       border-style: dashed;
@@ -402,7 +425,7 @@
     .modal.open { opacity: 1; pointer-events: auto; }
 
     .modal-card {
-      width: 420px;
+      width: 440px;
       max-width: 92vw;
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.12);
@@ -443,13 +466,11 @@
     }
 
     .form-group { display: grid; gap: 6px; }
-
     .form-group label {
       font-weight: 800;
       font-size: 0.85rem;
       opacity: 0.9;
     }
-
     .form-group input,
     .form-group select {
       padding: 10px 12px;
@@ -458,7 +479,6 @@
       background: rgba(0,0,0,0.3);
       color: white;
     }
-
     .form-group input:focus,
     .form-group select:focus {
       outline: none;
@@ -504,16 +524,13 @@
 
   <div class="actions">
     <button id="addMemberBtn" class="btn-primary" type="button">Add member</button>
-
-    <!-- Back to overview -->
-    <button id="settingsBtn" type="button">Back</button>
-
+    <button id="backBtn" type="button">Back</button>
     <button id="logoutBtn" class="btn-danger" type="button">Log out</button>
   </div>
 </header>
 
 <div class="dashboard">
-  <!-- LEFT: Sidebar -->
+  <!-- LEFT -->
   <div class="sidebar">
     <div class="panel findbox">
       <div class="panel-body">
@@ -544,7 +561,7 @@
     </div>
   </div>
 
-  <!-- RIGHT: Main -->
+  <!-- RIGHT -->
   <div class="main">
     <div class="topbar">
       <button id="newItemBtn" class="btn-primary" type="button">New Item</button>
@@ -633,7 +650,7 @@
   </div>
 </div>
 
-<!-- New Item Modal -->
+<!-- ✅ New Item Modal -->
 <div id="newItemModal" class="modal" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="newItemTitle">
     <div class="modal-header">
@@ -666,12 +683,44 @@
   </div>
 </div>
 
+<!-- ✅ Delete Confirm Modal -->
+<div id="deleteItemModal" class="modal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="deleteItemTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="deleteItemTitle">Delete item</div>
+      <button class="modal-close" id="closeDeleteItemModal" type="button">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div style="font-weight:900; line-height:1.35;">
+        This will permanently delete:
+        <span id="deleteItemName" style="color:var(--orange);"></span>
+      </div>
+
+      <div style="color: rgba(255,255,255,0.72); font-weight:800; line-height:1.35;">
+        Type <b>DELETE</b> to confirm.
+      </div>
+
+      <div class="form-group">
+        <label for="deleteConfirmText">Confirmation</label>
+        <input id="deleteConfirmText" type="text" placeholder="Type DELETE" autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="modal-status" id="deleteStatus"></div>
+      <button id="cancelDeleteItem" type="button">Cancel</button>
+      <button class="btn-danger" id="confirmDeleteItem" type="button" disabled>Delete</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, setDoc,
-    collection, onSnapshot, query, orderBy, serverTimestamp
+    getFirestore, doc, getDoc, setDoc, deleteDoc,
+    collection, onSnapshot, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
   import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
@@ -686,11 +735,17 @@
   const db = getFirestore(app);
   const functions = getFunctions(app);
 
+  // URL company id
+  const params = new URLSearchParams(window.location.search);
+  const companyId = (params.get("c") || "").trim().toLowerCase();
+
   // Header UI
   const companyLogoEl = document.getElementById("companyLogo");
   const companyNameEl = document.getElementById("companyName");
   const logoutBtn = document.getElementById("logoutBtn");
-  const backBtn = document.getElementById("settingsBtn"); // renamed label to Back
+  const backBtn = document.getElementById("backBtn");
+
+  // Topbar
   const newItemBtn = document.getElementById("newItemBtn");
   const findInput = document.getElementById("findInput");
 
@@ -726,16 +781,22 @@
   const newItemCost = document.getElementById("newItemCost");
   const newItemStatus = document.getElementById("newItemStatus");
 
-  // Company id from URL
-  const params = new URLSearchParams(window.location.search);
-  const companyId = (params.get("c") || "").trim().toLowerCase();
+  // Delete modal UI
+  const deleteItemModal = document.getElementById("deleteItemModal");
+  const closeDeleteItemModal = document.getElementById("closeDeleteItemModal");
+  const cancelDeleteItem = document.getElementById("cancelDeleteItem");
+  const confirmDeleteItem = document.getElementById("confirmDeleteItem");
+  const deleteConfirmText = document.getElementById("deleteConfirmText");
+  const deleteItemName = document.getElementById("deleteItemName");
+  const deleteStatus = document.getElementById("deleteStatus");
+  let pendingDeleteCode = null;
 
   if (!companyId) {
     companyNameEl.textContent = "Missing company id (?c=...)";
     throw new Error("Missing ?c=");
   }
 
-  // ---------- Helpers ----------
+  // ---------- UI helpers ----------
   function renderPills(container, values, isRed, emptyText){
     container.innerHTML = "";
     if (!Array.isArray(values) || values.length === 0) {
@@ -765,12 +826,11 @@
     detailEtc.textContent = (item?.description ?? "—");
   }
 
-  // Live items list
+  // ---------- Firestore: live tree ----------
   function watchItems(companyId){
     const itemsRef = collection(db, "companies", companyId, "items");
-    const q = query(itemsRef, orderBy("code"));
 
-    onSnapshot(q, (snap) => {
+    onSnapshot(itemsRef, (snap) => {
       treeListEl.innerHTML = "";
 
       if (snap.empty) {
@@ -783,25 +843,50 @@
       treeListEl.style.color = "";
 
       let first = null;
+
       snap.forEach((d) => {
         const item = d.data();
-        if (!first) first = item;
+        const code = (item.code || d.id || "").toUpperCase();
+        if (!first) first = { ...item, code };
 
         const row = document.createElement("div");
         row.className = "tree-item";
-        row.innerHTML = `
-          <strong>${item.code || d.id}</strong>
+
+        const left = document.createElement("div");
+        left.className = "left";
+        left.innerHTML = `
+          <strong>${code}</strong>
           <div class="muted">${item.description || "—"}</div>
         `;
-        row.addEventListener("click", () => setActiveItem(item));
+
+        left.addEventListener("click", () => {
+          setActiveItem({ ...item, code });
+        });
+
+        const del = document.createElement("button");
+        del.className = "del";
+        del.type = "button";
+        del.textContent = "Delete";
+        del.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openDeleteModal(code);
+        });
+
+        row.appendChild(left);
+        row.appendChild(del);
         treeListEl.appendChild(row);
       });
 
-      // auto select first item if none selected yet
       if (activeItemIdEl.textContent === "—" && first) setActiveItem(first);
+    }, (err) => {
+      console.error("Tree listener error:", err);
+      treeListEl.innerHTML = `<div style="color:#ffb4b4;font-weight:900;">
+        Error loading items: ${err.message}
+      </div>`;
     });
   }
 
+  // ---------- Branding + auth ----------
   async function loadCompanyBranding(companyId) {
     const snap = await getDoc(doc(db, "companies", companyId));
     if (!snap.exists()) {
@@ -814,7 +899,6 @@
     const logoUrl = company.Logourl || "";
 
     companyNameEl.textContent = name;
-
     if (logoUrl) {
       companyLogoEl.src = logoUrl;
       companyLogoEl.style.display = "block";
@@ -835,7 +919,6 @@
     return true;
   }
 
-  // ---------- Auth gate ----------
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
@@ -845,10 +928,7 @@
     try {
       await enforceUserCompany(user, companyId);
       await loadCompanyBranding(companyId);
-
-      // Start the live tree
       watchItems(companyId);
-
     } catch (err) {
       console.error(err);
       try { await signOut(auth); } catch {}
@@ -862,12 +942,11 @@
     window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
   });
 
-  // Back to overview index.html (same folder)
   backBtn.addEventListener("click", () => {
     window.location.assign(`./index.html?c=${encodeURIComponent(companyId)}`);
   });
 
-  // ---------- New Item Modal wiring ----------
+  // ---------- New Item modal ----------
   function openNewItemModal() {
     newItemStatus.textContent = "";
     newItemCode.value = "";
@@ -877,7 +956,6 @@
     newItemModal.setAttribute("aria-hidden", "false");
     setTimeout(() => newItemCode.focus(), 0);
   }
-
   function closeNewItemModalFn() {
     newItemModal.classList.remove("open");
     newItemModal.setAttribute("aria-hidden", "true");
@@ -886,12 +964,10 @@
   newItemBtn.addEventListener("click", openNewItemModal);
   closeNewItemModal.addEventListener("click", closeNewItemModalFn);
   cancelNewItem.addEventListener("click", closeNewItemModalFn);
-
   newItemModal.addEventListener("click", (e) => {
     if (e.target === newItemModal) closeNewItemModalFn();
   });
 
-  // Create item -> Firestore
   saveNewItem.addEventListener("click", async () => {
     const code = String(newItemCode.value || "").trim().toUpperCase();
     const description = String(newItemDescription.value || "").trim();
@@ -906,8 +982,8 @@
     newItemStatus.textContent = "Saving…";
 
     try {
-      // doc id = code (prevents duplicates)
       const itemRef = doc(db, "companies", companyId, "items", code);
+
       const existing = await getDoc(itemRef);
       if (existing.exists()) {
         newItemStatus.textContent = `${code} already exists.`;
@@ -925,8 +1001,7 @@
       });
 
       newItemStatus.textContent = "Saved!";
-      setTimeout(closeNewItemModalFn, 400);
-
+      setTimeout(closeNewItemModalFn, 350);
     } catch (err) {
       console.error(err);
       newItemStatus.textContent = err?.message || "Failed to save item.";
@@ -935,7 +1010,54 @@
     }
   });
 
-  // ---------- Add Member Modal wiring (unchanged) ----------
+  // ---------- Delete modal ----------
+  function openDeleteModal(code){
+    pendingDeleteCode = code;
+    deleteItemName.textContent = code;
+    deleteConfirmText.value = "";
+    deleteStatus.textContent = "";
+    confirmDeleteItem.disabled = true;
+
+    deleteItemModal.classList.add("open");
+    deleteItemModal.setAttribute("aria-hidden", "false");
+    setTimeout(() => deleteConfirmText.focus(), 0);
+  }
+
+  function closeDeleteModal(){
+    deleteItemModal.classList.remove("open");
+    deleteItemModal.setAttribute("aria-hidden", "true");
+    pendingDeleteCode = null;
+  }
+
+  closeDeleteItemModal.addEventListener("click", closeDeleteModal);
+  cancelDeleteItem.addEventListener("click", closeDeleteModal);
+  deleteItemModal.addEventListener("click", (e) => {
+    if (e.target === deleteItemModal) closeDeleteModal();
+  });
+
+  deleteConfirmText.addEventListener("input", () => {
+    confirmDeleteItem.disabled = deleteConfirmText.value.trim().toUpperCase() !== "DELETE";
+  });
+
+  confirmDeleteItem.addEventListener("click", async () => {
+    if (!pendingDeleteCode) return;
+    if (deleteConfirmText.value.trim().toUpperCase() !== "DELETE") return;
+
+    confirmDeleteItem.disabled = true;
+    deleteStatus.textContent = "Deleting…";
+
+    try {
+      await deleteDoc(doc(db, "companies", companyId, "items", pendingDeleteCode));
+      deleteStatus.textContent = "Deleted.";
+      setTimeout(closeDeleteModal, 250);
+    } catch (err) {
+      console.error(err);
+      deleteStatus.textContent = err?.message || "Delete failed.";
+      confirmDeleteItem.disabled = false;
+    }
+  });
+
+  // ---------- Add member modal ----------
   function openAddMemberModal() {
     addMemberStatus.textContent = "";
     memberEmail.value = "";
@@ -944,7 +1066,6 @@
     addMemberModal.setAttribute("aria-hidden", "false");
     setTimeout(() => memberEmail.focus(), 0);
   }
-
   function closeAddMemberModalFn() {
     addMemberModal.classList.remove("open");
     addMemberModal.setAttribute("aria-hidden", "true");
@@ -953,7 +1074,6 @@
   addMemberBtn.addEventListener("click", openAddMemberModal);
   closeAddMemberModal.addEventListener("click", closeAddMemberModalFn);
   cancelAddMember.addEventListener("click", closeAddMemberModalFn);
-
   addMemberModal.addEventListener("click", (e) => {
     if (e.target === addMemberModal) closeAddMemberModalFn();
   });
@@ -989,21 +1109,21 @@
     }
   });
 
-  // ESC closes the topmost open modal
+  // ---------- ESC closes topmost modal ----------
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      if (addMemberModal.classList.contains("open")) closeAddMemberModalFn();
-      else if (newItemModal.classList.contains("open")) closeNewItemModalFn();
-    }
+    if (e.key !== "Escape") return;
+
+    if (deleteItemModal.classList.contains("open")) closeDeleteModal();
+    else if (addMemberModal.classList.contains("open")) closeAddMemberModalFn();
+    else if (newItemModal.classList.contains("open")) closeNewItemModalFn();
   });
 
-  // Find (placeholder)
+  // Find (still placeholder)
   findInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       alert(`Find: ${findInput.value}\n(wire up search later)`);
     }
   });
 </script>
-
 </body>
 </html>
