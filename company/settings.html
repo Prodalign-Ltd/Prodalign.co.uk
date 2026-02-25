@@ -390,6 +390,7 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      min-height: 0;
     }
     .miniPanel .miniHeader{
       padding: 10px 10px 8px;
@@ -399,14 +400,16 @@
       background: linear-gradient(180deg, rgba(245,124,0,0.10), transparent);
     }
     .miniPanel .miniBody{
-      padding: 10px;
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.35;
-      overflow:auto;
-      flex: 1;
-      align-items: flex-start;
-    }
+  padding: 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  overflow-y: auto;   
+  overflow-x: hidden; 
+  flex: 1;
+  min-height: 0;      
+  align-items: flex-start;
+}
 
     .details {
       min-height: 0;
