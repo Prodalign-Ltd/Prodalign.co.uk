@@ -124,7 +124,18 @@
       border-radius: var(--radius);
       overflow: hidden;
     }
+    
+.panel.mainTop{
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
 
+.panel.mainTop > .containsRow{
+  flex: 1;
+  min-height: 0;
+}
+    
     .panel-header{
       padding: 10px 12px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -347,14 +358,15 @@
     }
 
     .containsRow{
-      display: grid;
-      grid-template-columns: 110px 1fr 1fr;
-      gap: 10px;
-      padding: 10px;
-      
-       height: 240px;          
-  align-items: stretch;  
-    }
+  display: grid;
+  grid-template-columns: 110px 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+
+  height: 100%;
+  min-height: 0;
+  align-items: stretch;
+}
     .idCard{
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.10);
