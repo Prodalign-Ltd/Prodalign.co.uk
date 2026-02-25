@@ -434,26 +434,6 @@ async function enforceOperatorGate(user) {
   return { station };
 }
 
-const sess = sessSnap.data() || {};
-const station = String(sess.stationId || "").trim();
-const sessCompany = String(sess.companyId || "").trim().toLowerCase();
-
-if (!station || sessCompany !== companyId) {
-  window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
-  return false;
-}
-
-// OPTIONAL: keep URL tidy (but doesn't grant access)
-const desiredUrl = `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`;
-if (location.pathname + location.search !== desiredUrl) {
-  window.location.replace(desiredUrl);
-  return false;
-}
-
-stationTitleEl.textContent = `${prettyStationName(station)} Dashboard`;
-return { station };
-    }
-
     // 3) Update session doc so this kiosk “remembers” station (nice v1 behaviour)
     try{
       const sessionId = getKioskSessionId(user.uid);
