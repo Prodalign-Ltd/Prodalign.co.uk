@@ -6,6 +6,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
+
+    .containsTable{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.containsTable th,
+.containsTable td{
+  padding: 8px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  vertical-align: middle;
+}
+.containsTable th{
+  text-align: left;
+  color: rgba(255,255,255,0.75);
+  font-weight: 950;
+  font-size: 0.78rem;
+  letter-spacing: 0.2px;
+}
+.containsCode{
+  font-weight: 950;
+}
+.qtyInput{
+  width: 72px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.25);
+  color: #fff;
+  outline: none;
+}
+.qtyInput:focus{
+  border-color: rgba(245,124,0,0.6);
+  box-shadow: 0 0 0 3px rgba(245,124,0,0.12);
+}
+.rowBtn{
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.rowBtn:hover{
+  border-color: rgba(211,47,47,0.45);
+  background: rgba(211,47,47,0.12);
+}
     :root{
       --bg: #071826;
       --bg-2:#0b2235;
@@ -791,7 +838,7 @@
   const deleteStatus = document.getElementById("deleteStatus");
   let pendingDeleteCode = null;
 
-  // ✅ Track current active item (for contains-drop updates)
+  // ✅ Active item tracking (needed for contains table edits)
   let activeItemCode = null;
   let activeItemData = null;
 
@@ -800,7 +847,7 @@
     throw new Error("Missing ?c=");
   }
 
-  // ---------- UI helpers ----------
+  // ---------- Helpers ----------
   function renderPills(container, values, isRed, emptyText){
     container.innerHTML = "";
     if (!Array.isArray(values) || values.length === 0) {
@@ -817,15 +864,70 @@
     });
   }
 
+  // supports legacy contains: ["P10000"] and new contains: [{code,qty}]
+  function normalizeContains(contains){
+    if (!Array.isArray(contains)) return [];
+    return contains
+      .map(x => {
+        if (typeof x === "string") return { code: x.trim().toUpperCase(), qty: 1 };
+        if (x && typeof x === "object") {
+          const code = String(x.code || "").trim().toUpperCase();
+          const qtyN = Number(x.qty);
+          const qty = Number.isFinite(qtyN) && qtyN > 0 ? Math.floor(qtyN) : 1;
+          return code ? { code, qty } : null;
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }
+
+  function renderContainsTable(container, containsArr){
+    const rows = normalizeContains(containsArr);
+
+    if (rows.length === 0) {
+      container.style.color = "rgba(255,255,255,0.65)";
+      container.innerHTML = "No contained items";
+      return;
+    }
+
+    container.style.color = "";
+    container.innerHTML = `
+      <table class="containsTable">
+        <thead>
+          <tr>
+            <th style="width:55%;">Item</th>
+            <th style="width:25%;">Qty</th>
+            <th style="width:20%;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr data-code="${r.code}">
+              <td class="containsCode">${r.code}</td>
+              <td>
+                <input class="qtyInput" type="number" min="1" step="1" value="${r.qty}" />
+              </td>
+              <td style="text-align:right;">
+                <button class="rowBtn" type="button" data-remove="1">Remove</button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
   function setActiveItem(item){
     const code = item?.code || "—";
-
     activeItemCode = (code && code !== "—") ? String(code).trim().toUpperCase() : null;
     activeItemData = item || null;
 
     activeItemIdEl.textContent = code;
 
-    renderPills(containsItemsEl, item?.contains, false, "No contained items");
+    // ✅ contains as table
+    renderContainsTable(containsItemsEl, item?.contains);
+
+    // ops still as pills
     renderPills(containsOpsEl, item?.operations, true, "No operations");
 
     detailItem.textContent = code;
@@ -834,7 +936,60 @@
     detailEtc.textContent = (item?.description ?? "—");
   }
 
-  // ---------- ✅ Drag & drop: Contains Items ----------
+  // ---------- Firestore writes for contains ----------
+  let qtySaveTimer = null;
+
+  async function saveContainsToActive(newContains){
+    if (!activeItemCode) return;
+    const ref = doc(db, "companies", companyId, "items", activeItemCode);
+    await setDoc(ref, { contains: newContains, updatedAt: serverTimestamp() }, { merge: true });
+  }
+
+  function scheduleQtySave(newContains){
+    clearTimeout(qtySaveTimer);
+    qtySaveTimer = setTimeout(() => {
+      saveContainsToActive(newContains).catch(console.error);
+    }, 250);
+  }
+
+  // Qty input handler (event delegation)
+  containsItemsEl.addEventListener("input", (e) => {
+    const input = e.target;
+    if (!(input instanceof HTMLInputElement)) return;
+    if (!input.classList.contains("qtyInput")) return;
+
+    const tr = input.closest("tr");
+    const code = tr?.dataset?.code;
+    if (!code || !activeItemData) return;
+
+    const qty = Math.max(1, Math.floor(Number(input.value || 1)));
+
+    const normalized = normalizeContains(activeItemData.contains);
+    const next = normalized.map(r => r.code === code ? ({ ...r, qty }) : r);
+
+    activeItemData = { ...activeItemData, contains: next, code: activeItemCode };
+    scheduleQtySave(next);
+  });
+
+  // Remove handler (event delegation)
+  containsItemsEl.addEventListener("click", (e) => {
+    const btn = e.target;
+    if (!(btn instanceof HTMLElement)) return;
+    if (!btn.dataset.remove) return;
+
+    const tr = btn.closest("tr");
+    const code = tr?.dataset?.code;
+    if (!code || !activeItemData) return;
+
+    const normalized = normalizeContains(activeItemData.contains);
+    const next = normalized.filter(r => r.code !== code);
+
+    activeItemData = { ...activeItemData, contains: next, code: activeItemCode };
+    renderContainsTable(containsItemsEl, next); // instant UI
+    saveContainsToActive(next).catch(console.error);
+  });
+
+  // ---------- Drag & drop into Contains Items ----------
   function setContainsDropActive(isActive) {
     const panel = containsItemsEl.closest(".miniPanel");
     if (!panel) return;
@@ -851,37 +1006,39 @@
     const child = String(containedCode || "").trim().toUpperCase();
     if (!child) return;
 
-    // prevent adding itself
     if (child === activeItemCode) {
       alert("An item cannot contain itself.");
       return;
     }
 
     const parentRef = doc(db, "companies", companyId, "items", activeItemCode);
-
     const snap = await getDoc(parentRef);
     if (!snap.exists()) throw new Error(`Active item '${activeItemCode}' no longer exists.`);
 
     const data = snap.data() || {};
-    const current = Array.isArray(data.contains) ? data.contains : [];
+    const current = normalizeContains(data.contains);
 
-    // prevent duplicates
-    if (current.includes(child)) return;
+    if (current.some(r => r.code === child)) return;
+
+    const next = [...current, { code: child, qty: 1 }];
 
     await setDoc(parentRef, {
-      contains: [...current, child],
+      contains: next,
       updatedAt: serverTimestamp()
     }, { merge: true });
+
+    // local immediate feedback
+    activeItemData = { ...(activeItemData || {}), code: activeItemCode, contains: next };
+    renderContainsTable(containsItemsEl, next);
   }
 
-  // Make the "Contains Items" box accept drops
   containsItemsEl.addEventListener("dragenter", (e) => {
     e.preventDefault();
     setContainsDropActive(true);
   });
 
   containsItemsEl.addEventListener("dragover", (e) => {
-    e.preventDefault(); // REQUIRED for drop
+    e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
   });
 
@@ -924,12 +1081,14 @@
       snap.forEach((d) => {
         const item = d.data();
         const code = (item.code || d.id || "").toUpperCase();
-        if (!first) first = { ...item, code };
+        const normalized = { ...item, code };
+
+        if (!first) first = normalized;
 
         const row = document.createElement("div");
         row.className = "tree-item";
 
-        // ✅ draggable from tree
+        // draggable from tree
         row.draggable = true;
         row.addEventListener("dragstart", (e) => {
           e.dataTransfer.setData("text/plain", code);
@@ -942,10 +1101,7 @@
           <strong>${code}</strong>
           <div class="muted">${item.description || "—"}</div>
         `;
-
-        left.addEventListener("click", () => {
-          setActiveItem({ ...item, code });
-        });
+        left.addEventListener("click", () => setActiveItem(normalized));
 
         const del = document.createElement("button");
         del.className = "del";
@@ -961,7 +1117,7 @@
         treeListEl.appendChild(row);
       });
 
-      if (activeItemIdEl.textContent === "—" && first) setActiveItem(first);
+      if (!activeItemCode && first) setActiveItem(first);
     }, (err) => {
       console.error("Tree listener error:", err);
       treeListEl.innerHTML = `<div style="color:#ffb4b4;font-weight:900;">
