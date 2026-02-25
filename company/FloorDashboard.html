@@ -405,29 +405,33 @@ header{
     if (!userCompany || userCompany !== companyId) throw new Error("Wrong company.");
     if (role !== "operator") throw new Error("Not an operator.");
 
-    // 2) Determine station:
-    //    - Prefer URL param (when coming from StationPin.html)
-    //    - Else fallback to kioskSessions/{uid_deviceId}
-    let station = String(stationParam || "").trim();
+// 2) Determine station ONLY from kiosk session (never trust URL)
+const sessionId = getKioskSessionId(user.uid);
+const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
 
-    if (!station) {
-      const sessionId = getKioskSessionId(user.uid);
-      const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
-      if (!sessSnap.exists()) {
-        // No station selected on this kiosk yet → go to pin page
-        window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
-        return false;
-      }
-      station = String(sessSnap.data()?.stationId || "").trim();
-      if (!station) {
-        window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
-        return false;
-      }
+if (!sessSnap.exists()) {
+  window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
+  return false;
+}
 
-      // Put station into URL for consistency
-      const newUrl = `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`;
-      window.location.replace(newUrl);
-      return false;
+const sess = sessSnap.data() || {};
+const station = String(sess.stationId || "").trim();
+const sessCompany = String(sess.companyId || "").trim().toLowerCase();
+
+if (!station || sessCompany !== companyId) {
+  window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
+  return false;
+}
+
+// OPTIONAL: keep URL tidy (but doesn't grant access)
+const desiredUrl = `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`;
+if (location.pathname + location.search !== desiredUrl) {
+  window.location.replace(desiredUrl);
+  return false;
+}
+
+stationTitleEl.textContent = `${prettyStationName(station)} Dashboard`;
+return { station };
     }
 
     // 3) Update session doc so this kiosk “remembers” station (nice v1 behaviour)
