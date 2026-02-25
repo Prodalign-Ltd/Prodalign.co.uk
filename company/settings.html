@@ -2215,7 +2215,8 @@ else allNonOps.push(normalized);
   });
 
   saveNewItem.addEventListener("click", async () => {
-    const type = String(newItemType.value || "final_saleable");
+    let type = String(newItemType.value || "final_saleable");
+if (type.toLowerCase() === "operation") type = "final_saleable";
     const code = String(newItemCode.value || "").trim().toUpperCase();
     const description = String(newItemDescription.value || "").trim();
     const baseCost = Number(newItemCost.value || 0);
