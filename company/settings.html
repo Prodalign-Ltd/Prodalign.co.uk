@@ -331,6 +331,11 @@
       justify-content: space-between;
       gap: 12px;
     }
+    .topbar-left{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
     .topbar .center-dot{
       width: 6px;
       height: 6px;
@@ -784,15 +789,20 @@
 
   <!-- RIGHT -->
   <div class="main">
-    <div class="topbar">
-     <button id="newItemBtn" class="btn-primary" type="button">New Item</button>
-<button id="newOpBtn" class="btn-primary" type="button">New Operation</button>
-      <div class="center-dot" aria-hidden="true"></div>
-      <div style="display:flex; gap:10px; align-items:center; color:var(--muted); font-weight:800;">
-        <span style="opacity:.9;">Company Workspace</span>
-      </div>
-    </div>
+   <div class="topbar">
 
+  <div class="topbar-left">
+    <button id="newItemBtn" class="btn-primary" type="button">New Item</button>
+    <button id="newOpBtn" class="btn-primary" type="button">New Operation</button>
+  </div>
+
+  <div class="center-dot" aria-hidden="true"></div>
+
+  <div style="display:flex; gap:10px; align-items:center; color:var(--muted); font-weight:800;">
+    <span style="opacity:.9;">Company Workspace</span>
+  </div>
+
+</div>
     <div class="panel mainTop">
       <div class="containsRow">
         <div class="idCard">
@@ -2381,9 +2391,12 @@ saveNewOp?.addEventListener("click", async () => {
       updatedAt: serverTimestamp()
     });
 
-    newOpStatus.textContent = "Created!";
-    setTimeout(closeNewOpModalFn, 350);
+   newOpStatus.textContent = "Created!";
 
+// switch tree to Operations tab automatically
+setTreeMode("ops");
+
+setTimeout(closeNewOpModalFn, 350);
   } catch (err) {
     console.error(err);
     newOpStatus.textContent = err?.message || "Failed to create operation.";
