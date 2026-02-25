@@ -688,8 +688,14 @@
 
     <div class="panel details" id="mainArea">
       <div class="panel-header">
-        <div class="panel-title"><span class="dot"></span> Item Data</div>
-      </div>
+  <div class="panel-title"><span class="dot"></span> Item Data</div>
+
+  <!-- NEW ACTION BUTTONS -->
+  <div style="display:flex; gap:10px;">
+    <button id="editActiveItemBtn" type="button">Edit</button>
+    <button id="deleteActiveItemBtn" class="btn-danger" type="button">Delete</button>
+  </div>
+</div>
       <div class="panel-body">
         <div class="detailsGrid">
           <div class="card">
@@ -915,6 +921,9 @@ let allNonOps = [];
   const detailCost = document.getElementById("detailCost");
   const detailTime = document.getElementById("detailTime");
   const detailEtc = document.getElementById("detailEtc");
+  // Active item action buttons
+const editActiveItemBtn = document.getElementById("editActiveItemBtn");
+const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
 
   // Add member UI
   const addMemberBtn = document.getElementById("addMemberBtn");
@@ -1085,7 +1094,14 @@ let allNonOps = [];
     detailCost.textContent = (item?.baseCost ?? "—");
     detailTime.textContent = (item?.operationTime ?? "—");
     detailEtc.textContent = (item?.description ?? "—");
-  }
+  // Enable/disable buttons depending on selection
+const hasItem = !!activeItemCode;
+
+if (editActiveItemBtn && deleteActiveItemBtn) {
+  editActiveItemBtn.disabled = !hasItem;
+  deleteActiveItemBtn.disabled = !hasItem;
+}
+}
 
   // ---------- Firestore save helpers ----------
   let qtySaveTimer = null;
@@ -1452,27 +1468,8 @@ function renderTree(items, queryText = "") {
     btnWrap.style.gap = "6px";
     btnWrap.style.flex = "0 0 auto";
 
-    const edit = document.createElement("button");
-    edit.className = "rowBtn";
-    edit.textContent = "Edit";
-    edit.addEventListener("click", (e) => {
-      e.stopPropagation();
-      openEditItemModal(item);
-    });
-
-    const del = document.createElement("button");
-    del.className = "del";
-    del.textContent = "Delete";
-    del.addEventListener("click", (e) => {
-      e.stopPropagation();
-      openDeleteModal(code);
-    });
-
-    btnWrap.appendChild(edit);
-    btnWrap.appendChild(del);
     row.appendChild(left);
-    row.appendChild(btnWrap);
-    treeListEl.appendChild(row);
+treeListEl.appendChild(row);
   });
 }
 
@@ -1815,7 +1812,17 @@ else allNonOps.push(normalized);
   });
 
   // ---------- ESC closes topmost modal ----------
-  document.addEventListener("keydown", (e) => {
+    // ===== ACTIVE ITEM ACTION BUTTONS =====
+editActiveItemBtn?.addEventListener("click", () => {
+  if (!activeItemData) return;
+  openEditItemModal(activeItemData);
+});
+
+deleteActiveItemBtn?.addEventListener("click", () => {
+  if (!activeItemCode) return;
+  openDeleteModal(activeItemCode);
+});
+    document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
 
     if (deleteItemModal.classList.contains("open")) closeDeleteModal();
