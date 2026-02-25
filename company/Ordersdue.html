@@ -174,11 +174,18 @@
       flex: 1;
     }
 
-    .dueTable{
-      width:max-content;
-      min-width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
+    .dueTable tbody th{
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: rgba(0,0,0,0.24);
+      font-weight: 950;
+      text-align: left;
+    
+      width: max-content;      /* 👈 auto-size to content */
+      min-width: max-content;  /* 👈 prevents stretching */
+      white-space: nowrap;     /* 👈 single line only */
+      padding-right: 14px;
     }
 
     .dueTable th, .dueTable td{
@@ -200,6 +207,10 @@
 
     .dueTable thead th.leftHead{
       text-align: left;
+      width: max-content;
+      min-width: max-content;
+      white-space: nowrap;
+      padding-right: 14px;
     }
 
     .dueTable .leftHead{
