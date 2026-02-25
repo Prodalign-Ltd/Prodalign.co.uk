@@ -614,7 +614,12 @@
       background: rgba(211,47,47,0.12);
       transform:none;
     }
-
+    
+/* ===== ORDER READY DROPZONE ACTIVE ===== */
+#dropzone.drop-active{
+  border-color: rgba(245,124,0,0.75) !important;
+  box-shadow: 0 0 0 4px rgba(245,124,0,0.14);
+}
     /* ===== MODAL SYSTEM ===== */
     .modal {
       position: fixed;
@@ -1023,14 +1028,49 @@
     </div>
   </div>
 </div>
+  <!-- ✅ Order Ready Modal -->
+<div id="orderReadyModal" class="modal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="orderReadyTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="orderReadyTitle">Send to Operators</div>
+      <button class="modal-close" id="closeOrderReadyModal" type="button">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div style="font-weight:900; line-height:1.35;">
+        Item: <span id="orderReadyItem" style="color:var(--orange);"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="orderReadyOrderNo">Order number</label>
+        <input id="orderReadyOrderNo" type="text" placeholder="e.g. SO-100245" autocomplete="off" />
+      </div>
+
+      <div class="form-group">
+        <label for="orderReadyQty">Quantity</label>
+        <input id="orderReadyQty" type="number" min="1" step="1" value="1" />
+      </div>
+
+      <div style="color: rgba(255,255,255,0.72); font-weight: 800; font-size: 0.9rem; line-height: 1.35;">
+        Confirming will send this job to the operator dashboard.
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="modal-status" id="orderReadyStatus"></div>
+      <button id="cancelOrderReady" type="button">Cancel</button>
+      <button class="btn-primary" id="confirmOrderReady" type="button">Send</button>
+    </div>
+  </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, setDoc, deleteDoc,
-    collection, onSnapshot, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  getFirestore, doc, getDoc, setDoc, deleteDoc, addDoc,
+  collection, onSnapshot, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
   import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
   const firebaseConfig = {
@@ -1547,6 +1587,136 @@ containsOpsEl.addEventListener("drop", async (e) => {
     saveOperationsToActive(next).catch(console.error);
   });
 
+  // ===================== ORDER READY (DROPZONE -> MODAL -> FIRESTORE) =====================
+const dropzone = document.getElementById("dropzone");
+
+const orderReadyModal = document.getElementById("orderReadyModal");
+const closeOrderReadyModal = document.getElementById("closeOrderReadyModal");
+const cancelOrderReady = document.getElementById("cancelOrderReady");
+const confirmOrderReady = document.getElementById("confirmOrderReady");
+
+const orderReadyItem = document.getElementById("orderReadyItem");
+const orderReadyOrderNo = document.getElementById("orderReadyOrderNo");
+const orderReadyQty = document.getElementById("orderReadyQty");
+const orderReadyStatus = document.getElementById("orderReadyStatus");
+
+let pendingOrderReady = null; // { code, type }
+
+function openOrderReadyModal(payload){
+  pendingOrderReady = payload;
+
+  orderReadyItem.textContent = payload?.code || "—";
+  orderReadyOrderNo.value = "";
+  orderReadyQty.value = "1";
+  orderReadyStatus.textContent = "";
+
+  orderReadyModal.classList.add("open");
+  orderReadyModal.setAttribute("aria-hidden", "false");
+  setTimeout(() => orderReadyOrderNo.focus(), 0);
+}
+
+function closeOrderReadyModalFn(){
+  orderReadyModal.classList.remove("open");
+  orderReadyModal.setAttribute("aria-hidden", "true");
+  pendingOrderReady = null;
+}
+
+closeOrderReadyModal?.addEventListener("click", closeOrderReadyModalFn);
+cancelOrderReady?.addEventListener("click", closeOrderReadyModalFn);
+orderReadyModal?.addEventListener("click", (e) => {
+  if (e.target === orderReadyModal) closeOrderReadyModalFn();
+});
+
+// Allow ESC to close this one too (your existing ESC handler can be extended)
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (orderReadyModal.classList.contains("open")) closeOrderReadyModalFn();
+});
+
+// Firestore write: creates a "job" for operators to pick up
+async function sendOrderToOperators({ code, type }){
+  const itemCode = String(code || "").trim().toUpperCase();
+  if (!itemCode) throw new Error("Missing item code.");
+
+  // Block operations from being "order ready"
+  const resolvedType = await resolveItemType(itemCode, type);
+  if (resolvedType === "operation") {
+    throw new Error("You can’t send an Operation as an Order Ready job. Drop a normal item.");
+  }
+
+  const orderNo = String(orderReadyOrderNo.value || "").trim();
+  const qty = Math.max(1, Math.floor(Number(orderReadyQty.value || 1)));
+
+  if (!orderNo) throw new Error("Order number is required.");
+
+  // ✅ Where the operator dashboard should listen:
+  // companies/{companyId}/jobs (or rename to orders/workOrders if you prefer)
+  const jobsRef = collection(db, "companies", companyId, "jobs");
+
+  // Suggested schema (operators can filter by status/station/etc.)
+  await addDoc(jobsRef, {
+    itemCode,
+    orderNo,
+    qty,
+
+    status: "ready",          // ready | in_progress | complete
+    currentStationIndex: 0,   // you can move it along stations later
+    createdBy: getUserIdentifier(),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+}
+
+confirmOrderReady?.addEventListener("click", async () => {
+  if (!pendingOrderReady?.code) return;
+
+  confirmOrderReady.disabled = true;
+  orderReadyStatus.textContent = "Sending…";
+
+  try{
+    await sendOrderToOperators(pendingOrderReady);
+    orderReadyStatus.textContent = "Sent!";
+    setTimeout(closeOrderReadyModalFn, 350);
+  } catch(err){
+    console.error(err);
+    orderReadyStatus.textContent = err?.message || "Failed to send.";
+  } finally{
+    confirmOrderReady.disabled = false;
+  }
+});
+
+// Dropzone drag/drop
+if (dropzone){
+  dropzone.addEventListener("dragenter", (e) => {
+    e.preventDefault();
+    dropzone.classList.add("drop-active");
+  });
+
+  dropzone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropzone.classList.add("drop-active");
+    e.dataTransfer.dropEffect = "copy";
+  });
+
+  dropzone.addEventListener("dragleave", (e) => {
+    // only remove highlight if leaving the dropzone fully
+    if (e.relatedTarget && dropzone.contains(e.relatedTarget)) return;
+    dropzone.classList.remove("drop-active");
+  });
+
+  dropzone.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    dropzone.classList.remove("drop-active");
+
+    const payload = readDragPayload(e.dataTransfer);
+    if (!payload?.code) return;
+
+    // Optional: only allow "items" tree to feed this
+    // (we already block operations in sendOrderToOperators anyway)
+    openOrderReadyModal(payload);
+  });
+}
+  
   // ---------- Drag/drop UI helpers ----------
   function setDropActive(el, isActive){
     const panel = el.closest(".miniPanel");
