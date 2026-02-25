@@ -315,13 +315,13 @@ function positionBrandingAboveCard() {
         const pin = pinEl.value.trim();
         const operatorLabel = opEl.value.trim();
 
-        const q = query(
-          collection(db, "stations"),
-          where("companyId", "==", companyCode),
-          where("pin", "==", pin),
-          where("active", "==", true)
-        );
+       const stationsRef = collection(db, "companies", companyCode, "stations");
 
+const q = query(
+  stationsRef,
+  where("pin", "==", pin),
+  where("active", "==", true)
+);
         const snap = await getDocs(q);
         if (snap.empty) throw new Error("Invalid PIN.");
 
