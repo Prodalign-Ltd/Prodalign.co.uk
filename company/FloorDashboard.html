@@ -293,9 +293,9 @@ header{
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, collection, onSnapshot,
-    runTransaction, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  getFirestore, doc, getDoc, collection, onSnapshot,
+  runTransaction, serverTimestamp, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
@@ -688,9 +688,10 @@ header{
   });
 
   // ✅ Logout button
-  logoutBtn.addEventListener("click", async () => {
+logoutBtn.addEventListener("click", async () => {
   try {
     const user = auth.currentUser;
+
     if (user) {
       const kioskId = localStorage.getItem("kioskDeviceId");
       if (kioskId) {
@@ -699,11 +700,11 @@ header{
       }
     }
   } catch (e) {
-    console.error("Failed to clear kiosk session:", e);
+    console.error("Logout cleanup failed:", e);
   }
 
   await signOut(auth);
-  window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+  location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
 });
 </script>
 
