@@ -125,17 +125,6 @@
       overflow: hidden;
     }
     
-.panel.mainTop{
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.panel.mainTop > .containsRow{
-  flex: 1;
-  min-height: 0;
-}
-    
     .panel-header{
       padding: 10px 12px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -350,12 +339,16 @@
       opacity: 0.8;
     }
 
-    .mainTop {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-      min-height: 0;
-    }
+    ..mainTop{
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.mainTop > .containsRow{
+  flex: 1;
+  min-height: 0;
+}
 
     .containsRow{
   display: grid;
