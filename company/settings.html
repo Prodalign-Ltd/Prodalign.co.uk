@@ -791,6 +791,10 @@
   const deleteStatus = document.getElementById("deleteStatus");
   let pendingDeleteCode = null;
 
+  // ✅ Track current active item (for contains-drop updates)
+  let activeItemCode = null;
+  let activeItemData = null;
+
   if (!companyId) {
     companyNameEl.textContent = "Missing company id (?c=...)";
     throw new Error("Missing ?c=");
@@ -815,6 +819,10 @@
 
   function setActiveItem(item){
     const code = item?.code || "—";
+
+    activeItemCode = (code && code !== "—") ? String(code).trim().toUpperCase() : null;
+    activeItemData = item || null;
+
     activeItemIdEl.textContent = code;
 
     renderPills(containsItemsEl, item?.contains, false, "No contained items");
@@ -825,6 +833,75 @@
     detailTime.textContent = (item?.operationTime ?? "—");
     detailEtc.textContent = (item?.description ?? "—");
   }
+
+  // ---------- ✅ Drag & drop: Contains Items ----------
+  function setContainsDropActive(isActive) {
+    const panel = containsItemsEl.closest(".miniPanel");
+    if (!panel) return;
+    panel.style.borderColor = isActive ? "rgba(245,124,0,0.65)" : "rgba(255,255,255,0.10)";
+    panel.style.boxShadow = isActive ? "0 0 0 4px rgba(245,124,0,0.12)" : "none";
+  }
+
+  async function addContainedItemToActiveItem(containedCode) {
+    if (!activeItemCode) {
+      alert("Select an item first (the one that will contain the part).");
+      return;
+    }
+
+    const child = String(containedCode || "").trim().toUpperCase();
+    if (!child) return;
+
+    // prevent adding itself
+    if (child === activeItemCode) {
+      alert("An item cannot contain itself.");
+      return;
+    }
+
+    const parentRef = doc(db, "companies", companyId, "items", activeItemCode);
+
+    const snap = await getDoc(parentRef);
+    if (!snap.exists()) throw new Error(`Active item '${activeItemCode}' no longer exists.`);
+
+    const data = snap.data() || {};
+    const current = Array.isArray(data.contains) ? data.contains : [];
+
+    // prevent duplicates
+    if (current.includes(child)) return;
+
+    await setDoc(parentRef, {
+      contains: [...current, child],
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
+
+  // Make the "Contains Items" box accept drops
+  containsItemsEl.addEventListener("dragenter", (e) => {
+    e.preventDefault();
+    setContainsDropActive(true);
+  });
+
+  containsItemsEl.addEventListener("dragover", (e) => {
+    e.preventDefault(); // REQUIRED for drop
+    e.dataTransfer.dropEffect = "copy";
+  });
+
+  containsItemsEl.addEventListener("dragleave", (e) => {
+    if (e.relatedTarget && containsItemsEl.contains(e.relatedTarget)) return;
+    setContainsDropActive(false);
+  });
+
+  containsItemsEl.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    setContainsDropActive(false);
+
+    const droppedCode = e.dataTransfer.getData("text/plain");
+    try {
+      await addContainedItemToActiveItem(droppedCode);
+    } catch (err) {
+      console.error(err);
+      alert(err?.message || "Failed to add contained item.");
+    }
+  });
 
   // ---------- Firestore: live tree ----------
   function watchItems(companyId){
@@ -851,6 +928,13 @@
 
         const row = document.createElement("div");
         row.className = "tree-item";
+
+        // ✅ draggable from tree
+        row.draggable = true;
+        row.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/plain", code);
+          e.dataTransfer.effectAllowed = "copy";
+        });
 
         const left = document.createElement("div");
         left.className = "left";
