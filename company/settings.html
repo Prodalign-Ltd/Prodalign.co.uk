@@ -510,11 +510,13 @@
 .auditValue{
   font-weight: 950;
   color: rgba(255,255,255,0.92);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
+  /* allow long emails/ids to wrap and grow the card */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  word-break: break-word;
+}
 .auditSub{
   margin-top: 4px;
   font-weight: 800;
@@ -1128,6 +1130,19 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
   }
 }
   // ---------- Normalizers + renderers ----------
+  function getUserIdentifier(){
+  const u = auth.currentUser;
+  if (!u) return null;
+
+  // Prefer email; fall back to provider email; then displayName; then uid
+  return (
+    u.email ||
+    u.providerData?.find(p => p?.email)?.email ||
+    u.displayName ||
+    u.uid ||
+    null
+  );
+}
   function formatDate(ts){
   if (!ts?.toDate) return "—";
   const d = ts.toDate();
@@ -1335,7 +1350,7 @@ async function saveContainsToActive(newContains){
 
   await setDoc(ref, {
     contains: newContains,
-    updatedBy: auth.currentUser?.email || auth.currentUser?.uid || null,
+    updatedBy: getUserIdentifier(),,
     updatedAt: serverTimestamp()
   }, { merge: true });
 }
@@ -1353,7 +1368,7 @@ async function saveOperationsToActive(newOperations){
 
   await setDoc(ref, {
     operations: newOperations,
-    updatedBy: auth.currentUser?.email || auth.currentUser?.uid || null,
+    updatedBy: getUserIdentifier(),,
     updatedAt: serverTimestamp()
   }, { merge: true });
 }
@@ -1862,7 +1877,7 @@ else allNonOps.push(normalized);
     {
       description,
       baseCost: Number.isFinite(baseCost) ? baseCost : 0,
-      updatedBy: auth.currentUser?.email || auth.currentUser?.uid || null,
+      updatedBy: getUserIdentifier(),,
       updatedAt: serverTimestamp()
     },
     { merge: true }
@@ -1935,8 +1950,8 @@ await setDoc(itemRef, {
   operations: [],
 
   // ⭐ ADD THESE TWO LINES
-  createdBy: auth.currentUser?.email || auth.currentUser?.uid || null,
-updatedBy: auth.currentUser?.email || auth.currentUser?.uid || null,
+  createdBy: getUserIdentifier(),
+updatedBy: getUserIdentifier(),
   
   createdAt: serverTimestamp(),
   updatedAt: serverTimestamp()
