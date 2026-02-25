@@ -482,7 +482,7 @@ return { station };
     const stationCode = String(stationLower || "").trim().toUpperCase();
     if (!stationCode) return;
 
-const jobsRef = collection(db, "stations", stationCode, "jobs");
+const jobsRef = collection(db, "companies", companyId, "jobs");
 
     return onSnapshot(jobsRef, (snap) => {
       const available = [];
