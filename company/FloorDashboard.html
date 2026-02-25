@@ -23,7 +23,6 @@
   --gray2:rgba(144,164,174,0.14);
 
   --radius:14px;
-
   --danger:#d32f2f;
 }
 
@@ -41,24 +40,38 @@ body{
 
 /* HEADER */
 header{
-  padding:18px;
-  text-align:center;
   border-bottom:1px solid var(--border);
   background:#0b2235;
-  position: relative; /* allows top-right button */
+  padding:14px 14px 16px;
+
+  display:grid;
+  grid-template-columns: 1fr auto 1fr; /* left spacer | centered content | right button */
+  align-items:start;
+  gap:10px;
+}
+
+.header-center{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:10px;
+  padding-top:4px;
 }
 
 .stationTitle{
   font-weight:950;
   font-size:1.8rem;
-  margin-bottom:12px;
+  margin:0;
 }
 
 /* Logout button (top-right) */
+.logoutWrap{
+  display:flex;
+  justify-content:flex-end;
+}
+
 .logoutBtn{
-  position:absolute;
-  top:14px;
-  right:14px;
   border:1px solid rgba(211,47,47,0.40);
   border-radius:12px;
   padding:10px 12px;
@@ -138,7 +151,8 @@ header{
 .naSection .sectionHead{background:var(--gray2)}
 
 @media (max-width: 520px){
-  .logoutBtn{ top:12px; right:12px; padding:9px 10px; }
+  header{ grid-template-columns: 1fr; }
+  .logoutWrap{ justify-content:center; }
   .stationTitle{ font-size:1.55rem; }
 }
 </style>
@@ -147,14 +161,20 @@ header{
 <body>
 
 <header>
-  <button id="logoutBtn" class="logoutBtn" type="button">Log out</button>
+  <div></div>
 
-  <div class="stationTitle" id="stationTitle">Bending Dashboard</div>
+  <div class="header-center">
+    <div class="stationTitle" id="stationTitle">Station Dashboard</div>
 
-  <div class="legend">
-    <div class="legendItem"><div class="swatch wip"></div> Work in Progress</div>
-    <div class="legendItem"><div class="swatch available"></div> Available</div>
-    <div class="legendItem"><div class="swatch na"></div> Not Available</div>
+    <div class="legend">
+      <div class="legendItem"><div class="swatch wip"></div> Work in Progress</div>
+      <div class="legendItem"><div class="swatch available"></div> Available</div>
+      <div class="legendItem"><div class="swatch na"></div> Not Available</div>
+    </div>
+  </div>
+
+  <div class="logoutWrap">
+    <button id="logoutBtn" class="logoutBtn" type="button">Log out</button>
   </div>
 </header>
 
@@ -183,20 +203,10 @@ header{
 
 </div>
 
-<!-- Title from ?station= -->
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const station = params.get("station");
-  if (station) {
-    document.getElementById("stationTitle").textContent =
-      station.charAt(0).toUpperCase() + station.slice(1) + " Dashboard";
-  }
-</script>
-
-<!-- Firebase logout -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
@@ -206,12 +216,80 @@ header{
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
 
   const logoutBtn = document.getElementById("logoutBtn");
+  const stationTitleEl = document.getElementById("stationTitle");
 
-  logoutBtn.addEventListener("click", async () => {
+  // Read URL params
+  const params = new URLSearchParams(window.location.search);
+  const companyId = (params.get("c") || "").trim().toLowerCase();
+  const stationParam = (params.get("station") || "").trim().toLowerCase();
+
+  // If missing company, bounce (this page must always be opened with ?c=...)
+  if (!companyId) {
+    window.location.assign("/companylogin/");
+    throw new Error("Missing ?c=");
+  }
+
+  // Set title from URL (we'll also verify station against user profile below)
+  if (stationParam) {
+    stationTitleEl.textContent = stationParam.charAt(0).toUpperCase() + stationParam.slice(1) + " Dashboard";
+  } else {
+    stationTitleEl.textContent = "Station Dashboard";
+  }
+
+  async function hardKickToLogin() {
     try { await signOut(auth); } catch {}
     window.location.assign("/companylogin/");
+  }
+
+  async function enforceOperatorGate(user) {
+    const snap = await getDoc(doc(db, "users", user.uid));
+    if (!snap.exists()) throw new Error("User profile missing.");
+
+    const data = snap.data();
+    const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
+    const role = String(data.role ?? "").trim().toLowerCase();
+    const station = String(data.station ?? "").trim().toLowerCase();
+
+    if (!userCompany || userCompany !== companyId) throw new Error("Wrong company.");
+    if (role !== "operator") throw new Error("Not an operator.");
+    if (!station) throw new Error("Operator missing station.");
+
+    // If someone manually changes the URL station, force it back to their station
+    if (stationParam && stationParam !== station) {
+      window.location.assign(
+        `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`
+      );
+      return false; // stop further rendering on this load
+    }
+
+    // Ensure title matches their station
+    stationTitleEl.textContent = station.charAt(0).toUpperCase() + station.slice(1) + " Dashboard";
+    return true;
+  }
+
+  // ✅ Auth gate
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.assign("/companylogin/");
+      return;
+    }
+
+    try {
+      const ok = await enforceOperatorGate(user);
+      if (!ok) return;
+      // (Later: load jobs for this company/station)
+    } catch (e) {
+      console.error(e);
+      await hardKickToLogin();
+    }
+  });
+
+  // ✅ Logout button
+  logoutBtn.addEventListener("click", async () => {
+    await hardKickToLogin();
   });
 </script>
 
