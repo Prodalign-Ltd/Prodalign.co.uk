@@ -124,7 +124,7 @@
       border-radius: var(--radius);
       overflow: hidden;
     }
-    
+
     .panel-header{
       padding: 10px 12px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -146,59 +146,57 @@
     }
 
     .panel-title .dot{
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--orange);
-  box-shadow: 0 0 0 4px rgba(245,124,0,0.15);
-  display: inline-block;
-}
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--orange);
+      box-shadow: 0 0 0 4px rgba(245,124,0,0.15);
+      display: inline-block;
+    }
 
-/* ✅ Tree toggle styles */
     /* ===== TREE HEADER GRID (locks toggle right) ===== */
-.treeHeader{
-  display: grid;
-  grid-template-columns: auto 1fr auto; /* dot | title | toggle */
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
+    .treeHeader{
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
 
-.treeHeaderTitle{
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.treeToggle{
-  display: inline-flex;
-  gap: 6px;
-  padding: 4px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.18);
-}
+    .treeHeaderTitle{
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .treeToggle{
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+      max-width: 100%;
+    }
 
-.treeTab{
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.06);
-  font-weight: 900;
-  cursor: pointer;
-  transform: none !important;
-}
+    .treeTab{
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      font-weight: 900;
+      cursor: pointer;
+      transform: none !important;
+    }
 
-.treeTab:hover{
-  border-color: rgba(245,124,0,0.35);
-  background: rgba(255,255,255,0.10);
-}
+    .treeTab:hover{
+      border-color: rgba(245,124,0,0.35);
+      background: rgba(255,255,255,0.10);
+    }
 
-.treeTab.active{
-  border-color: rgba(245,124,0,0.55);
-  background: linear-gradient(180deg, rgba(245,124,0,0.20), rgba(245,124,0,0.08));
-}
-    
+    .treeTab.active{
+      border-color: rgba(245,124,0,0.55);
+      background: linear-gradient(180deg, rgba(245,124,0,0.20), rgba(245,124,0,0.08));
+    }
+
     .panel-body{ padding: 12px; }
 
     .sidebar {
@@ -237,11 +235,11 @@
       grid-template-rows: auto 1fr;
     }
     .tree .panel-body{
-  padding: 10px 10px 12px;
-  overflow: auto;
-  overflow-x: hidden;
-}
-    
+      padding: 10px 10px 12px;
+      overflow: auto;
+      overflow-x: hidden;
+    }
+
     .tree-item{
       padding: 10px 10px;
       border-radius: 12px;
@@ -261,39 +259,19 @@
       background: rgba(255,255,255,0.06);
     }
     .tree-item .left{
-  min-width: 0;   /* ✅ required for ellipsis */
-  cursor: pointer;
-  flex: 1;
-}
+      min-width: 0;
+      cursor: pointer;
+      flex: 1;
+    }
     .tree-item strong{ display:block; font-size: 0.92rem; }
     .tree-item .muted{
-  opacity: 0.75;
-  font-size: 0.86rem;
-  margin-top: 6px;
-
-  /* ✅ one-line ellipsis */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  /* ✅ important inside flex layouts */
-  min-width: 0;
-}
-
-    .tree-item .del{
-      border: 1px solid rgba(211,47,47,0.45);
-      background: rgba(211,47,47,0.12);
-      padding: 8px 10px;
-      border-radius: 10px;
-      font-weight: 950;
-      cursor: pointer;
-      line-height: 1;
-      flex: 0 0 auto;
-    }
-    .tree-item .del:hover{
-      background: rgba(211,47,47,0.20);
-      border-color: rgba(211,47,47,0.65);
-      transform:none;
+      opacity: 0.75;
+      font-size: 0.86rem;
+      margin-top: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
 
     .order-ready {
@@ -332,10 +310,10 @@
       gap: 12px;
     }
     .topbar-left{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
     .topbar .center-dot{
       width: 6px;
       height: 6px;
@@ -345,38 +323,36 @@
     }
 
     .mainTop{
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.mainTop > .containsRow{
-  flex: 1;
-  min-height: 0;
-}
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .mainTop > .containsRow{
+      flex: 1;
+      min-height: 0;
+    }
 
     .containsRow{
-  display: grid;
-  grid-template-columns: 110px 1fr 1fr;
-  gap: 10px;
-  padding: 10px;
+      display: grid;
+      grid-template-columns: 110px 1fr 1fr;
+      gap: 10px;
+      padding: 10px;
+      height: 100%;
+      min-height: 0;
+      align-items: stretch;
+    }
 
-  height: 100%;
-  min-height: 0;
-  align-items: stretch;
-}
     .idCard{
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.18);
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  height: 100%;
-  min-height: 0;
-}
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.18);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      height: 100%;
+      min-height: 0;
+    }
     .idCard .id{
       font-weight: 950;
       letter-spacing: 0.3px;
@@ -398,16 +374,15 @@
     }
 
     .miniPanel{
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.04);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-
-  height: 100%;
-  min-height: 0;
-}
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
     .miniPanel .miniHeader{
       padding: 10px 10px 8px;
       font-weight: 950;
@@ -416,16 +391,16 @@
       background: linear-gradient(180deg, rgba(245,124,0,0.10), transparent);
     }
     .miniPanel .miniBody{
-  padding: 10px;
-  color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.35;
-  overflow-y: auto;   
-  overflow-x: hidden; 
-  flex: 1;
-  min-height: 0;      
-  align-items: flex-start;
-}
+      padding: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.35;
+      overflow-y: auto;
+      overflow-x: hidden;
+      flex: 1;
+      min-height: 0;
+      align-items: flex-start;
+    }
 
     .details {
       min-height: 0;
@@ -436,26 +411,20 @@
       min-height: 0;
       overflow: auto;
     }
+
     .detailsGrid{
-  display: grid;
-  grid-template-columns: minmax(420px, 720px) 1fr; 
-  gap: 14px;
-  align-items: start;
-}
+      display: grid;
+      grid-template-columns: minmax(420px, 720px) 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
     .card {
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.10);
       background: rgba(255,255,255,0.04);
       padding: 12px;
     }
-    .kv{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-    .kv b{ color: #fff; }
 
     .emptyHint{
       height: 100%;
@@ -469,115 +438,95 @@
       font-weight: 800;
       text-align: center;
     }
-/* ===== ITEM DATA CARD (cleaner) ===== */
-.itemCard{
-  padding: 14px;
-  width: 100%;          
-  min-width: 420px;
-  max-width: 720px;    
-  overflow: hidden;     
-}
-.itemMetaGrid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px 14px;
-}
 
-.metaRow{
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
+    .itemCard{
+      padding: 14px;
+      width: 100%;
+      min-width: 420px;
+      max-width: 720px;
+      overflow: hidden;
+    }
+    .itemMetaGrid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 14px;
+    }
+    .metaRow{
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+    .metaRowFull{
+      grid-column: 1 / -1;
+    }
+    .itemCard .k{
+      font-size: 0.75rem;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.62);
+      font-weight: 900;
+    }
+    .itemCard .v{
+      font-weight: 900;
+      color: rgba(255,255,255,0.92);
+      white-space: normal;
+      word-break: break-word;
+    }
 
-.metaRowFull{
-  grid-column: 1 / -1;
-}
+    .itemDivider{
+      height: 1px;
+      margin: 14px 0 12px;
+      background: rgba(255,255,255,0.08);
+    }
 
-.itemCard .k{
-  font-size: 0.75rem;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.62);
-  font-weight: 900;
-}
+    .auditGrid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
 
-.itemCard .v{
-  font-weight: 900;
-  color: rgba(255,255,255,0.92);
+    .auditCard{
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.16);
+      border-radius: 12px;
+      padding: 10px 10px;
+    }
 
-  /* allow wrapping when card hits max width */
-  white-space: normal;
-  word-break: break-word;
-}
-    
-.itemCard #detailEtc{
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: unset !important;
-  word-break: break-word;
-  line-height: 1.35;
-  color: rgba(255,255,255,0.80);
-  font-weight: 800;
-}
+    .auditLabel{
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: rgba(255,255,255,0.60);
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
 
-.itemDivider{
-  height: 1px;
-  margin: 14px 0 12px;
-  background: rgba(255,255,255,0.08);
-}
+    .auditValue{
+      font-weight: 950;
+      color: rgba(255,255,255,0.92);
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+      word-break: break-word;
+    }
+    .auditSub{
+      margin-top: 4px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.68);
+      font-size: 0.88rem;
+    }
 
-.auditGrid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
+    .containsTable{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .containsRowDraggable { cursor: grab; }
+    .containsRowDraggable.dragging { opacity: 0.35; }
+    .containsRowDraggable.dragOver { outline: 2px dashed rgba(245,124,0,0.7); }
 
-.auditCard{
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.16);
-  border-radius: 12px;
-  padding: 10px 10px;
-}
-
-.auditLabel{
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  color: rgba(255,255,255,0.60);
-  font-weight: 900;
-  margin-bottom: 6px;
-}
-
-.auditValue{
-  font-weight: 950;
-  color: rgba(255,255,255,0.92);
-
-  /* allow long emails/ids to wrap and grow the card */
-  white-space: normal;
-  overflow: visible;
-  text-overflow: unset;
-  word-break: break-word;
-}
-.auditSub{
-  margin-top: 4px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.68);
-  font-size: 0.88rem;
-}
-   /* ===== TABLES (contains items / ops) ===== */
-.containsTable{
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-/* Drag reorder rows */
-.containsRowDraggable { cursor: grab; }
-.containsRowDraggable.dragging { opacity: 0.35; }
-.containsRowDraggable.dragOver { outline: 2px dashed rgba(245,124,0,0.7); }
-    
-.containsTable th,
-.containsTable td{
+    .containsTable th,
+    .containsTable td{
       padding: 8px 8px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       vertical-align: middle;
@@ -589,10 +538,8 @@
       font-size: 0.78rem;
       letter-spacing: 0.2px;
     }
-    .containsCode{
-      font-weight: 950;
-      color: #fff;
-    }
+    .containsCode{ font-weight: 950; color: #fff; }
+
     .qtyInput{
       width: 86px;
       padding: 8px 10px;
@@ -619,13 +566,12 @@
       background: rgba(211,47,47,0.12);
       transform:none;
     }
-    
-/* ===== ORDER READY DROPZONE ACTIVE ===== */
-#dropzone.drop-active{
-  border-color: rgba(245,124,0,0.75) !important;
-  box-shadow: 0 0 0 4px rgba(245,124,0,0.14);
-}
-    /* ===== MODAL SYSTEM ===== */
+
+    #dropzone.drop-active{
+      border-color: rgba(245,124,0,0.75) !important;
+      box-shadow: 0 0 0 4px rgba(245,124,0,0.14);
+    }
+
     .modal {
       position: fixed;
       inset: 0;
@@ -756,23 +702,25 @@
     </div>
 
     <div class="panel tree">
-  <div class="panel-header">
-    <div class="treeHeader">
-      <span class="dot"></span>
+      <div class="panel-header">
+        <div class="treeHeader">
+          <span class="dot"></span>
+          <span id="treeTitle" class="treeHeaderTitle">Tree of Items</span>
 
-      <span id="treeTitle" class="treeHeaderTitle">Tree of Items</span>
+          <div class="treeToggle" role="tablist" aria-label="Tree filter">
+            <button id="filterAll" type="button" class="treeTab active" role="tab" aria-selected="true">All</button>
+            <button id="filterRaw" type="button" class="treeTab" role="tab" aria-selected="false">Raw</button>
+            <button id="filterBought" type="button" class="treeTab" role="tab" aria-selected="false">Bought</button>
+            <button id="filterFinal" type="button" class="treeTab" role="tab" aria-selected="false">Final</button>
+            <button id="filterOps" type="button" class="treeTab" role="tab" aria-selected="false">Ops</button>
+          </div>
+        </div>
+      </div>
 
-      <div class="treeToggle" role="tablist" aria-label="Tree toggle">
-        <button id="toggleTreeItems" type="button" class="treeTab active" role="tab" aria-selected="true">Items</button>
-        <button id="toggleTreeOps" type="button" class="treeTab" role="tab" aria-selected="false">Operations</button>
+      <div class="panel-body">
+        <div id="treeList"></div>
       </div>
     </div>
-  </div>
-
-  <div class="panel-body">
-    <div id="treeList"></div>
-  </div>
-</div>
 
     <div class="panel order-ready" id="dropzone">
       <div class="panel-body">
@@ -789,20 +737,19 @@
 
   <!-- RIGHT -->
   <div class="main">
-   <div class="topbar">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button id="newItemBtn" class="btn-primary" type="button">New Item</button>
+        <button id="newOpBtn" class="btn-primary" type="button">New Operation</button>
+      </div>
 
-  <div class="topbar-left">
-    <button id="newItemBtn" class="btn-primary" type="button">New Item</button>
-    <button id="newOpBtn" class="btn-primary" type="button">New Operation</button>
-  </div>
+      <div class="center-dot" aria-hidden="true"></div>
 
-  <div class="center-dot" aria-hidden="true"></div>
+      <div style="display:flex; gap:10px; align-items:center; color:var(--muted); font-weight:800;">
+        <span style="opacity:.9;">Company Workspace</span>
+      </div>
+    </div>
 
-  <div style="display:flex; gap:10px; align-items:center; color:var(--muted); font-weight:800;">
-    <span style="opacity:.9;">Company Workspace</span>
-  </div>
-
-</div>
     <div class="panel mainTop">
       <div class="containsRow">
         <div class="idCard">
@@ -817,11 +764,11 @@
 
         <div class="miniPanel">
           <div class="miniHeader">
-  Contains Operations:
-  <div style="font-weight:700;font-size:.75rem;opacity:.7;margin-top:2px;">
-    Drag operations into the order required (top = first operation)
-  </div>
-</div>
+            Contains Operations:
+            <div style="font-weight:700;font-size:.75rem;opacity:.7;margin-top:2px;">
+              Drag operations into the order required (top = first operation)
+            </div>
+          </div>
           <div class="miniBody" id="containsOps"></div>
         </div>
       </div>
@@ -829,68 +776,24 @@
 
     <div class="panel details" id="mainArea">
       <div class="panel-header">
-  <div class="panel-title"><span class="dot"></span> Item Data</div>
+        <div class="panel-title"><span class="dot"></span> Item Data</div>
 
-  <!-- NEW ACTION BUTTONS -->
-  <div style="display:flex; gap:10px;">
-    <button id="editActiveItemBtn" type="button">Edit</button>
-    <button id="deleteActiveItemBtn" class="btn-danger" type="button">Delete</button>
-  </div>
-</div>
+        <div style="display:flex; gap:10px;">
+          <button id="editActiveItemBtn" type="button" disabled>Edit</button>
+          <button id="deleteActiveItemBtn" class="btn-danger" type="button" disabled>Delete</button>
+        </div>
+      </div>
+
       <div class="panel-body">
-       <div class="detailsGrid">
+        <div class="detailsGrid">
+          <!-- Left card (hidden once we show right panel card) -->
+          <div class="card itemCard" id="leftItemCard"></div>
 
-  <div class="card itemCard" id="leftItemCard">
-    <div class="itemMetaGrid">
-      <div class="metaRow">
-        <div class="k">Item</div>
-        <div class="v" id="detailItem">—</div>
-      </div>
-
-      <div class="metaRow">
-        <div class="k">Type</div>
-        <div class="v" id="detailType">—</div>
-      </div>
-
-      <div class="metaRow">
-        <div class="k">Item Cost</div>
-        <div class="v" id="detailCost">—</div>
-      </div>
-
-      <div class="metaRow">
-        <div class="k">Operation Time</div>
-        <div class="v" id="detailTime">—</div>
-      </div>
-
-      <div class="metaRow metaRowFull">
-        <div class="k">Description</div>
-        <div class="v" id="detailEtc">—</div>
-      </div>
-    </div>
-
-    <div class="itemDivider"></div>
-
-    <div class="auditGrid">
-      <div class="auditCard">
-        <div class="auditLabel">Created</div>
-        <div class="auditValue" id="detailCreatedBy">—</div>
-        <div class="auditSub" id="detailCreatedDate">—</div>
-      </div>
-
-      <div class="auditCard">
-        <div class="auditLabel">Last edited</div>
-        <div class="auditValue" id="detailUpdatedBy">—</div>
-        <div class="auditSub" id="detailUpdatedDate">—</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="emptyHint" id="detailPanel">
-  Click an item in the Tree to view it here.<br/>
-  Use “New Item” to create an item.
-</div>
-
-</div>
+          <!-- Right panel that becomes a card when selected -->
+          <div class="emptyHint" id="detailPanel">
+            Click an item in the Tree to view it here.<br/>
+            Use “New Item” to create an item.
+          </div>
         </div>
       </div>
     </div>
@@ -973,8 +876,8 @@
     </div>
   </div>
 </div>
-  
-  <!-- ✅ New Operation Modal -->
+
+<!-- ✅ New Operation Modal -->
 <div id="newOpModal" class="modal" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="newOpTitle">
     <div class="modal-header">
@@ -1001,7 +904,7 @@
       <div style="color: rgba(255,255,255,0.72); font-weight: 800; font-size: 0.9rem; line-height: 1.35;">
         This creates:
         <b>companies/{companyId}/items/{OPCODE}</b> as an Operation, and
-        <b>stations/{OPCODE}</b> with your PIN.
+        <b>companies/{companyId}/stations/{OPCODE}</b> with your PIN.
       </div>
     </div>
 
@@ -1077,7 +980,8 @@
     </div>
   </div>
 </div>
-  <!-- ✅ Order Ready Modal -->
+
+<!-- ✅ Order Ready Modal -->
 <div id="orderReadyModal" class="modal" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="orderReadyTitle">
     <div class="modal-header">
@@ -1121,11 +1025,11 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
- import {
-  getFirestore, doc, getDoc, setDoc, deleteDoc, addDoc,
-  collection, onSnapshot, serverTimestamp, Timestamp,
-  query, where, getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import {
+    getFirestore, doc, getDoc, setDoc, deleteDoc, addDoc,
+    collection, onSnapshot, serverTimestamp, Timestamp,
+    query, where, getDocs
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
   import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
   const firebaseConfig = {
@@ -1156,40 +1060,33 @@
   const logoutBtn = document.getElementById("logoutBtn");
   const backBtn = document.getElementById("backBtn");
 
-  // Topbar
+  // Tree + top UI
   const newItemBtn = document.getElementById("newItemBtn");
+  const newOpBtn = document.getElementById("newOpBtn");
   const findInput = document.getElementById("findInput");
-
-  // Tree + active UI
   const treeListEl = document.getElementById("treeList");
   const treeTitleEl = document.getElementById("treeTitle");
-const toggleTreeItemsBtn = document.getElementById("toggleTreeItems");
-const toggleTreeOpsBtn = document.getElementById("toggleTreeOps");
 
-let treeMode = "items"; // "items" | "ops"
-let allOps = [];
-let allNonOps = [];
+  // Tree filter buttons
+  const filterAllBtn = document.getElementById("filterAll");
+  const filterRawBtn = document.getElementById("filterRaw");
+  const filterBoughtBtn = document.getElementById("filterBought");
+  const filterFinalBtn = document.getElementById("filterFinal");
+  const filterOpsBtn = document.getElementById("filterOps");
+
+  // Active UI
   const activeItemIdEl = document.getElementById("activeItemId");
   const containsItemsEl = document.getElementById("containsItems");
   const containsOpsEl = document.getElementById("containsOps");
 
-  // Detail UI
-  const detailItem = document.getElementById("detailItem");
-  const detailType = document.getElementById("detailType");
-  const detailCost = document.getElementById("detailCost");
-  const detailTime = document.getElementById("detailTime");
-  const detailEtc = document.getElementById("detailEtc");
-  const detailCreatedBy = document.getElementById("detailCreatedBy");
-const detailCreatedDate = document.getElementById("detailCreatedDate");
-const detailUpdatedBy = document.getElementById("detailUpdatedBy");
-const detailUpdatedDate = document.getElementById("detailUpdatedDate");
+  // Detail panel
   const detailPanelEl = document.getElementById("detailPanel");
   const leftItemCardEl = document.getElementById("leftItemCard");
-  // Active item action buttons
-const editActiveItemBtn = document.getElementById("editActiveItemBtn");
-const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
 
-  // Add member UI
+  const editActiveItemBtn = document.getElementById("editActiveItemBtn");
+  const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
+
+  // Modals: Add member
   const addMemberBtn = document.getElementById("addMemberBtn");
   const addMemberModal = document.getElementById("addMemberModal");
   const closeAddMemberModal = document.getElementById("closeAddMemberModal");
@@ -1199,7 +1096,7 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
   const memberRole = document.getElementById("memberRole");
   const addMemberStatus = document.getElementById("addMemberStatus");
 
-  // New item modal UI
+  // Modals: New item
   const newItemModal = document.getElementById("newItemModal");
   const closeNewItemModal = document.getElementById("closeNewItemModal");
   const cancelNewItem = document.getElementById("cancelNewItem");
@@ -1210,8 +1107,7 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
   const newItemCost = document.getElementById("newItemCost");
   const newItemStatus = document.getElementById("newItemStatus");
 
-  // New operation modal UI
-  const newOpBtn = document.getElementById("newOpBtn");
+  // Modals: New op
   const newOpModal = document.getElementById("newOpModal");
   const closeNewOpModal = document.getElementById("closeNewOpModal");
   const cancelNewOp = document.getElementById("cancelNewOp");
@@ -1220,8 +1116,8 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
   const newOpPin = document.getElementById("newOpPin");
   const newOpName = document.getElementById("newOpName");
   const newOpStatus = document.getElementById("newOpStatus");
-  
-  // Delete modal UI
+
+  // Modals: Delete
   const deleteItemModal = document.getElementById("deleteItemModal");
   const closeDeleteItemModal = document.getElementById("closeDeleteItemModal");
   const cancelDeleteItem = document.getElementById("cancelDeleteItem");
@@ -1231,7 +1127,7 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
   const deleteStatus = document.getElementById("deleteStatus");
   let pendingDeleteCode = null;
 
-  // Edit modal UI
+  // Modals: Edit
   const editItemModal = document.getElementById("editItemModal");
   const closeEditItemModal = document.getElementById("closeEditItemModal");
   const cancelEditItem = document.getElementById("cancelEditItem");
@@ -1242,58 +1138,67 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
   const editItemStatus = document.getElementById("editItemStatus");
   let pendingEditCode = null;
 
-  // Active item tracking
+  // Order ready modal
+  const dropzone = document.getElementById("dropzone");
+  const orderReadyModal = document.getElementById("orderReadyModal");
+  const closeOrderReadyModal = document.getElementById("closeOrderReadyModal");
+  const cancelOrderReady = document.getElementById("cancelOrderReady");
+  const confirmOrderReady = document.getElementById("confirmOrderReady");
+  const orderReadyItem = document.getElementById("orderReadyItem");
+  const orderReadyOrderNo = document.getElementById("orderReadyOrderNo");
+  const orderReadyQty = document.getElementById("orderReadyQty");
+  const orderReadyDue = document.getElementById("orderReadyDue");
+  const orderReadyStatus = document.getElementById("orderReadyStatus");
+  let pendingOrderReady = null;
+
+  // ---------- State ----------
+  let treeFilter = "all"; // all | raw_material | bought_out | final_saleable | operation
+
+  let allOps = [];
+  let allRaw = [];
+  let allBought = [];
+  let allFinal = [];
+  let allNonOps = [];
+  let allItems = [];
+
   let activeItemCode = null;
   let activeItemData = null;
 
-  // Cache latest items for type validation + active refresh
-  const itemsByCode = new Map(); // code -> item data
-  let allItems = []; // used by Find search filter
+  const itemsByCode = new Map(); // code -> item
 
   if (!companyId) {
     companyNameEl.textContent = "Missing company id (?c=...)";
     throw new Error("Missing ?c=");
   }
-  function formatDateOnly(ts){
-  try{
-    const d =
-      ts?.toDate ? ts.toDate() :
-      ts instanceof Date ? ts :
-      typeof ts === "number" ? new Date(ts) :
-      null;
 
-    if (!d || Number.isNaN(d.getTime())) return "—";
-
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "2-digit", month: "short", year: "numeric"
-    }).format(d);
-  } catch {
-    return "—";
-  }
-}
-  // ---------- Normalizers + renderers ----------
+  // ---------- Helpers ----------
   function getUserIdentifier(){
-  const u = auth.currentUser;
-  if (!u) return null;
+    const u = auth.currentUser;
+    if (!u) return null;
+    return (
+      u.email ||
+      u.providerData?.find(p => p?.email)?.email ||
+      u.displayName ||
+      u.uid ||
+      null
+    );
+  }
 
-  // Prefer email; fall back to provider email; then displayName; then uid
-  return (
-    u.email ||
-    u.providerData?.find(p => p?.email)?.email ||
-    u.displayName ||
-    u.uid ||
-    null
-  );
-}
-  function formatDate(ts){
-  if (!ts?.toDate) return "—";
-  const d = ts.toDate();
-  return d.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit"
-  });
-}
+  function formatDateOnly(ts){
+    try{
+      const d =
+        ts?.toDate ? ts.toDate() :
+        ts instanceof Date ? ts :
+        typeof ts === "number" ? new Date(ts) :
+        null;
+
+      if (!d || Number.isNaN(d.getTime())) return "—";
+      return new Intl.DateTimeFormat("en-GB", { day:"2-digit", month:"short", year:"numeric" }).format(d);
+    } catch {
+      return "—";
+    }
+  }
+
   function normalizeContains(contains){
     if (!Array.isArray(contains)) return [];
     return contains
@@ -1345,7 +1250,7 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
             <th style="width:20%;"></th>
           </tr>
         </thead>
-        <tbody id="containsTbody">
+        <tbody>
           ${rows.map(r => `
             <tr data-code="${r.code}">
               <td class="containsCode">${r.code}</td>
@@ -1359,71 +1264,51 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
   }
 
   function renderOperationsTable(container, opsArr){
-  const rows = normalizeOperations(opsArr);
+    const rows = normalizeOperations(opsArr);
 
-  if (rows.length === 0) {
-    container.style.color = "rgba(255,255,255,0.65)";
-    container.innerHTML = "No operations";
-    return;
+    if (rows.length === 0) {
+      container.style.color = "rgba(255,255,255,0.65)";
+      container.innerHTML = "No operations";
+      return;
+    }
+
+    container.style.color = "";
+    container.innerHTML = `
+      <table class="containsTable">
+        <thead>
+          <tr>
+            <th style="width:10%;">#</th>
+            <th style="width:45%;">Operation</th>
+            <th style="width:25%;">Items/hr</th>
+            <th style="width:20%;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((r,i) => `
+            <tr data-code="${r.code}" draggable="true" class="containsRowDraggable">
+              <td style="font-weight:900;">${i+1}</td>
+              <td class="containsCode">${r.code}</td>
+              <td><input class="qtyInput opIphInput" type="number" min="0" step="0.1" value="${r.iph}" /></td>
+              <td style="text-align:right;"><button class="rowBtn" type="button" data-op-remove="1">Remove</button></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
   }
 
-  container.style.color = "";
-  container.innerHTML = `
-    <table class="containsTable">
-      <thead>
-        <tr>
-          <th style="width:10%;">#</th>
-          <th style="width:45%;">Operation</th>
-          <th style="width:25%;">Items/hr</th>
-          <th style="width:20%;"></th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map((r,i) => `
-          <tr data-code="${r.code}" draggable="true" class="containsRowDraggable">
-            <td style="font-weight:900;">${i+1}</td>
-            <td class="containsCode">${r.code}</td>
-            <td><input class="qtyInput opIphInput" type="number" min="0" step="0.1" value="${r.iph}" /></td>
-            <td style="text-align:right;"><button class="rowBtn" type="button" data-op-remove="1">Remove</button></td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
-}
+  function renderDetailPanel(item){
+    if (leftItemCardEl) leftItemCardEl.style.display = "none";
 
-  function setActiveItem(item){
-    const code = item?.code || "—";
-    activeItemCode = (code && code !== "—") ? String(code).trim().toUpperCase() : null;
-    activeItemData = item || null;
+    if (!item || !activeItemCode) {
+      detailPanelEl.className = "emptyHint";
+      detailPanelEl.innerHTML = `
+        Click an item in the Tree to view it here.<br/>
+        Use “New Item” to create an item.
+      `;
+      return;
+    }
 
-    activeItemIdEl.textContent = code;
-
-    renderContainsTable(containsItemsEl, item?.contains);
-    renderOperationsTable(containsOpsEl, item?.operations);
-
-    detailItem.textContent = code;
-    detailType.textContent = TYPE_LABELS[item?.type] || "—";
-    detailCost.textContent = (item?.baseCost ?? "—");
-    detailTime.textContent = (item?.operationTime ?? "—");
-    detailEtc.textContent = (item?.description ?? "—");
-    detailCreatedBy.textContent = item?.createdBy ?? "—";
-detailCreatedDate.textContent = formatDateOnly(item?.createdAt);
-
-detailUpdatedBy.textContent = item?.updatedBy ?? "—";
-detailUpdatedDate.textContent = formatDateOnly(item?.updatedAt);
-
-    /// ===== Right panel content (matches left-card style) =====
-if (leftItemCardEl) leftItemCardEl.style.display = "none"; // hide the left one so no duplicates
-
-if (detailPanelEl) {
-  if (!item || !activeItemCode) {
-    detailPanelEl.className = "emptyHint";
-    detailPanelEl.innerHTML = `
-      Click an item in the Tree to view it here.<br/>
-      Use “New Item” to create an item.
-    `;
-  } else {
     detailPanelEl.className = "card itemCard";
     detailPanelEl.innerHTML = `
       <div class="itemMetaGrid">
@@ -1449,9 +1334,7 @@ if (detailPanelEl) {
 
         <div class="metaRow metaRowFull">
           <div class="k">Description</div>
-          <div class="v" style="white-space:normal; overflow:visible; text-overflow:unset;">
-            ${item?.description ?? "—"}
-          </div>
+          <div class="v">${item?.description ?? "—"}</div>
         </div>
       </div>
 
@@ -1472,57 +1355,60 @@ if (detailPanelEl) {
       </div>
     `;
   }
-}
-  // Enable/disable buttons depending on selection
-const hasItem = !!activeItemCode;
 
-if (editActiveItemBtn && deleteActiveItemBtn) {
-  editActiveItemBtn.disabled = !hasItem;
-  deleteActiveItemBtn.disabled = !hasItem;
-}
-}
+  function setActiveItem(item){
+    const code = (item?.code || "—").toUpperCase();
+    activeItemCode = (code && code !== "—") ? code : null;
+    activeItemData = item || null;
 
-  // ---------- Firestore save helpers ----------
-let qtySaveTimer = null;
-let iphSaveTimer = null;
+    activeItemIdEl.textContent = code || "—";
 
-async function saveContainsToActive(newContains){
-  if (!activeItemCode) return;
-  const ref = doc(db, "companies", companyId, "items", activeItemCode);
+    renderContainsTable(containsItemsEl, item?.contains);
+    renderOperationsTable(containsOpsEl, item?.operations);
+    renderDetailPanel(item);
 
-  await setDoc(ref, {
-    contains: newContains,
-    updatedBy: getUserIdentifier(),
-    updatedAt: serverTimestamp()
-  }, { merge: true });
-}
+    const has = !!activeItemCode;
+    editActiveItemBtn.disabled = !has;
+    deleteActiveItemBtn.disabled = !has;
+  }
 
-function scheduleQtySave(newContains){
-  clearTimeout(qtySaveTimer);
-  qtySaveTimer = setTimeout(() => {
-    saveContainsToActive(newContains).catch(console.error);
-  }, 250);
-}
+  // ---------- Save helpers (debounced) ----------
+  let qtySaveTimer = null;
+  let iphSaveTimer = null;
 
-async function saveOperationsToActive(newOperations){
-  if (!activeItemCode) return;
-  const ref = doc(db, "companies", companyId, "items", activeItemCode);
+  async function saveContainsToActive(newContains){
+    if (!activeItemCode) return;
+    await setDoc(doc(db, "companies", companyId, "items", activeItemCode), {
+      contains: newContains,
+      updatedBy: getUserIdentifier(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
 
-  await setDoc(ref, {
-    operations: newOperations,
-    updatedBy: getUserIdentifier(),
-    updatedAt: serverTimestamp()
-  }, { merge: true });
-}
+  function scheduleQtySave(newContains){
+    clearTimeout(qtySaveTimer);
+    qtySaveTimer = setTimeout(() => {
+      saveContainsToActive(newContains).catch(console.error);
+    }, 250);
+  }
 
-function scheduleIphSave(newOperations){
-  clearTimeout(iphSaveTimer);
-  iphSaveTimer = setTimeout(() => {
-    saveOperationsToActive(newOperations).catch(console.error);
-  }, 250);
-}
+  async function saveOperationsToActive(newOperations){
+    if (!activeItemCode) return;
+    await setDoc(doc(db, "companies", companyId, "items", activeItemCode), {
+      operations: newOperations,
+      updatedBy: getUserIdentifier(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
 
-  // ---------- Editable tables: qty + remove ----------
+  function scheduleIphSave(newOperations){
+    clearTimeout(iphSaveTimer);
+    iphSaveTimer = setTimeout(() => {
+      saveOperationsToActive(newOperations).catch(console.error);
+    }, 250);
+  }
+
+  // ---------- Editable contains items ----------
   containsItemsEl.addEventListener("input", (e) => {
     const input = e.target;
     if (!(input instanceof HTMLInputElement)) return;
@@ -1560,9 +1446,8 @@ function scheduleIphSave(newOperations){
     saveContainsToActive(next).catch(console.error);
   });
 
-  // ---------- Editable tables: items/hr + remove ----------
+  // ---------- Editable ops table (iph + remove + reorder) ----------
   containsOpsEl.addEventListener("input", (e) => {
-    
     const input = e.target;
     if (!(input instanceof HTMLInputElement)) return;
     if (!input.classList.contains("opIphInput")) return;
@@ -1581,61 +1466,59 @@ function scheduleIphSave(newOperations){
     activeItemData = { ...activeItemData, operations: next, code: activeItemCode };
     scheduleIphSave(next);
   });
-// ===== REORDER OPERATIONS =====
 
-let opDragSourceCode = null;
+  let opDragSourceCode = null;
 
-containsOpsEl.addEventListener("dragstart", (e) => {
-  const row = e.target.closest("tr");
-  if (!row) return;
+  containsOpsEl.addEventListener("dragstart", (e) => {
+    const row = e.target?.closest?.("tr");
+    if (!row) return;
+    opDragSourceCode = row.dataset.code || null;
+    row.classList.add("dragging");
+  });
 
-  opDragSourceCode = row.dataset.code;
-  row.classList.add("dragging");
-});
+  containsOpsEl.addEventListener("dragend", (e) => {
+    const row = e.target?.closest?.("tr");
+    if (row) row.classList.remove("dragging");
+    opDragSourceCode = null;
+  });
 
-containsOpsEl.addEventListener("dragend", (e) => {
-  const row = e.target.closest("tr");
-  if (row) row.classList.remove("dragging");
-  opDragSourceCode = null;
-});
+  containsOpsEl.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    const row = e.target?.closest?.("tr");
+    if (!row || !opDragSourceCode) return;
+    row.classList.add("dragOver");
+  });
 
-containsOpsEl.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  const row = e.target.closest("tr");
-  if (!row || !opDragSourceCode) return;
-  row.classList.add("dragOver");
-});
+  containsOpsEl.addEventListener("dragleave", (e) => {
+    const row = e.target?.closest?.("tr");
+    if (row) row.classList.remove("dragOver");
+  });
 
-containsOpsEl.addEventListener("dragleave", (e) => {
-  const row = e.target.closest("tr");
-  if (row) row.classList.remove("dragOver");
-});
+  containsOpsEl.addEventListener("drop", async (e) => {
+    e.preventDefault();
 
-containsOpsEl.addEventListener("drop", async (e) => {
-  e.preventDefault();
+    const targetRow = e.target?.closest?.("tr");
+    if (!targetRow || !opDragSourceCode || !activeItemData) return;
 
-  const targetRow = e.target.closest("tr");
-  if (!targetRow || !opDragSourceCode || !activeItemData) return;
+    targetRow.classList.remove("dragOver");
 
-  targetRow.classList.remove("dragOver");
+    const targetCode = targetRow.dataset.code;
+    if (!targetCode || targetCode === opDragSourceCode) return;
 
-  const targetCode = targetRow.dataset.code;
-  if (targetCode === opDragSourceCode) return;
+    const list = normalizeOperations(activeItemData.operations);
 
-  const list = normalizeOperations(activeItemData.operations);
+    const fromIndex = list.findIndex(i => i.code === opDragSourceCode);
+    const toIndex = list.findIndex(i => i.code === targetCode);
+    if (fromIndex < 0 || toIndex < 0) return;
 
-  const fromIndex = list.findIndex(i => i.code === opDragSourceCode);
-  const toIndex = list.findIndex(i => i.code === targetCode);
+    const moved = list.splice(fromIndex, 1)[0];
+    list.splice(toIndex, 0, moved);
 
-  const moved = list.splice(fromIndex, 1)[0];
-  list.splice(toIndex, 0, moved);
+    activeItemData = { ...activeItemData, operations: list, code: activeItemCode };
+    renderOperationsTable(containsOpsEl, list);
+    await saveOperationsToActive(list);
+  });
 
-  activeItemData = { ...activeItemData, operations: list, code: activeItemCode };
-  renderOperationsTable(containsOpsEl, list);
-
-  await saveOperationsToActive(list);
-});
-  
   containsOpsEl.addEventListener("click", (e) => {
     const btn = e.target;
     if (!(btn instanceof HTMLElement)) return;
@@ -1653,172 +1536,6 @@ containsOpsEl.addEventListener("drop", async (e) => {
     saveOperationsToActive(next).catch(console.error);
   });
 
-  // ===================== ORDER READY (DROPZONE -> MODAL -> FIRESTORE) =====================
-const dropzone = document.getElementById("dropzone");
-
-const orderReadyModal = document.getElementById("orderReadyModal");
-const closeOrderReadyModal = document.getElementById("closeOrderReadyModal");
-const cancelOrderReady = document.getElementById("cancelOrderReady");
-const confirmOrderReady = document.getElementById("confirmOrderReady");
-
-const orderReadyItem = document.getElementById("orderReadyItem");
-const orderReadyOrderNo = document.getElementById("orderReadyOrderNo");
-const orderReadyQty = document.getElementById("orderReadyQty");
-const orderReadyDue = document.getElementById("orderReadyDue");
-const orderReadyStatus = document.getElementById("orderReadyStatus");
-
-let pendingOrderReady = null; // { code, type }
-
-function openOrderReadyModal(payload){
-  pendingOrderReady = payload;
-
-  orderReadyItem.textContent = payload?.code || "—";
-  orderReadyOrderNo.value = "";
-  orderReadyQty.value = "1";
-  orderReadyDue.value = "";
-  orderReadyStatus.textContent = "";
-
-  orderReadyModal.classList.add("open");
-  orderReadyModal.setAttribute("aria-hidden", "false");
-  setTimeout(() => orderReadyOrderNo.focus(), 0);
-}
-
-function closeOrderReadyModalFn(){
-  orderReadyModal.classList.remove("open");
-  orderReadyModal.setAttribute("aria-hidden", "true");
-  pendingOrderReady = null;
-}
-
-closeOrderReadyModal?.addEventListener("click", closeOrderReadyModalFn);
-cancelOrderReady?.addEventListener("click", closeOrderReadyModalFn);
-orderReadyModal?.addEventListener("click", (e) => {
-  if (e.target === orderReadyModal) closeOrderReadyModalFn();
-});
-
-// Allow ESC to close this one too (your existing ESC handler can be extended)
-document.addEventListener("keydown", (e) => {
-  if (e.key !== "Escape") return;
-  if (orderReadyModal.classList.contains("open")) closeOrderReadyModalFn();
-});
-
-// Firestore write: creates a "job" for operators to pick up
-async function getItemOpsInOrder(itemCode){
-  const snap = await getDoc(doc(db, "companies", companyId, "items", itemCode));
-  if (!snap.exists()) throw new Error(`Item ${itemCode} not found.`);
-  const data = snap.data() || {};
-
-  // Your items store operations like: [{code:"LASER", iph:0}, {code:"BEND", iph:0}]
-  const ops = normalizeOperations(data.operations);
-
-  if (!ops.length) {
-    throw new Error(`Item ${itemCode} has no operations. Add operations first.`);
-  }
-
-  return ops; // already ordered
-}
-
-async function sendOrderToOperators({ code, type }){
-  const itemCode = String(code || "").trim().toUpperCase();
-  if (!itemCode) throw new Error("Missing item code.");
-
-  // Block sending an OPERATION item as a job
-  const resolvedType = await resolveItemType(itemCode, type);
-  if (resolvedType === "operation") {
-    throw new Error("Drop a normal item (not an Operation).");
-  }
-
-  const orderNo = String(orderReadyOrderNo.value || "").trim();
-  const qty = Math.max(1, Math.floor(Number(orderReadyQty.value || 1)));
-  if (!orderNo) throw new Error("Order number is required.");
-  
-  const dueRaw = String(orderReadyDue.value || "").trim();
-  if (!dueRaw) throw new Error("Due date is required.");
-  
-  const dueDate = new Date(dueRaw);
-  if (Number.isNaN(dueDate.getTime())) throw new Error("Invalid due date.");
-  
-  const dueAt = Timestamp.fromDate(dueDate);
-  
-  // ✅ Pull the ordered operation list from the item
-  const ops = await getItemOpsInOrder(itemCode);
-
-  const jobsRef = collection(db, "companies", companyId, "jobs");
-
-  await addDoc(jobsRef, {
-    itemCode,
-    orderNo,
-    qty,
-    
-    dueAt, 
-    
-    ops,                    // ordered queue: [{code, iph}, ...]
-    currentOpIndex: 0,
-    currentOpCode: ops[0].code,
-
-    status: "ready",        // ready -> in_progress -> ready -> ... -> complete
-    createdBy: getUserIdentifier(),
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-
-    // optional history trail
-    history: [{
-      event: "created",
-      at: Date.now(),
-      by: getUserIdentifier()
-    }]
-  });
-}
-
-confirmOrderReady?.addEventListener("click", async () => {
-  if (!pendingOrderReady?.code) return;
-
-  confirmOrderReady.disabled = true;
-  orderReadyStatus.textContent = "Sending…";
-
-  try{
-    await sendOrderToOperators(pendingOrderReady);
-    orderReadyStatus.textContent = "Sent!";
-    setTimeout(closeOrderReadyModalFn, 350);
-  } catch(err){
-    console.error(err);
-    orderReadyStatus.textContent = err?.message || "Failed to send.";
-  } finally{
-    confirmOrderReady.disabled = false;
-  }
-});
-
-// Dropzone drag/drop
-if (dropzone){
-  dropzone.addEventListener("dragenter", (e) => {
-    e.preventDefault();
-    dropzone.classList.add("drop-active");
-  });
-
-  dropzone.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dropzone.classList.add("drop-active");
-    e.dataTransfer.dropEffect = "copy";
-  });
-
-  dropzone.addEventListener("dragleave", (e) => {
-    // only remove highlight if leaving the dropzone fully
-    if (e.relatedTarget && dropzone.contains(e.relatedTarget)) return;
-    dropzone.classList.remove("drop-active");
-  });
-
-  dropzone.addEventListener("drop", async (e) => {
-    e.preventDefault();
-    dropzone.classList.remove("drop-active");
-
-    const payload = readDragPayload(e.dataTransfer);
-    if (!payload?.code) return;
-
-    // Optional: only allow "items" tree to feed this
-    // (we already block operations in sendOrderToOperators anyway)
-    openOrderReadyModal(payload);
-  });
-}
-  
   // ---------- Drag/drop UI helpers ----------
   function setDropActive(el, isActive){
     const panel = el.closest(".miniPanel");
@@ -1834,6 +1551,23 @@ if (dropzone){
     } catch {}
     const code = (dt.getData("text/plain") || "").trim().toUpperCase();
     return code ? { code, type: "" } : null;
+  }
+
+  async function resolveItemType(code, fallbackType){
+    const clean = String(code || "").trim().toUpperCase();
+    const typeLower = String(fallbackType || "").toLowerCase();
+    if (typeLower) return typeLower;
+
+    const cached = itemsByCode.get(clean);
+    if (cached?.type) return String(cached.type).toLowerCase();
+
+    try {
+      const snap = await getDoc(doc(db, "companies", companyId, "items", clean));
+      if (!snap.exists()) return "";
+      return String(snap.data()?.type || "").toLowerCase();
+    } catch {
+      return "";
+    }
   }
 
   // ---------- Drop into Contains Items ----------
@@ -1857,12 +1591,15 @@ if (dropzone){
 
     const data = snap.data() || {};
     const current = normalizeContains(data.contains);
-
     if (current.some(r => r.code === child)) return;
 
     const next = [...current, { code: child, qty: 1 }];
 
-    await setDoc(parentRef, { contains: next, updatedAt: serverTimestamp() }, { merge: true });
+    await setDoc(parentRef, {
+      contains: next,
+      updatedBy: getUserIdentifier(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
 
     activeItemData = { ...(activeItemData || {}), code: activeItemCode, contains: next };
     renderContainsTable(containsItemsEl, next);
@@ -1875,44 +1612,27 @@ if (dropzone){
     setDropActive(containsItemsEl, false);
   });
   containsItemsEl.addEventListener("drop", async (e) => {
-  e.preventDefault();
-  setDropActive(containsItemsEl, false);
+    e.preventDefault();
+    setDropActive(containsItemsEl, false);
 
-  const payload = readDragPayload(e.dataTransfer);
-  if (!payload?.code) return;
+    const payload = readDragPayload(e.dataTransfer);
+    if (!payload?.code) return;
 
-  // 🚫 BLOCK operations from being dropped into Contains Items
-  const type = await resolveItemType(payload.code, payload.type);
-  if (type === "operation") {
-    alert("Operations can only be dropped into Contains Operations.");
-    return;
-  }
-
-  try {
-    await addContainedItemToActiveItem(payload.code);
-  } catch (err) {
-    console.error(err);
-    alert(err?.message || "Failed to add contained item.");
-  }
-});
-  // ---------- Drop into Contains Operations ----------
-  async function resolveItemType(code, fallbackType){
-    const clean = String(code || "").trim().toUpperCase();
-    const typeLower = String(fallbackType || "").toLowerCase();
-    if (typeLower) return typeLower;
-
-    const cached = itemsByCode.get(clean);
-    if (cached?.type) return String(cached.type).toLowerCase();
+    const type = await resolveItemType(payload.code, payload.type);
+    if (type === "operation") {
+      alert("Operations can only be dropped into Contains Operations.");
+      return;
+    }
 
     try {
-      const snap = await getDoc(doc(db, "companies", companyId, "items", clean));
-      if (!snap.exists()) return "";
-      return String(snap.data()?.type || "").toLowerCase();
-    } catch {
-      return "";
+      await addContainedItemToActiveItem(payload.code);
+    } catch (err) {
+      console.error(err);
+      alert(err?.message || "Failed to add contained item.");
     }
-  }
+  });
 
+  // ---------- Drop into Contains Operations ----------
   async function addOperationToActiveItem(opCode){
     if (!activeItemCode) {
       alert("Select an item first (the one that will contain the operation).");
@@ -1933,12 +1653,15 @@ if (dropzone){
 
     const data = snap.data() || {};
     const current = normalizeOperations(data.operations);
-
     if (current.some(r => r.code === child)) return;
 
     const next = [...current, { code: child, iph: 0 }];
 
-    await setDoc(parentRef, { operations: next, updatedAt: serverTimestamp() }, { merge: true });
+    await setDoc(parentRef, {
+      operations: next,
+      updatedBy: getUserIdentifier(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
 
     activeItemData = { ...(activeItemData || {}), code: activeItemCode, operations: next };
     renderOperationsTable(containsOpsEl, next);
@@ -1971,117 +1694,159 @@ if (dropzone){
     }
   });
 
-  // ---------- Firestore: live tree ----------
-  
-  // ===== TREE RENDERER (used for search filtering) =====
-function renderTree(items, queryText = "") {
-  const q = String(queryText || "").trim().toLowerCase();
-  treeListEl.innerHTML = "";
+  // ---------- Tree ----------
+  function renderTree(items, queryText = "") {
+    const q = String(queryText || "").trim().toLowerCase();
+    treeListEl.innerHTML = "";
 
-  const filtered = !q
-    ? items
-    : items.filter(it => {
-        const code = String(it.code || "").toLowerCase();
-        const desc = String(it.description || "").toLowerCase();
-        return code.includes(q) || desc.includes(q);
-      });
-
-  if (filtered.length === 0) {
-    treeListEl.style.color = "rgba(255,255,255,0.65)";
-    treeListEl.textContent = q
-      ? `No results for "${queryText}"`
-      : "No items yet. Click “New Item” to create one.";
-    return;
-  }
-
-  treeListEl.style.color = "";
-
-  filtered.forEach((item) => {
-    const code = (item.code || "").toUpperCase();
-
-    const row = document.createElement("div");
-    row.className = "tree-item";
-    row.draggable = true;
-
-    row.addEventListener("dragstart", (e) => {
-      e.dataTransfer.setData("application/json", JSON.stringify({ code, type: item.type || "" }));
-      e.dataTransfer.setData("text/plain", code);
-      e.dataTransfer.effectAllowed = "copy";
+    const filtered = !q ? items : items.filter(it => {
+      const code = String(it.code || "").toLowerCase();
+      const desc = String(it.description || "").toLowerCase();
+      return code.includes(q) || desc.includes(q);
     });
 
-    const left = document.createElement("div");
-    left.className = "left";
-    left.innerHTML = `
-      <strong>${code}</strong>
-      <div class="muted">${item.description || "—"}</div>
-    `;
-    left.addEventListener("click", () => setActiveItem(item));
+    if (filtered.length === 0) {
+      treeListEl.style.color = "rgba(255,255,255,0.65)";
+      treeListEl.textContent = q
+        ? `No results for "${queryText}"`
+        : "No items yet. Click “New Item” to create one.";
+      return;
+    }
 
-    const btnWrap = document.createElement("div");
-    btnWrap.style.display = "flex";
-    btnWrap.style.flexDirection = "column";
-    btnWrap.style.gap = "6px";
-    btnWrap.style.flex = "0 0 auto";
+    treeListEl.style.color = "";
 
-    row.appendChild(left);
-treeListEl.appendChild(row);
-  });
-}
+    filtered.forEach((item) => {
+      const code = (item.code || "").toUpperCase();
 
-function renderCurrentTree() {
-  const list = (treeMode === "ops") ? allOps : allNonOps;
+      const row = document.createElement("div");
+      row.className = "tree-item";
+      row.draggable = true;
 
-  if (treeTitleEl) {
-    treeTitleEl.textContent = (treeMode === "ops") ? "Tree of Operations" : "Tree of Items";
+      row.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("application/json", JSON.stringify({ code, type: item.type || "" }));
+        e.dataTransfer.setData("text/plain", code);
+        e.dataTransfer.effectAllowed = "copy";
+      });
+
+      const left = document.createElement("div");
+      left.className = "left";
+      left.innerHTML = `
+        <strong>${code}</strong>
+        <div class="muted">${item.description || "—"}</div>
+      `;
+      left.addEventListener("click", () => setActiveItem(item));
+
+      row.appendChild(left);
+      treeListEl.appendChild(row);
+    });
   }
 
-  renderTree(list, findInput.value);
-}
+  function renderCurrentTree() {
+    let list = allNonOps; // ✅ All = non-ops by default
+
+    if (treeFilter === "operation") list = allOps;
+    else if (treeFilter === "raw_material") list = allRaw;
+    else if (treeFilter === "bought_out") list = allBought;
+    else if (treeFilter === "final_saleable") list = allFinal;
+    else if (treeFilter === "all") list = allNonOps;
+
+    if (treeTitleEl) {
+      const title =
+        treeFilter === "operation" ? "Tree of Operations" :
+        treeFilter === "raw_material" ? "Tree of Raw Materials" :
+        treeFilter === "bought_out" ? "Tree of Bought Out Items" :
+        treeFilter === "final_saleable" ? "Tree of Final Saleable Items" :
+        "Tree of All Items";
+
+      treeTitleEl.textContent = title;
+    }
+
+    renderTree(list, findInput.value);
+  }
+
+  function setTreeFilter(next) {
+    treeFilter = next;
+
+    const map = [
+      [filterAllBtn, "all"],
+      [filterRawBtn, "raw_material"],
+      [filterBoughtBtn, "bought_out"],
+      [filterFinalBtn, "final_saleable"],
+      [filterOpsBtn, "operation"],
+    ];
+
+    map.forEach(([btn, key]) => {
+      if (!btn) return;
+      const active = treeFilter === key;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+    });
+
+    renderCurrentTree();
+  }
+
+  filterAllBtn?.addEventListener("click", () => setTreeFilter("all"));
+  filterRawBtn?.addEventListener("click", () => setTreeFilter("raw_material"));
+  filterBoughtBtn?.addEventListener("click", () => setTreeFilter("bought_out"));
+  filterFinalBtn?.addEventListener("click", () => setTreeFilter("final_saleable"));
+  filterOpsBtn?.addEventListener("click", () => setTreeFilter("operation"));
+
+  findInput.addEventListener("input", () => renderCurrentTree());
+
   function watchItems(companyId){
     const itemsRef = collection(db, "companies", companyId, "items");
 
     onSnapshot(itemsRef, (snap) => {
-  itemsByCode.clear();
-allItems = [];
+      let firstNonOp = null;
 
-allOps = [];
-allNonOps = [];
+      itemsByCode.clear();
+      allItems = [];
+      allOps = [];
+      allRaw = [];
+      allBought = [];
+      allFinal = [];
+      allNonOps = [];
 
-  if (snap.empty) {
-    treeListEl.style.color = "rgba(255,255,255,0.65)";
-    treeListEl.textContent = "No items yet. Click “New Item” to create one.";
-    setActiveItem(null);
-    return;
+      snap.forEach((d) => {
+        const item = d.data() || {};
+        const code = (item.code || d.id || "").toUpperCase();
+        const normalized = { ...item, code };
+
+        itemsByCode.set(code, normalized);
+        allItems.push(normalized);
+
+        const type = String(normalized.type || "").toLowerCase();
+        if (type === "operation") {
+          allOps.push(normalized);
+        } else {
+          allNonOps.push(normalized);
+          if (!firstNonOp) firstNonOp = normalized;
+
+          if (type === "raw_material") allRaw.push(normalized);
+          else if (type === "bought_out") allBought.push(normalized);
+          else if (type === "final_saleable") allFinal.push(normalized);
+        }
+      });
+
+      // Keep active selection fresh
+      if (activeItemCode && itemsByCode.has(activeItemCode)) {
+        setActiveItem(itemsByCode.get(activeItemCode));
+      } else if (!activeItemCode && firstNonOp) {
+        setActiveItem(firstNonOp);
+      } else if (firstNonOp) {
+        setActiveItem(firstNonOp);
+      } else {
+        setActiveItem(null);
+      }
+
+      renderCurrentTree();
+    }, (err) => {
+      console.error("Tree listener error:", err);
+      treeListEl.innerHTML = `<div style="color:#ffb4b4;font-weight:900;">
+        Error loading items: ${err.message}
+      </div>`;
+    });
   }
-
-  let first = null;
-
-  snap.forEach((d) => {
-    const item = d.data();
-    const code = (item.code || d.id || "").toUpperCase();
-    const normalized = { ...item, code };
-
-    itemsByCode.set(code, normalized);
-    allItems.push(normalized);
-    const type = String(normalized.type || "").toLowerCase();
-if (type === "operation") allOps.push(normalized);
-else allNonOps.push(normalized);
-
-    if (!first) first = normalized;
-  });
-
-  if (!activeItemCode && first) setActiveItem(first);
-  else if (activeItemCode && itemsByCode.has(activeItemCode)) setActiveItem(itemsByCode.get(activeItemCode));
-  else if (first) setActiveItem(first);
-
-  renderCurrentTree();
-}, (err) => {
-  console.error("Tree listener error:", err);
-  treeListEl.innerHTML = `<div style="color:#ffb4b4;font-weight:900;">
-    Error loading items: ${err.message}
-  </div>`;
-});
-}
 
   // ---------- Branding + auth ----------
   async function loadCompanyBranding(companyId) {
@@ -2091,13 +1856,13 @@ else allNonOps.push(normalized);
       return;
     }
 
-    const company = snap.data();
+    const company = snap.data() || {};
     const name = company.displayname || "Company";
     const logoUrl = company.Logourl || "";
 
     companyNameEl.textContent = name;
     if (logoUrl) {
-      companyLogoEl.src = logoUrl;
+      companyLogoEl.src = logoUrl;       // ✅ correct variable
       companyLogoEl.style.display = "block";
     }
 
@@ -2108,7 +1873,7 @@ else allNonOps.push(normalized);
     const userSnap = await getDoc(doc(db, "users", user.uid));
     if (!userSnap.exists()) throw new Error("User profile missing (users/{uid}).");
 
-    const data = userSnap.data();
+    const data = userSnap.data() || {};
     const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
 
     if (!userCompany) throw new Error("User profile missing companycode.");
@@ -2145,6 +1910,7 @@ else allNonOps.push(normalized);
 
   // ---------- Edit modal ----------
   function openEditItemModal(item){
+    if (!item?.code) return;
     pendingEditCode = item.code;
 
     editItemCode.value = item.code;
@@ -2152,7 +1918,6 @@ else allNonOps.push(normalized);
     editItemCost.value = (item.baseCost ?? "");
 
     editItemStatus.textContent = "";
-
     editItemModal.classList.add("open");
     editItemModal.setAttribute("aria-hidden", "false");
     setTimeout(() => editItemDescription.focus(), 0);
@@ -2166,9 +1931,7 @@ else allNonOps.push(normalized);
 
   closeEditItemModal.addEventListener("click", closeEditItemModalFn);
   cancelEditItem.addEventListener("click", closeEditItemModalFn);
-  editItemModal.addEventListener("click", (e)=>{
-    if(e.target === editItemModal) closeEditItemModalFn();
-  });
+  editItemModal.addEventListener("click", (e)=>{ if(e.target === editItemModal) closeEditItemModalFn(); });
 
   saveEditItem.addEventListener("click", async ()=>{
     if(!pendingEditCode) return;
@@ -2180,25 +1943,25 @@ else allNonOps.push(normalized);
     editItemStatus.textContent = "Saving…";
 
     try{
-  await setDoc(
-    doc(db, "companies", companyId, "items", pendingEditCode),
-    {
-      description,
-      baseCost: Number.isFinite(baseCost) ? baseCost : 0,
-      updatedBy: getUserIdentifier(),
-      updatedAt: serverTimestamp()
-    },
-    { merge: true }
-  );
+      await setDoc(
+        doc(db, "companies", companyId, "items", pendingEditCode),
+        {
+          description,
+          baseCost: Number.isFinite(baseCost) ? baseCost : 0,
+          updatedBy: getUserIdentifier(),
+          updatedAt: serverTimestamp()
+        },
+        { merge: true }
+      );
 
-  editItemStatus.textContent = "Saved!";
-  setTimeout(closeEditItemModalFn, 300);
-} catch(err){
-  console.error(err);
-  editItemStatus.textContent = err?.message || "Save failed.";
-} finally{
-  saveEditItem.disabled = false;
-}
+      editItemStatus.textContent = "Saved!";
+      setTimeout(closeEditItemModalFn, 300);
+    } catch(err){
+      console.error(err);
+      editItemStatus.textContent = err?.message || "Save failed.";
+    } finally{
+      saveEditItem.disabled = false;
+    }
   });
 
   // ---------- New Item modal ----------
@@ -2220,13 +1983,12 @@ else allNonOps.push(normalized);
   newItemBtn.addEventListener("click", openNewItemModal);
   closeNewItemModal.addEventListener("click", closeNewItemModalFn);
   cancelNewItem.addEventListener("click", closeNewItemModalFn);
-  newItemModal.addEventListener("click", (e) => {
-    if (e.target === newItemModal) closeNewItemModalFn();
-  });
+  newItemModal.addEventListener("click", (e) => { if (e.target === newItemModal) closeNewItemModalFn(); });
 
   saveNewItem.addEventListener("click", async () => {
     let type = String(newItemType.value || "final_saleable");
-if (type.toLowerCase() === "operation") type = "final_saleable";
+    if (type.toLowerCase() === "operation") type = "final_saleable";
+
     const code = String(newItemCode.value || "").trim().toUpperCase();
     const description = String(newItemDescription.value || "").trim();
     const baseCost = Number(newItemCost.value || 0);
@@ -2241,30 +2003,25 @@ if (type.toLowerCase() === "operation") type = "final_saleable";
 
     try {
       const itemRef = doc(db, "companies", companyId, "items", code);
-
       const existing = await getDoc(itemRef);
       if (existing.exists()) {
         newItemStatus.textContent = `${code} already exists.`;
         return;
       }
 
-      const user = auth.currentUser;
+      await setDoc(itemRef, {
+        code,
+        type,
+        description,
+        baseCost: Number.isFinite(baseCost) ? baseCost : 0,
+        contains: [],
+        operations: [],
+        createdBy: getUserIdentifier(),
+        updatedBy: getUserIdentifier(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
 
-await setDoc(itemRef, {
-  code,
-  type,
-  description,
-  baseCost: Number.isFinite(baseCost) ? baseCost : 0,
-  contains: [],
-  operations: [],
-
-  // ⭐ ADD THESE TWO LINES
-  createdBy: getUserIdentifier(),
-updatedBy: getUserIdentifier(),
-  
-  createdAt: serverTimestamp(),
-  updatedAt: serverTimestamp()
-});
       newItemStatus.textContent = "Saved!";
       setTimeout(closeNewItemModalFn, 350);
     } catch (err) {
@@ -2276,135 +2033,109 @@ updatedBy: getUserIdentifier(),
   });
 
   // ---------- New Operation modal ----------
-function openNewOpModal() {
-  newOpStatus.textContent = "";
-  newOpCode.value = "";
-  newOpPin.value = "";
-  newOpName.value = "";
-  newOpModal.classList.add("open");
-  newOpModal.setAttribute("aria-hidden", "false");
-  setTimeout(() => newOpCode.focus(), 0);
-}
-
-function closeNewOpModalFn() {
-  newOpModal.classList.remove("open");
-  newOpModal.setAttribute("aria-hidden", "true");
-}
-
-newOpBtn?.addEventListener("click", openNewOpModal);
-closeNewOpModal?.addEventListener("click", closeNewOpModalFn);
-cancelNewOp?.addEventListener("click", closeNewOpModalFn);
-newOpModal?.addEventListener("click", (e) => {
-  if (e.target === newOpModal) closeNewOpModalFn();
-});
-
-// helper: only allow digits in pin
-newOpPin?.addEventListener("input", () => {
-  newOpPin.value = newOpPin.value.replace(/[^\d]/g, "").slice(0, 12);
-});
-
-async function isPinTaken(companyId, pin) {
-  const qPins = query(
-    collection(db, "companies", companyId, "stations"),
-    where("pin", "==", pin),
-    where("active", "==", true)
-  );
-  const snap = await getDocs(qPins);
-  return !snap.empty;
-}
-
-saveNewOp?.addEventListener("click", async () => {
-  const code = String(newOpCode.value || "").trim().toUpperCase();
-  const pin = String(newOpPin.value || "").trim();
-  const displayName = String(newOpName.value || "").trim();
-
-  if (!code) {
-    newOpStatus.textContent = "Operation code is required.";
-    return;
-  }
-  if (!pin) {
-    newOpStatus.textContent = "Station PIN is required.";
-    return;
+  function openNewOpModal() {
+    newOpStatus.textContent = "";
+    newOpCode.value = "";
+    newOpPin.value = "";
+    newOpName.value = "";
+    newOpModal.classList.add("open");
+    newOpModal.setAttribute("aria-hidden", "false");
+    setTimeout(() => newOpCode.focus(), 0);
   }
 
-  saveNewOp.disabled = true;
-  newOpStatus.textContent = "Checking…";
+  function closeNewOpModalFn() {
+    newOpModal.classList.remove("open");
+    newOpModal.setAttribute("aria-hidden", "true");
+  }
 
-  try {
-    // 1) ensure PIN is unique for this company
-    const taken = await isPinTaken(companyId, pin);
-    if (taken) {
-      newOpStatus.textContent = "That PIN is already in use for this company.";
-      return;
-    }
+  newOpBtn?.addEventListener("click", openNewOpModal);
+  closeNewOpModal?.addEventListener("click", closeNewOpModalFn);
+  cancelNewOp?.addEventListener("click", closeNewOpModalFn);
+  newOpModal?.addEventListener("click", (e) => { if (e.target === newOpModal) closeNewOpModalFn(); });
 
-    // 2) ensure station doc does not already exist (prevents half-creates)
-    const stationRef = doc(db, "companies", companyId, "stations", code);
-    const existingStation = await getDoc(stationRef);
-    if (existingStation.exists()) {
-      throw new Error(`Station '${code}' already exists. Choose a different code.`);
-    }
+  newOpPin?.addEventListener("input", () => {
+    newOpPin.value = newOpPin.value.replace(/[^\d]/g, "").slice(0, 12);
+  });
 
-    // 3) ensure item doc doesn't exist as a NON-operation
-    const itemRef = doc(db, "companies", companyId, "items", code);
-    const existingItem = await getDoc(itemRef);
+  async function isPinTaken(companyId, pin) {
+    const qPins = query(
+      collection(db, "companies", companyId, "stations"),
+      where("pin", "==", pin),
+      where("active", "==", true)
+    );
+    const snap = await getDocs(qPins);
+    return !snap.empty;
+  }
 
-    if (existingItem.exists()) {
-      const data = existingItem.data() || {};
-      const t = String(data.type || "").toLowerCase();
-      if (t && t !== "operation") {
-        throw new Error(`${code} already exists and is not an Operation.`);
+  saveNewOp?.addEventListener("click", async () => {
+    const code = String(newOpCode.value || "").trim().toUpperCase();
+    const pin = String(newOpPin.value || "").trim();
+    const displayName = String(newOpName.value || "").trim();
+
+    if (!code) { newOpStatus.textContent = "Operation code is required."; return; }
+    if (!pin) { newOpStatus.textContent = "Station PIN is required."; return; }
+
+    saveNewOp.disabled = true;
+    newOpStatus.textContent = "Checking…";
+
+    try {
+      const taken = await isPinTaken(companyId, pin);
+      if (taken) {
+        newOpStatus.textContent = "That PIN is already in use for this company.";
+        return;
       }
-      // if it already exists as operation, we can either:
-      // - stop (safer), or
-      // - allow creating station anyway
-      // We'll stop to avoid confusion:
-      throw new Error(`${code} operation already exists.`);
+
+      const stationRef = doc(db, "companies", companyId, "stations", code);
+      const existingStation = await getDoc(stationRef);
+      if (existingStation.exists()) throw new Error(`Station '${code}' already exists.`);
+
+      const itemRef = doc(db, "companies", companyId, "items", code);
+      const existingItem = await getDoc(itemRef);
+      if (existingItem.exists()) {
+        const t = String(existingItem.data()?.type || "").toLowerCase();
+        if (t && t !== "operation") throw new Error(`${code} already exists and is not an Operation.`);
+        throw new Error(`${code} operation already exists.`);
+      }
+
+      newOpStatus.textContent = "Saving…";
+
+      await setDoc(itemRef, {
+        code,
+        type: "operation",
+        description: displayName || code,
+        baseCost: 0,
+        contains: [],
+        operations: [],
+        createdBy: getUserIdentifier(),
+        updatedBy: getUserIdentifier(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      await setDoc(stationRef, {
+        companyId,
+        pin,
+        active: true,
+        opCode: code,
+        displayName: displayName || code,
+        createdBy: getUserIdentifier(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      newOpStatus.textContent = "Created!";
+      setTreeFilter("operation");
+      setTimeout(closeNewOpModalFn, 350);
+
+    } catch (err) {
+      console.error(err);
+      newOpStatus.textContent = err?.message || "Failed to create operation.";
+    } finally {
+      saveNewOp.disabled = false;
     }
+  });
 
-    newOpStatus.textContent = "Saving…";
-
-    // 4) create Operation item so it shows in Operations tab
-    await setDoc(itemRef, {
-      code,
-      type: "operation",
-      description: displayName || code,
-      baseCost: 0,
-      contains: [],
-      operations: [],
-      createdBy: getUserIdentifier(),
-      updatedBy: getUserIdentifier(),
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-
-    // 5) create station doc used by StationPin.html
-    await setDoc(stationRef, {
-      companyId,
-      pin,
-      active: true,
-      opCode: code,
-      displayName: displayName || code,
-      createdBy: getUserIdentifier(),
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-
-   newOpStatus.textContent = "Created!";
-
-// switch tree to Operations tab automatically
-setTreeMode("ops");
-
-setTimeout(closeNewOpModalFn, 350);
-  } catch (err) {
-    console.error(err);
-    newOpStatus.textContent = err?.message || "Failed to create operation.";
-  } finally {
-    saveNewOp.disabled = false;
-  }
-});
-  
-  // ---------- Delete modal ----------
+  // ---------- Delete modal (also deletes station if operation) ----------
   function openDeleteModal(code){
     pendingDeleteCode = code;
     deleteItemName.textContent = code;
@@ -2425,9 +2156,7 @@ setTimeout(closeNewOpModalFn, 350);
 
   closeDeleteItemModal.addEventListener("click", closeDeleteModal);
   cancelDeleteItem.addEventListener("click", closeDeleteModal);
-  deleteItemModal.addEventListener("click", (e) => {
-    if (e.target === deleteItemModal) closeDeleteModal();
-  });
+  deleteItemModal.addEventListener("click", (e) => { if (e.target === deleteItemModal) closeDeleteModal(); });
 
   deleteConfirmText.addEventListener("input", () => {
     confirmDeleteItem.disabled = deleteConfirmText.value.trim().toUpperCase() !== "DELETE";
@@ -2441,7 +2170,18 @@ setTimeout(closeNewOpModalFn, 350);
     deleteStatus.textContent = "Deleting…";
 
     try {
-      await deleteDoc(doc(db, "companies", companyId, "items", pendingDeleteCode));
+      const itemRef = doc(db, "companies", companyId, "items", pendingDeleteCode);
+      const snap = await getDoc(itemRef);
+
+      const type = String(snap.data()?.type || "").toLowerCase();
+
+      // ✅ if operation, also remove its station doc
+      if (type === "operation") {
+        await deleteDoc(doc(db, "companies", companyId, "stations", pendingDeleteCode));
+      }
+
+      await deleteDoc(itemRef);
+
       deleteStatus.textContent = "Deleted.";
       setTimeout(closeDeleteModal, 250);
     } catch (err) {
@@ -2468,9 +2208,7 @@ setTimeout(closeNewOpModalFn, 350);
   addMemberBtn.addEventListener("click", openAddMemberModal);
   closeAddMemberModal.addEventListener("click", closeAddMemberModalFn);
   cancelAddMember.addEventListener("click", closeAddMemberModalFn);
-  addMemberModal.addEventListener("click", (e) => {
-    if (e.target === addMemberModal) closeAddMemberModalFn();
-  });
+  addMemberModal.addEventListener("click", (e) => { if (e.target === addMemberModal) closeAddMemberModalFn(); });
 
   async function callCreateCompanyMember(email, role) {
     const fn = httpsCallable(functions, "createCompanyMember");
@@ -2496,25 +2234,141 @@ setTimeout(closeNewOpModalFn, 350);
       setTimeout(closeAddMemberModalFn, 800);
     } catch (err) {
       console.error(err);
-      addMemberStatus.textContent =
-        err?.message || "Could not create member. (Have you deployed the Cloud Function?)";
+      addMemberStatus.textContent = err?.message || "Could not create member.";
     } finally {
       createMemberBtn.disabled = false;
     }
   });
 
-  // ---------- ESC closes topmost modal ----------
-    // ===== ACTIVE ITEM ACTION BUTTONS =====
-editActiveItemBtn?.addEventListener("click", () => {
-  if (!activeItemData) return;
-  openEditItemModal(activeItemData);
-});
+  // ---------- Active item action buttons ----------
+  editActiveItemBtn?.addEventListener("click", () => {
+    if (!activeItemData) return;
+    openEditItemModal(activeItemData);
+  });
 
-deleteActiveItemBtn?.addEventListener("click", () => {
-  if (!activeItemCode) return;
-  openDeleteModal(activeItemCode);
-});
-    document.addEventListener("keydown", (e) => {
+  deleteActiveItemBtn?.addEventListener("click", () => {
+    if (!activeItemCode) return;
+    openDeleteModal(activeItemCode);
+  });
+
+  // ---------- Order Ready (Dropzone -> Modal -> Firestore job) ----------
+  function openOrderReadyModal(payload){
+    pendingOrderReady = payload;
+
+    orderReadyItem.textContent = payload?.code || "—";
+    orderReadyOrderNo.value = "";
+    orderReadyQty.value = "1";
+    orderReadyDue.value = "";
+    orderReadyStatus.textContent = "";
+
+    orderReadyModal.classList.add("open");
+    orderReadyModal.setAttribute("aria-hidden", "false");
+    setTimeout(() => orderReadyOrderNo.focus(), 0);
+  }
+
+  function closeOrderReadyModalFn(){
+    orderReadyModal.classList.remove("open");
+    orderReadyModal.setAttribute("aria-hidden", "true");
+    pendingOrderReady = null;
+  }
+
+  closeOrderReadyModal?.addEventListener("click", closeOrderReadyModalFn);
+  cancelOrderReady?.addEventListener("click", closeOrderReadyModalFn);
+  orderReadyModal?.addEventListener("click", (e) => { if (e.target === orderReadyModal) closeOrderReadyModalFn(); });
+
+  async function getItemOpsInOrder(itemCode){
+    const snap = await getDoc(doc(db, "companies", companyId, "items", itemCode));
+    if (!snap.exists()) throw new Error(`Item ${itemCode} not found.`);
+    const data = snap.data() || {};
+    const ops = normalizeOperations(data.operations);
+    if (!ops.length) throw new Error(`Item ${itemCode} has no operations. Add operations first.`);
+    return ops;
+  }
+
+  async function sendOrderToOperators({ code, type }){
+    const itemCode = String(code || "").trim().toUpperCase();
+    if (!itemCode) throw new Error("Missing item code.");
+
+    const resolvedType = await resolveItemType(itemCode, type);
+    if (resolvedType === "operation") throw new Error("Drop a normal item (not an Operation).");
+
+    const orderNo = String(orderReadyOrderNo.value || "").trim();
+    const qty = Math.max(1, Math.floor(Number(orderReadyQty.value || 1)));
+    if (!orderNo) throw new Error("Order number is required.");
+
+    const dueRaw = String(orderReadyDue.value || "").trim();
+    if (!dueRaw) throw new Error("Due date is required.");
+
+    const dueDate = new Date(dueRaw);
+    if (Number.isNaN(dueDate.getTime())) throw new Error("Invalid due date.");
+    const dueAt = Timestamp.fromDate(dueDate);
+
+    const ops = await getItemOpsInOrder(itemCode);
+    const jobsRef = collection(db, "companies", companyId, "jobs");
+
+    await addDoc(jobsRef, {
+      itemCode,
+      orderNo,
+      qty,
+      dueAt,
+      ops,
+      currentOpIndex: 0,
+      currentOpCode: ops[0].code,
+      status: "ready",
+      createdBy: getUserIdentifier(),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      history: [{
+        event: "created",
+        atClient: Date.now(),
+        atServer: serverTimestamp(),
+        by: getUserIdentifier()
+      }]
+    });
+  }
+
+  confirmOrderReady?.addEventListener("click", async () => {
+    if (!pendingOrderReady?.code) return;
+
+    confirmOrderReady.disabled = true;
+    orderReadyStatus.textContent = "Sending…";
+
+    try{
+      await sendOrderToOperators(pendingOrderReady);
+      orderReadyStatus.textContent = "Sent!";
+      setTimeout(closeOrderReadyModalFn, 350);
+    } catch(err){
+      console.error(err);
+      orderReadyStatus.textContent = err?.message || "Failed to send.";
+    } finally{
+      confirmOrderReady.disabled = false;
+    }
+  });
+
+  if (dropzone){
+    dropzone.addEventListener("dragenter", (e) => { e.preventDefault(); dropzone.classList.add("drop-active"); });
+    dropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropzone.classList.add("drop-active");
+      e.dataTransfer.dropEffect = "copy";
+    });
+    dropzone.addEventListener("dragleave", (e) => {
+      if (e.relatedTarget && dropzone.contains(e.relatedTarget)) return;
+      dropzone.classList.remove("drop-active");
+    });
+    dropzone.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      dropzone.classList.remove("drop-active");
+
+      const payload = readDragPayload(e.dataTransfer);
+      if (!payload?.code) return;
+
+      openOrderReadyModal(payload);
+    });
+  }
+
+  // ---------- ESC closes topmost modal ----------
+  document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
 
     if (deleteItemModal.classList.contains("open")) closeDeleteModal();
@@ -2522,32 +2376,8 @@ deleteActiveItemBtn?.addEventListener("click", () => {
     else if (addMemberModal.classList.contains("open")) closeAddMemberModalFn();
     else if (newItemModal.classList.contains("open")) closeNewItemModalFn();
     else if (newOpModal.classList.contains("open")) closeNewOpModalFn();
+    else if (orderReadyModal.classList.contains("open")) closeOrderReadyModalFn();
   });
-
-  // Find (still placeholder)
-  // ===== LIVE SEARCH FILTER =====
-  function setTreeMode(nextMode){
-  treeMode = (nextMode === "ops") ? "ops" : "items";
-
-  if (toggleTreeItemsBtn && toggleTreeOpsBtn) {
-    const isItems = treeMode === "items";
-
-    toggleTreeItemsBtn.classList.toggle("active", isItems);
-    toggleTreeOpsBtn.classList.toggle("active", !isItems);
-
-    toggleTreeItemsBtn.setAttribute("aria-selected", isItems ? "true" : "false");
-    toggleTreeOpsBtn.setAttribute("aria-selected", !isItems ? "true" : "false");
-  }
-
-  renderCurrentTree();
-}
-
-toggleTreeItemsBtn?.addEventListener("click", () => setTreeMode("items"));
-toggleTreeOpsBtn?.addEventListener("click", () => setTreeMode("ops"));
-findInput.addEventListener("input", () => {
-  renderCurrentTree();
-});
-  
 </script>
 </body>
 </html>
