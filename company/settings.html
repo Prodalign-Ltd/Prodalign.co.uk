@@ -2305,8 +2305,7 @@ newOpPin?.addEventListener("input", () => {
 
 async function isPinTaken(companyId, pin) {
   const qPins = query(
-    collection(db, "stations"),
-    where("companyId", "==", companyId),
+    collection(db, "companies", companyId, "stations"),
     where("pin", "==", pin),
     where("active", "==", true)
   );
@@ -2340,7 +2339,7 @@ saveNewOp?.addEventListener("click", async () => {
     }
 
     // 2) ensure station doc does not already exist (prevents half-creates)
-    const stationRef = doc(db, "stations", code);
+    const stationRef = doc(db, "companies", companyId, "stations", code);
     const existingStation = await getDoc(stationRef);
     if (existingStation.exists()) {
       throw new Error(`Station '${code}' already exists. Choose a different code.`);
