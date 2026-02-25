@@ -40,9 +40,7 @@
       width: 420px;
       max-width: 95%;
       height: auto;
-      margin: -140px -100px; /* keep your preferred positioning */
-      user-select: none;
-      -webkit-user-drag: none;
+      margin: -140px -100px;
     }
 
     .login-card {
@@ -60,7 +58,6 @@
       margin: 0 0 10px 0;
       text-align: center;
       font-weight: 800;
-      letter-spacing: 0.3px;
       color: var(--flame);
     }
 
@@ -69,7 +66,6 @@
       text-align: center;
       font-size: 0.92rem;
       opacity: 0.8;
-      line-height: 1.35;
     }
 
     form {
@@ -106,29 +102,9 @@
       font-size: 1rem;
       font-weight: 800;
       cursor: pointer;
-      transition: box-shadow 0.2s ease, transform 0.05s ease;
     }
 
-    button:hover { box-shadow: 0 8px 20px rgba(255, 75, 43, 0.4); }
-    button:active { transform: translateY(1px); }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      opacity: 0.85;
-    }
-
-    .row a {
-      color: #fff;
-      opacity: 0.9;
-      text-decoration: none;
-    }
-    .row a:hover { opacity: 1; text-decoration: underline; }
+    button:disabled { opacity: 0.6; }
 
     .msg {
       margin-top: 14px;
@@ -136,246 +112,136 @@
       border-radius: 10px;
       background: rgba(0,0,0,0.25);
       font-size: 0.92rem;
-      line-height: 1.35;
       display: none;
       white-space: pre-line;
     }
 
     .msg.show { display: block; }
-    .msg.ok { border: 1px solid rgba(60, 200, 120, 0.35); }
     .msg.err { border: 1px solid rgba(255, 80, 80, 0.35); }
 
-    .footer {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 0.8rem;
-      opacity: 0.6;
-    }
-
-    @media (max-width: 480px) {
-      .login-card { padding: 30px; }
-      .logo { margin: -120px -60px; }
-    }
   </style>
 </head>
 
 <body>
   <div class="page-wrapper">
-    <!-- This is your site/app logo (not the company logo) -->
+
     <img src="/logo.png" alt="ProdAlign Ltd Logo" class="logo" />
 
     <div class="login-card">
       <h2>Company Login</h2>
-      <p class="sub">
-        Sign in to access your company portal.
-      </p>
+      <p class="sub">Sign in to access your company portal.</p>
 
       <form id="companyLoginForm">
         <div>
-          <label for="email">Email Address</label>
-          <input type="email" id="email" required autocomplete="email" />
+          <label>Email Address</label>
+          <input type="email" id="email" required />
         </div>
 
         <div>
-          <label for="password">Password</label>
-          <input type="password" id="password" required autocomplete="current-password" />
+          <label>Password</label>
+          <input type="password" id="password" required />
         </div>
 
         <button id="loginBtn" type="submit">Secure Login</button>
       </form>
 
       <div id="message" class="msg"></div>
-
-      <div class="row">
-        <a href="/companylogin/">Refresh</a>
-        <span>•</span>
-        <a href="javascript:void(0)" id="logoutLink">Log out</a>
-      </div>
-
-      <div class="footer">© 2026 ProdAlign Ltd. All rights reserved.</div>
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getAuth,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    // ✅ Firebase config (client-side keys are expected to be public; security comes from Rules)
-    const firebaseConfig = {
-      apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
-      authDomain: "prodalign-ltd.firebaseapp.com",
-      projectId: "prodalign-ltd",
-      storageBucket: "prodalign-ltd.firebasestorage.app",
-      messagingSenderId: "899967683787",
-      appId: "1:899967683787:web:b83544276739e1adcc1f4e",
-      measurementId: "G-PCJSZYMHYQ"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
+  authDomain: "prodalign-ltd.firebaseapp.com",
+  projectId: "prodalign-ltd"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-    // DOM
-    const form = document.getElementById("companyLoginForm");
-    const emailEl = document.getElementById("email");
-    const passEl = document.getElementById("password");
-    const logoutLink = document.getElementById("logoutLink");
-    const loginBtn = document.getElementById("loginBtn");
-    const messageEl = document.getElementById("message");
+const form = document.getElementById("companyLoginForm");
+const emailEl = document.getElementById("email");
+const passEl = document.getElementById("password");
+const loginBtn = document.getElementById("loginBtn");
+const messageEl = document.getElementById("message");
 
-    function showMsg(text, type = "ok") {
-      messageEl.textContent = text;
-      messageEl.classList.remove("ok", "err", "show");
-      messageEl.classList.add("show", type === "err" ? "err" : "ok");
+function showError(text){
+  messageEl.textContent = text;
+  messageEl.classList.add("show","err");
+}
+
+async function getUserProfile(uid){
+  const snap = await getDoc(doc(db,"users",uid));
+  if(!snap.exists()) return null;
+
+  const data = snap.data();
+
+  return {
+    companyCode: String(data.companycode ?? "").trim().toLowerCase(),
+    role: String(data.role ?? "admin").trim().toLowerCase(),
+    station: String(data.station ?? "").trim().toLowerCase()
+  };
+}
+
+async function routeUser(user){
+  const profile = await getUserProfile(user.uid);
+
+  if(!profile || !profile.companyCode){
+    showError("User not assigned to a company.");
+    return;
+  }
+
+  // ✅ OPERATOR → station dashboard
+  if(profile.role === "operator"){
+    if(!profile.station){
+      showError("Operator has no station assigned.");
+      return;
     }
 
-    function clearMsg() {
-      messageEl.textContent = "";
-      messageEl.classList.remove("ok", "err", "show");
-    }
+    window.location.assign(
+      `/shopfloor/bending.html?c=${profile.companyCode}&station=${profile.station}`
+    );
+    return;
+  }
 
-    function setLoading(isLoading) {
-      loginBtn.disabled = isLoading;
-      loginBtn.textContent = isLoading ? "Signing in..." : "Secure Login";
-    }
+  // ✅ ADMIN → management dashboard
+  window.location.assign(`/company/?c=${profile.companyCode}`);
+}
 
-    // --- Company routing logic ---
-    // Your Firestore user doc contains: companycode (lowercase) per your screenshot.
-    // It also may contain companyName, role, etc.
-    async function getCompanyCodeForUser(uid) {
-      const userSnap = await getDoc(doc(db, "users", uid));
-      if (!userSnap.exists()) return null;
+onAuthStateChanged(auth,(user)=>{
+  if(user){
+    routeUser(user);
+  }
+});
 
-      const data = userSnap.data();
+form.addEventListener("submit", async(e)=>{
+  e.preventDefault();
+  loginBtn.disabled = true;
 
-      // Support both spellings to avoid future mismatch:
-      //   - companycode (your current)
-      //   - companyCode (if you later rename)
-      const rawCode = data.companycode ?? data.companyCode;
-      if (!rawCode) return null;
-
-      return String(rawCode).trim().toLowerCase();
-    }
-
-    async function goToCompanyPortal(user) {
-      // if your user profile doc is missing, show a helpful message instead of guessing
-      try {
-        const companyCode = await getCompanyCodeForUser(user.uid);
-
-        if (!companyCode) {
-          showMsg(
-            "Signed in, but your account hasn't been assigned to a company yet.\n" +
-            "Ask an admin to add your user record in Firestore: users/{uid}.companycode",
-            "err"
-          );
-          return;
-        }
-
-        // Optional: sanity-check the company doc exists (nice for debugging)
-        // You can remove this check later for speed.
-        const companySnap = await getDoc(doc(db, "companies", companyCode));
-        if (!companySnap.exists()) {
-          showMsg(
-            `Signed in, but company '${companyCode}' was not found in Firestore (companies/${companyCode}).`,
-            "err"
-          );
-          return;
-        }
-
-        // Redirect to your company portal screen
-        window.location.assign(`/company/?c=${encodeURIComponent(companyCode)}`);
-
-      } catch (err) {
-        console.error("Redirect failed:", err?.code, err?.message, err);
-        showMsg(
-          "Couldn't load your company profile.\n" +
-          "If you see 'permission-denied', update Firestore Rules to allow reading users/{uid}.\n\n" +
-          `Error: ${err?.code || "unknown"}`,
-          "err"
-        );
-      }
-    }
-
-    // Prevent "can't log out" loops:
-    // We set a session flag before signOut, so auth state change doesn't re-route.
-    function isLoggingOut() {
-      return sessionStorage.getItem("loggingOut") === "1";
-    }
-
-    function setLoggingOut(flag) {
-      if (flag) sessionStorage.setItem("loggingOut", "1");
-      else sessionStorage.removeItem("loggingOut");
-    }
-
-    // Auto-redirect if already logged in
-    onAuthStateChanged(auth, (user) => {
-      if (isLoggingOut()) {
-        // Wait until Firebase confirms signed-out, then clear the flag
-        if (!user) setLoggingOut(false);
-        return;
-      }
-
-      if (user) {
-        // Already signed in -> go straight to portal
-        goToCompanyPortal(user);
-      }
-    });
-
-    // Login
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      clearMsg();
-      setLoading(true);
-
-      try {
-        const email = emailEl.value.trim();
-        const pass = passEl.value;
-
-        const cred = await signInWithEmailAndPassword(auth, email, pass);
-
-        // Now route based on Firestore users/{uid}.companycode
-        await goToCompanyPortal(cred.user);
-
-      } catch (err) {
-        console.error("Login failed:", err?.code, err?.message, err);
-
-        // Friendly message
-        const code = err?.code || "";
-        let msg = "Login failed. Please check email and password.";
-        if (code.includes("auth/too-many-requests")) msg = "Too many attempts. Try again in a few minutes.";
-        if (code.includes("auth/user-not-found")) msg = "No account found for that email.";
-        if (code.includes("auth/wrong-password")) msg = "Incorrect password.";
-        if (code.includes("auth/invalid-email")) msg = "That email address looks invalid.";
-
-        showMsg(msg, "err");
-      } finally {
-        setLoading(false);
-      }
-    });
-
-    // Logout
-    logoutLink.addEventListener("click", async (e) => {
-      e.preventDefault();
-      clearMsg();
-
-      try {
-        setLoggingOut(true);
-        await signOut(auth);
-
-        // Hard redirect back to login page
-        window.location.assign("/companylogin/");
-      } catch (err) {
-        console.error("Logout failed:", err?.code, err?.message, err);
-        showMsg("Logout failed. Please refresh the page and try again.", "err");
-        setLoggingOut(false);
-      }
-    });
-  </script>
+  try{
+    const cred = await signInWithEmailAndPassword(
+      auth,
+      emailEl.value.trim(),
+      passEl.value
+    );
+    await routeUser(cred.user);
+  }
+  catch(err){
+    showError("Login failed. Check email & password.");
+  }
+  finally{
+    loginBtn.disabled = false;
+  }
+});
+</script>
 </body>
 </html>
