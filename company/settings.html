@@ -433,7 +433,94 @@
       font-weight: 800;
       text-align: center;
     }
+/* ===== ITEM DATA CARD (cleaner) ===== */
+.itemCard{
+  padding: 14px;
+}
 
+.itemMetaGrid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 14px;
+}
+
+.metaRow{
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.metaRowFull{
+  grid-column: 1 / -1;
+}
+
+.itemCard .k{
+  font-size: 0.75rem;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.62);
+  font-weight: 900;
+}
+
+.itemCard .v{
+  font-weight: 900;
+  color: rgba(255,255,255,0.92);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemCard #detailEtc{
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.35;
+  color: rgba(255,255,255,0.80);
+  font-weight: 800;
+}
+
+.itemDivider{
+  height: 1px;
+  margin: 14px 0 12px;
+  background: rgba(255,255,255,0.08);
+}
+
+.auditGrid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.auditCard{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.16);
+  border-radius: 12px;
+  padding: 10px 10px;
+}
+
+.auditLabel{
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: rgba(255,255,255,0.60);
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.auditValue{
+  font-weight: 950;
+  color: rgba(255,255,255,0.92);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auditSub{
+  margin-top: 4px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.68);
+  font-size: 0.88rem;
+}
    /* ===== TABLES (contains items / ops) ===== */
 .containsTable{
   width: 100%;
@@ -697,23 +784,59 @@
   </div>
 </div>
       <div class="panel-body">
-        <div class="detailsGrid">
-          <div class="card">
-            <div class="kv">
-              <div><b>Item:</b> <span id="detailItem">—</span></div>
-              <div><b>Type:</b> <span id="detailType">—</span></div>
-              <div><b>Item Cost:</b> <span id="detailCost">—</span></div>
-              <div><b>Operation Time:</b> <span id="detailTime">—</span></div>
-              <div><b>Description:</b> <span id="detailEtc">—</span></div>
-              <div><b>Created By:</b> <span id="detailCreatedBy">—</span></div>
-<div><b>Date Created:</b> <span id="detailCreatedAt">—</span></div>
-            </div>
-          </div>
+       <div class="detailsGrid">
 
-          <div class="emptyHint">
-            Click an item in the Tree to view it here.<br/>
-            Use “New Item” to create your first item.
-          </div>
+  <div class="card itemCard">
+    <div class="itemMetaGrid">
+      <div class="metaRow">
+        <div class="k">Item</div>
+        <div class="v" id="detailItem">—</div>
+      </div>
+
+      <div class="metaRow">
+        <div class="k">Type</div>
+        <div class="v" id="detailType">—</div>
+      </div>
+
+      <div class="metaRow">
+        <div class="k">Item Cost</div>
+        <div class="v" id="detailCost">—</div>
+      </div>
+
+      <div class="metaRow">
+        <div class="k">Operation Time</div>
+        <div class="v" id="detailTime">—</div>
+      </div>
+
+      <div class="metaRow metaRowFull">
+        <div class="k">Description</div>
+        <div class="v" id="detailEtc">—</div>
+      </div>
+    </div>
+
+    <div class="itemDivider"></div>
+
+    <div class="auditGrid">
+      <div class="auditCard">
+        <div class="auditLabel">Created</div>
+        <div class="auditValue" id="detailCreatedBy">—</div>
+        <div class="auditSub" id="detailCreatedDate">—</div>
+      </div>
+
+      <div class="auditCard">
+        <div class="auditLabel">Last edited</div>
+        <div class="auditValue" id="detailUpdatedBy">—</div>
+        <div class="auditSub" id="detailUpdatedDate">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="emptyHint">
+    Click an item in the Tree to view it here.<br/>
+    Use “New Item” to create your first item.
+  </div>
+
+</div>
         </div>
       </div>
     </div>
@@ -924,7 +1047,9 @@ let allNonOps = [];
   const detailTime = document.getElementById("detailTime");
   const detailEtc = document.getElementById("detailEtc");
   const detailCreatedBy = document.getElementById("detailCreatedBy");
-const detailCreatedAt = document.getElementById("detailCreatedAt");
+const detailCreatedDate = document.getElementById("detailCreatedDate");
+const detailUpdatedBy = document.getElementById("detailUpdatedBy");
+const detailUpdatedDate = document.getElementById("detailUpdatedDate");
   // Active item action buttons
 const editActiveItemBtn = document.getElementById("editActiveItemBtn");
 const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
@@ -983,7 +1108,23 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
     companyNameEl.textContent = "Missing company id (?c=...)";
     throw new Error("Missing ?c=");
   }
+  function formatDateOnly(ts){
+  try{
+    const d =
+      ts?.toDate ? ts.toDate() :
+      ts instanceof Date ? ts :
+      typeof ts === "number" ? new Date(ts) :
+      null;
 
+    if (!d || Number.isNaN(d.getTime())) return "—";
+
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "2-digit", month: "short", year: "numeric"
+    }).format(d);
+  } catch {
+    return "—";
+  }
+}
   // ---------- Normalizers + renderers ----------
   function formatDate(ts){
   if (!ts?.toDate) return "—";
@@ -1108,7 +1249,10 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
     detailTime.textContent = (item?.operationTime ?? "—");
     detailEtc.textContent = (item?.description ?? "—");
     detailCreatedBy.textContent = item?.createdBy ?? "—";
-detailCreatedAt.textContent = formatDate(item?.createdAt);
+detailCreatedDate.textContent = formatDateOnly(item?.createdAt);
+
+detailUpdatedBy.textContent = item?.updatedBy ?? "—";
+detailUpdatedDate.textContent = formatDateOnly(item?.updatedAt);
   // Enable/disable buttons depending on selection
 const hasItem = !!activeItemCode;
 
@@ -1119,34 +1263,44 @@ if (editActiveItemBtn && deleteActiveItemBtn) {
 }
 
   // ---------- Firestore save helpers ----------
-  let qtySaveTimer = null;
-  let iphSaveTimer = null;
+let qtySaveTimer = null;
+let iphSaveTimer = null;
 
-  async function saveContainsToActive(newContains){
-    if (!activeItemCode) return;
-    const ref = doc(db, "companies", companyId, "items", activeItemCode);
-    await setDoc(ref, { contains: newContains, updatedAt: serverTimestamp() }, { merge: true });
-  }
+async function saveContainsToActive(newContains){
+  if (!activeItemCode) return;
+  const ref = doc(db, "companies", companyId, "items", activeItemCode);
 
-  function scheduleQtySave(newContains){
-    clearTimeout(qtySaveTimer);
-    qtySaveTimer = setTimeout(() => {
-      saveContainsToActive(newContains).catch(console.error);
-    }, 250);
-  }
+  await setDoc(ref, {
+    contains: newContains,
+    updatedBy: auth.currentUser?.uid || null,
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+}
 
-  async function saveOperationsToActive(newOperations){
-    if (!activeItemCode) return;
-    const ref = doc(db, "companies", companyId, "items", activeItemCode);
-    await setDoc(ref, { operations: newOperations, updatedAt: serverTimestamp() }, { merge: true });
-  }
+function scheduleQtySave(newContains){
+  clearTimeout(qtySaveTimer);
+  qtySaveTimer = setTimeout(() => {
+    saveContainsToActive(newContains).catch(console.error);
+  }, 250);
+}
 
-  function scheduleIphSave(newOperations){
-    clearTimeout(iphSaveTimer);
-    iphSaveTimer = setTimeout(() => {
-      saveOperationsToActive(newOperations).catch(console.error);
-    }, 250);
-  }
+async function saveOperationsToActive(newOperations){
+  if (!activeItemCode) return;
+  const ref = doc(db, "companies", companyId, "items", activeItemCode);
+
+  await setDoc(ref, {
+    operations: newOperations,
+    updatedBy: auth.currentUser?.uid || null,
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+}
+
+function scheduleIphSave(newOperations){
+  clearTimeout(iphSaveTimer);
+  iphSaveTimer = setTimeout(() => {
+    saveOperationsToActive(newOperations).catch(console.error);
+  }, 250);
+}
 
   // ---------- Editable tables: qty + remove ----------
   containsItemsEl.addEventListener("input", (e) => {
@@ -1640,24 +1794,25 @@ else allNonOps.push(normalized);
     editItemStatus.textContent = "Saving…";
 
     try{
-      await setDoc(
-        doc(db, "companies", companyId, "items", pendingEditCode),
-        {
-          description,
-          baseCost: Number.isFinite(baseCost) ? baseCost : 0,
-          updatedAt: serverTimestamp()
-        },
-        { merge: true }
-      );
+  await setDoc(
+    doc(db, "companies", companyId, "items", pendingEditCode),
+    {
+      description,
+      baseCost: Number.isFinite(baseCost) ? baseCost : 0,
+      updatedBy: auth.currentUser?.uid || null,
+      updatedAt: serverTimestamp()
+    },
+    { merge: true }
+  );
 
-      editItemStatus.textContent = "Saved!";
-      setTimeout(closeEditItemModalFn, 300);
-    } catch(err){
-      console.error(err);
-      editItemStatus.textContent = err?.message || "Save failed.";
-    } finally{
-      saveEditItem.disabled = false;
-    }
+  editItemStatus.textContent = "Saved!";
+  setTimeout(closeEditItemModalFn, 300);
+} catch(err){
+  console.error(err);
+  editItemStatus.textContent = err?.message || "Save failed.";
+} finally{
+  saveEditItem.disabled = false;
+}
   });
 
   // ---------- New Item modal ----------
@@ -1715,8 +1870,12 @@ await setDoc(itemRef, {
   baseCost: Number.isFinite(baseCost) ? baseCost : 0,
   contains: [],
   operations: [],
+
+  // ⭐ ADD THESE TWO LINES
+  createdBy: auth.currentUser?.uid || null,
+  updatedBy: auth.currentUser?.uid || null,
+
   createdAt: serverTimestamp(),
-  createdBy: user?.email || user?.uid || "unknown",
   updatedAt: serverTimestamp()
 });
       newItemStatus.textContent = "Saved!";
