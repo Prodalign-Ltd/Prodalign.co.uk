@@ -21,39 +21,31 @@
       min-height:100vh;
       background:var(--bg);
       color:#fff;
+      overflow-x:hidden;
     }
 
-    /* Center everything as a vertical stack */
-    .pageWrapper{
-      min-height:100vh;
+    /* Branding area (logo + company name) */
+    .brandTop{
+      width:100%;
       display:flex;
       flex-direction:column;
       align-items:center;
-      justify-content:center;
-      padding:30px 16px;
-      text-align:center;
-      gap:14px;
-    }
-
-    /* Branding slot: ALWAYS takes space so the card never jumps */
-    .brandSlot{
-      width: min(520px, 92vw);
-      min-height: 220px;          /* reserve space */
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-end;
+      justify-content:flex-start;
+      padding-top:40px;
       gap:10px;
+      text-align:center;
+      pointer-events:none; /* brand should never block clicks */
     }
 
     .logo{
-      max-width: 85%;
-      max-height: 160px;          /* prevents tall logos wrecking layout */
-      width: auto;
+      max-width: 380px;
+      width: min(380px, 80vw);
+      max-height: 180px;
       height: auto;
       user-select:none;
       -webkit-user-drag:none;
       filter:drop-shadow(0 10px 30px rgba(0,0,0,0.45));
+      display:none;
     }
 
     .companyName{
@@ -62,20 +54,23 @@
       letter-spacing:.3px;
       opacity:.9;
       line-height:1.2;
+      display:none;
     }
 
-    /* Start invisible but still takes space */
-    .invisible{
-      visibility:hidden;          /* keeps layout */
-    }
-
+    /* ✅ CARD IS FIXED AND CANNOT MOVE */
     .card{
+      position:fixed;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%);
       width:min(460px,92vw);
       background:rgba(255,255,255,.08);
       backdrop-filter:blur(16px);
       border-radius:18px;
       padding:32px;
       box-shadow:0 25px 50px rgba(0,0,0,.5);
+      text-align:center;
+      z-index:10;
     }
 
     h2{margin:0 0 8px 0;font-weight:900;letter-spacing:.2px;color:var(--flame);text-align:center}
@@ -93,41 +88,45 @@
     a{color:#fff;opacity:.9;text-decoration:none}
     a:hover{opacity:1;text-decoration:underline}
     .tiny{margin-top:16px;opacity:.6;font-size:.8rem;text-align:center}
+
+    /* On very short screens, keep card reachable */
+    @media (max-height: 650px){
+      .card{ top: 56%; }
+      .brandTop{ padding-top: 18px; }
+      .logo{ max-height: 130px; }
+    }
   </style>
 </head>
 
 <body>
-  <div class="pageWrapper">
+  <!-- Logo + company name sit above, but never affect the card -->
+  <div class="brandTop">
+    <img id="companyLogo" class="logo" alt="Company Logo" />
+    <div id="companyName" class="companyName"></div>
+  </div>
 
-    <!-- Branding slot (reserved space) -->
-    <div class="brandSlot">
-      <img id="companyLogo" class="logo invisible" alt="Company Logo" />
-      <div id="companyName" class="companyName invisible"></div>
+  <div class="card">
+    <h2>Select Station</h2>
+    <p>Enter the station PIN to open the correct workflow dashboard.</p>
+
+    <form id="pinForm">
+      <label for="pin">Station PIN</label>
+      <input id="pin" required inputmode="numeric" autocomplete="one-time-code" placeholder="e.g. 1234" />
+
+      <label for="op">Operator name (optional)</label>
+      <input id="op" autocomplete="off" placeholder="e.g. Stan" />
+
+      <button id="goBtn" type="submit">Open Station</button>
+    </form>
+
+    <div id="msg" class="msg"></div>
+
+    <div class="row">
+      <a href="javascript:void(0)" id="clearLink">Clear station</a>
+      <a href="javascript:void(0)" id="logoutLink">Log out</a>
     </div>
 
-    <div class="card">
-      <h2>Select Station</h2>
-      <p>Enter the station PIN to open the correct workflow dashboard.</p>
-
-      <form id="pinForm">
-        <label for="pin">Station PIN</label>
-        <input id="pin" required inputmode="numeric" autocomplete="one-time-code" placeholder="e.g. 1234" />
-
-        <label for="op">Operator name (optional)</label>
-        <input id="op" autocomplete="off" placeholder="e.g. Stan" />
-
-        <button id="goBtn" type="submit">Open Station</button>
-      </form>
-
-      <div id="msg" class="msg"></div>
-
-      <div class="row">
-        <a href="javascript:void(0)" id="clearLink">Clear station</a>
-        <a href="javascript:void(0)" id="logoutLink">Log out</a>
-      </div>
-
-      <div class="tiny">© 2026 ProdAlign Ltd.</div>
-    </div>
+    <div class="tiny">© 2026 ProdAlign Ltd. All rights reserved.</div>
   </div>
 
   <script type="module">
@@ -217,12 +216,11 @@
 
         if (logoUrl) {
           img.src = logoUrl;
-          img.classList.remove("invisible"); // reveal without layout shift
+          img.style.display = "block";
         }
-
         if (displayName) {
           nameEl.textContent = displayName;
-          nameEl.classList.remove("invisible"); // reveal without layout shift
+          nameEl.style.display = "block";
         }
       } catch (e) {
         console.error("Branding load failed:", e);
@@ -271,9 +269,7 @@
         return;
       }
 
-      // Branding loads but won't cause layout jump now
       await loadCompanyBranding(companyCode);
-
       await tryAutoResume(user.uid, companyCode);
     });
 
