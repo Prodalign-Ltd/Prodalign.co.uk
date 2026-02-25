@@ -1,97 +1,121 @@
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
-  authDomain: "prodalign-ltd.firebaseapp.com",
-  projectId: "prodalign-ltd"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-const form = document.getElementById("companyLoginForm");
-const emailEl = document.getElementById("email");
-const passEl = document.getElementById("password");
-const loginBtn = document.getElementById("loginBtn");
-const messageEl = document.getElementById("message");
-
-function showError(text){
-  messageEl.textContent = text;
-  messageEl.classList.add("show","err");
-}
-
-async function getUserProfile(uid){
-  const snap = await getDoc(doc(db,"users",uid));
-  if(!snap.exists()) return null;
-
-  const data = snap.data();
-
-  return {
-    companyCode: String(data.companycode ?? "").trim().toLowerCase(),
-    role: String(data.role ?? "admin").trim().toLowerCase(),
-    station: String(data.station ?? "").trim().toLowerCase()
+  const firebaseConfig = {
+    apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
+    authDomain: "prodalign-ltd.firebaseapp.com",
+    projectId: "prodalign-ltd"
   };
-}
 
-async function routeUser(user){
-  const profile = await getUserProfile(user.uid);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-  if(!profile || !profile.companyCode){
-    showError("User not assigned to a company.");
-    return;
+  const form = document.getElementById("companyLoginForm");
+  const emailEl = document.getElementById("email");
+  const passEl = document.getElementById("password");
+  const loginBtn = document.getElementById("loginBtn");
+  const messageEl = document.getElementById("message");
+
+  function showError(text) {
+    messageEl.textContent = text;
+    messageEl.classList.remove("ok");
+    messageEl.classList.add("show", "err");
   }
 
-  // 👷 OPERATOR → Shop Floor Dashboard
-  if(profile.role === "operator"){
-    if(!profile.station){
-      showError("Operator has no station assigned.");
+  function clearMsg() {
+    messageEl.textContent = "";
+    messageEl.classList.remove("show", "err", "ok");
+  }
+
+  async function getUserProfile(uid) {
+    const snap = await getDoc(doc(db, "users", uid));
+    if (!snap.exists()) return null;
+
+    const data = snap.data();
+
+    const companyCode = String(data.companycode ?? data.companyCode ?? "")
+      .trim()
+      .toLowerCase();
+
+    const role = String(data.role ?? "")
+      .trim()
+      .toLowerCase();
+
+    const station = String(data.station ?? "")
+      .trim()
+      .toLowerCase();
+
+    return { companyCode, role, station };
+  }
+
+  async function routeUser(user) {
+    const profile = await getUserProfile(user.uid);
+
+    console.log("PROFILE:", profile); // 🔎 helpful debug
+
+    if (!profile || !profile.companyCode) {
+      showError(
+        "Signed in, but your account isn't linked to a company.\n" +
+        "Check Firestore: users/{uid}.companycode"
+      );
       return;
     }
 
+    // 👷 OPERATOR → Shop Floor Dashboard
+    if (profile.role === "operator") {
+      if (!profile.station) {
+        showError(
+          "Signed in as operator, but no station is assigned.\n" +
+          "Check Firestore: users/{uid}.station (e.g. bending)"
+        );
+        return;
+      }
+
+      window.location.assign(
+        `/company/FloorDashboard.html?c=${encodeURIComponent(profile.companyCode)}&station=${encodeURIComponent(profile.station)}`
+      );
+      return;
+    }
+
+    // 🧑‍💼 ADMIN (default) → Management Dashboard
     window.location.assign(
-      `/company/FloorDashboard.html?c=${profile.companyCode}&station=${profile.station}`
+      `/company/?c=${encodeURIComponent(profile.companyCode)}`
     );
-    return;
   }
 
-  // 🧑‍💼 ADMIN → Management Dashboard
-  window.location.assign(`/company/?c=${profile.companyCode}`);
-}
+  // Auto redirect if already logged in
+  onAuthStateChanged(auth, (user) => {
+    if (user) routeUser(user);
+  });
 
-// Auto redirect if already logged in
-onAuthStateChanged(auth,(user)=>{
-  if(user){
-    routeUser(user);
-  }
-});
+  // Login submit
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearMsg();
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Signing in...";
 
-// Login submit
-form.addEventListener("submit", async(e)=>{
-  e.preventDefault();
-  loginBtn.disabled = true;
+    try {
+      const cred = await signInWithEmailAndPassword(
+        auth,
+        emailEl.value.trim(),
+        passEl.value
+      );
 
-  try{
-    const cred = await signInWithEmailAndPassword(
-      auth,
-      emailEl.value.trim(),
-      passEl.value
-    );
-
-    await routeUser(cred.user);
-  }
-  catch(err){
-    showError("Login failed. Check email & password.");
-  }
-  finally{
-    loginBtn.disabled = false;
-  }
-});
+      await routeUser(cred.user);
+    } catch (err) {
+      console.error("Login failed:", err);
+      showError("Login failed. Check email & password.");
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Secure Login";
+    }
+  });
 </script>
