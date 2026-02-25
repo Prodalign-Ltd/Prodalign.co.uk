@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Orders Due</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root{
+      --bg:#071826;
+      --text:#fff;
+      --muted:rgba(255,255,255,.75);
+      --border:rgba(255,255,255,.10);
+      --panel:rgba(255,255,255,.05);
+      --shadow:0 18px 55px rgba(0,0,0,.45);
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      min-height:100vh;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% -10%, rgba(245,124,0,0.18), transparent 60%),
+        linear-gradient(180deg, var(--bg) 0%, #06131e 100%);
+      display:flex;
+      flex-direction:column;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 18px;
+      background: linear-gradient(90deg, rgba(16,44,68,.95), rgba(9,27,42,.92));
+      border-bottom:1px solid var(--border);
+    }
+
+    .title{
+      font-weight:900;
+      font-size:18px;
+    }
+
+    button{
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:12px;
+      padding:10px 14px;
+      background:rgba(255,255,255,0.08);
+      color:#fff;
+      cursor:pointer;
+      font-weight:800;
+    }
+
+    button:hover{
+      background:rgba(255,255,255,0.12);
+    }
+
+    .wrap{
+      flex:1;
+      display:grid;
+      place-items:center;
+      padding:30px;
+    }
+
+    .board{
+      width:min(1000px, 95vw);
+      border-radius:18px;
+      border:1px solid var(--border);
+      background:var(--panel);
+      box-shadow:var(--shadow);
+      padding:30px;
+      text-align:center;
+    }
+
+    h1{
+      margin-top:0;
+      font-size:32px;
+      font-weight:900;
+    }
+
+    p{
+      color:var(--muted);
+      font-weight:700;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="title" id="companyTitle">Orders Due</div>
+  <button id="backBtn">Back to Overview</button>
+</header>
+
+<div class="wrap">
+  <div class="board">
+    <h1>Orders Due</h1>
+    <p>This is a blank starter page.</p>
+    <p>We will build the Orders Due table here next.</p>
+  </div>
+</div>
+
+<script>
+  // Read ?c=company from URL
+  const params = new URLSearchParams(window.location.search);
+  const companyId = params.get("c");
+
+  if (companyId) {
+    document.getElementById("companyTitle").textContent =
+      "Orders Due – " + companyId;
+  }
+
+  document.getElementById("backBtn").addEventListener("click", () => {
+    if (companyId) {
+      window.location.href = "index.html?c=" + companyId;
+    } else {
+      window.location.href = "index.html";
+    }
+  });
+</script>
+
+</body>
+</html>
