@@ -2304,27 +2304,22 @@
     const dueAt = Timestamp.fromDate(dueDate);
 
     const ops = await getItemOpsInOrder(itemCode);
-    const jobsRef = collection(db, "companies", companyId, "jobs");
-
-    await addDoc(jobsRef, {
-      itemCode,
-      orderNo,
-      qty,
-      dueAt,
-      ops,
-      currentOpIndex: 0,
-      currentOpCode: ops[0].code,
-      status: "ready",
-      createdBy: getUserIdentifier(),
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      history: [{
-        event: "created",
-        atClient: Date.now(),
-        atServer: serverTimestamp(),
-        by: getUserIdentifier()
-      }]
-    });
+    const stationId = ops[0].code; // first op code, since you use stationId = OPCODE
+const jobsRef = collection(db, "stations", stationId, "jobs");
+await addDoc(jobsRef, {
+  companyId,
+  itemCode,
+  orderNo,
+  qty,
+  dueAt,
+  ops,
+  currentOpIndex: 0,
+  currentOpCode: ops[0].code,
+  status: "ready",
+  createdBy: getUserIdentifier(),
+  createdAt: serverTimestamp(),
+  updatedAt: serverTimestamp(),
+});
   }
 
   confirmOrderReady?.addEventListener("click", async () => {
