@@ -1350,7 +1350,7 @@ async function saveContainsToActive(newContains){
 
   await setDoc(ref, {
     contains: newContains,
-    updatedBy: getUserIdentifier(),,
+    updatedBy: getUserIdentifier(),
     updatedAt: serverTimestamp()
   }, { merge: true });
 }
@@ -1368,7 +1368,7 @@ async function saveOperationsToActive(newOperations){
 
   await setDoc(ref, {
     operations: newOperations,
-    updatedBy: getUserIdentifier(),,
+    updatedBy: getUserIdentifier(),
     updatedAt: serverTimestamp()
   }, { merge: true });
 }
@@ -1877,7 +1877,7 @@ else allNonOps.push(normalized);
     {
       description,
       baseCost: Number.isFinite(baseCost) ? baseCost : 0,
-      updatedBy: getUserIdentifier(),,
+      updatedBy: getUserIdentifier(),
       updatedAt: serverTimestamp()
     },
     { merge: true }
