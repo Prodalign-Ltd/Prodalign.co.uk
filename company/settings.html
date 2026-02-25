@@ -705,6 +705,8 @@
               <div><b>Item Cost:</b> <span id="detailCost">—</span></div>
               <div><b>Operation Time:</b> <span id="detailTime">—</span></div>
               <div><b>Description:</b> <span id="detailEtc">—</span></div>
+              <div><b>Created By:</b> <span id="detailCreatedBy">—</span></div>
+<div><b>Date Created:</b> <span id="detailCreatedAt">—</span></div>
             </div>
           </div>
 
@@ -921,6 +923,8 @@ let allNonOps = [];
   const detailCost = document.getElementById("detailCost");
   const detailTime = document.getElementById("detailTime");
   const detailEtc = document.getElementById("detailEtc");
+  const detailCreatedBy = document.getElementById("detailCreatedBy");
+const detailCreatedAt = document.getElementById("detailCreatedAt");
   // Active item action buttons
 const editActiveItemBtn = document.getElementById("editActiveItemBtn");
 const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
@@ -981,6 +985,11 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
   }
 
   // ---------- Normalizers + renderers ----------
+  function formatDate(ts){
+  if (!ts?.toDate) return "—";
+  const d = ts.toDate();
+  return d.toLocaleString();
+}
   function normalizeContains(contains){
     if (!Array.isArray(contains)) return [];
     return contains
@@ -1094,6 +1103,8 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
     detailCost.textContent = (item?.baseCost ?? "—");
     detailTime.textContent = (item?.operationTime ?? "—");
     detailEtc.textContent = (item?.description ?? "—");
+    detailCreatedBy.textContent = item?.createdBy ?? "—";
+detailCreatedAt.textContent = formatDate(item?.createdAt);
   // Enable/disable buttons depending on selection
 const hasItem = !!activeItemCode;
 
@@ -1691,17 +1702,19 @@ else allNonOps.push(normalized);
         return;
       }
 
-      await setDoc(itemRef, {
-        code,
-        type,
-        description,
-        baseCost: Number.isFinite(baseCost) ? baseCost : 0,
-        contains: [],
-        operations: [],
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+      const user = auth.currentUser;
 
+await setDoc(itemRef, {
+  code,
+  type,
+  description,
+  baseCost: Number.isFinite(baseCost) ? baseCost : 0,
+  contains: [],
+  operations: [],
+  createdAt: serverTimestamp(),
+  createdBy: user?.email || user?.uid || "unknown",
+  updatedAt: serverTimestamp()
+});
       newItemStatus.textContent = "Saved!";
       setTimeout(closeNewItemModalFn, 350);
     } catch (err) {
