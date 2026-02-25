@@ -142,7 +142,6 @@
     }
     .tile.disabled:hover{ transform:none; background: rgba(255,255,255,0.06); }
 
-    /* Admin-only Settings button (like your screenshot note) */
     #settingsBtn[hidden]{ display:none !important; }
 
     @media (max-width: 980px){
@@ -268,10 +267,10 @@
     return String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
   }
 
-  // Auth gate + show Settings only for admins
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+      // ✅ Always go to the real login page
+      window.location.assign(`/companylogin/`);
       return;
     }
 
@@ -280,12 +279,21 @@
       const userCompany = normalizeCompanyCode(profile);
       if (!userCompany || userCompany !== companyId) throw new Error("Access denied for this company.");
 
+      // ✅ If operator, force them to FloorDashboard instead of this admin page
+      const role = String(profile.role ?? "").trim().toLowerCase();
+      const station = String(profile.station ?? "").trim().toLowerCase();
+
+      if (role === "operator") {
+        if (!station) throw new Error("Operator missing station.");
+        window.location.assign(
+          `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`
+        );
+        return;
+      }
+
       await loadCompanyBranding(companyId);
 
-      // Admin-only Settings:
-      // set ONE of these fields in users/{uid}:
-      //   role: "admin"   OR   isAdmin: true   OR   license: "admin"
-      const role = String(profile.role ?? "").toLowerCase();
+      // Admin-only Settings
       const license = String(profile.license ?? "").toLowerCase();
       const isAdmin = Boolean(profile.isAdmin) || role === "admin" || license === "admin";
       settingsBtn.hidden = !isAdmin;
@@ -293,21 +301,20 @@
     } catch (e) {
       console.error(e);
       try { await signOut(auth); } catch {}
-      window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+      window.location.assign(`/companylogin/`);
     }
   });
 
   logoutBtn.addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+    try { await signOut(auth); } catch {}
+    // ✅ Always go to login page (prevents blank page)
+    window.location.assign(`/companylogin/`);
   });
 
-  // Settings should go to the page we were building (rename it settings.html)
   settingsBtn.addEventListener("click", () => {
     window.location.assign(`./settings.html?c=${encodeURIComponent(companyId)}`);
   });
 
-  // Tile click templates (wire later)
   deliveryTile.addEventListener("click", () => alert("Delivery Performance (template)"));
   scrapTile.addEventListener("click", () => alert("Scrap Reasons (template)"));
   ordersDueTile.addEventListener("click", () => alert("Orders Due (template)"));
