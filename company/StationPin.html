@@ -14,8 +14,38 @@
             linear-gradient(135deg, #0b1d2a, #102c44, #07131f);
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:#fff}
-    .card{width:min(460px,92vw);background:rgba(255,255,255,.08);backdrop-filter:blur(16px);border-radius:18px;padding:32px;box-shadow:0 25px 50px rgba(0,0,0,.5)}
+
+    /* UPDATED: body no longer centers the card */
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      min-height:100vh;
+      background:var(--bg);
+      color:#fff;
+    }
+
+    /* NEW: wrapper that centers logo + name + card vertically */
+    .pageWrapper{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      padding:30px 16px;
+      text-align:center;
+    }
+
+    .card{
+      width:min(460px,92vw);
+      background:rgba(255,255,255,.08);
+      backdrop-filter:blur(16px);
+      border-radius:18px;
+      padding:32px;
+      box-shadow:0 25px 50px rgba(0,0,0,.5);
+      margin-top:10px;
+    }
+
     h2{margin:0 0 8px 0;font-weight:900;letter-spacing:.2px;color:var(--flame);text-align:center}
     p{margin:0 0 18px 0;opacity:.82;text-align:center;line-height:1.35}
     label{display:block;font-size:.85rem;margin:12px 0 6px;color:rgba(255,255,255,.85)}
@@ -31,50 +61,55 @@
     a{color:#fff;opacity:.9;text-decoration:none}
     a:hover{opacity:1;text-decoration:underline}
     .tiny{margin-top:16px;opacity:.6;font-size:.8rem;text-align:center}
-    .logo{
-  width: 320px;
-  max-width: 85%;
-  margin: 0 auto 14px auto;
-  display: block;
-  user-select: none;
-  -webkit-user-drag: none;
-  filter: drop-shadow(0 8px 25px rgba(0,0,0,0.4));
-}
 
-.companyName{
-  text-align:center;
-  font-weight: 900;
-  letter-spacing: .2px;
-  margin-bottom: 18px;
-  opacity: .9;
-}
+    /* UPDATED: branding styles */
+    .logo{
+      width:320px;
+      max-width:85%;
+      user-select:none;
+      -webkit-user-drag:none;
+      filter:drop-shadow(0 10px 30px rgba(0,0,0,0.45));
+    }
+
+    .companyName{
+      font-weight:900;
+      font-size:1.2rem;
+      letter-spacing:.3px;
+      opacity:.9;
+      margin-bottom:6px;
+      text-align:center;
+    }
   </style>
 </head>
+
 <body>
-  <img id="companyLogo" class="logo" alt="Company Logo" style="display:none" />
-<div id="companyName" class="companyName" style="display:none"></div>
-  <div class="card">
-    <h2>Select Station</h2>
-    <p>Enter the station PIN to open the correct workflow dashboard.</p>
+  <div class="pageWrapper">
+    <img id="companyLogo" class="logo" alt="Company Logo" style="display:none" />
+    <div id="companyName" class="companyName" style="display:none"></div>
 
-    <form id="pinForm">
-      <label for="pin">Station PIN</label>
-      <input id="pin" required inputmode="numeric" autocomplete="one-time-code" placeholder="e.g. 1234" />
+    <div class="card">
+      <h2>Select Station</h2>
+      <p>Enter the station PIN to open the correct workflow dashboard.</p>
 
-      <label for="op">Operator name (optional)</label>
-      <input id="op" autocomplete="off" placeholder="e.g. Stan" />
+      <form id="pinForm">
+        <label for="pin">Station PIN</label>
+        <input id="pin" required inputmode="numeric" autocomplete="one-time-code" placeholder="e.g. 1234" />
 
-      <button id="goBtn" type="submit">Open Station</button>
-    </form>
+        <label for="op">Operator name (optional)</label>
+        <input id="op" autocomplete="off" placeholder="e.g. Stan" />
 
-    <div id="msg" class="msg"></div>
+        <button id="goBtn" type="submit">Open Station</button>
+      </form>
 
-    <div class="row">
-      <a href="javascript:void(0)" id="clearLink">Clear station</a>
-      <a href="javascript:void(0)" id="logoutLink">Log out</a>
+      <div id="msg" class="msg"></div>
+
+      <div class="row">
+        <a href="javascript:void(0)" id="clearLink">Clear station</a>
+        <a href="javascript:void(0)" id="logoutLink">Log out</a>
+      </div>
+
+      <div class="tiny">© 2026 ProdAlign Ltd.</div>
     </div>
-
-    <div class="tiny">© 2026 ProdAlign Ltd.</div>
   </div>
 
   <script type="module">
@@ -147,36 +182,38 @@
       const d = snap.data();
       return String(d.companycode ?? d.companyCode ?? "").trim().toLowerCase();
     }
-async function loadCompanyBranding(companyCode){
-  try{
-    const snap = await getDoc(doc(db, "companies", companyCode));
-    if(!snap.exists()) return;
 
-    const data = snap.data() || {};
+    async function loadCompanyBranding(companyCode){
+      try{
+        const snap = await getDoc(doc(db, "companies", companyCode));
+        if(!snap.exists()) return;
 
-    // ✅ supports your Firestore fields: Logourl + displayname
-    const logoUrl =
-      String(data.Logourl ?? data.logoUrl ?? data.logoURL ?? "").trim();
+        const data = snap.data() || {};
 
-    const displayName =
-      String(data.displayname ?? data.displayName ?? data.name ?? "").trim();
+        // ✅ supports your Firestore fields: Logourl + displayname
+        const logoUrl =
+          String(data.Logourl ?? data.logoUrl ?? data.logoURL ?? "").trim();
 
-    const img = document.getElementById("companyLogo");
-    const nameEl = document.getElementById("companyName");
+        const displayName =
+          String(data.displayname ?? data.displayName ?? data.name ?? "").trim();
 
-    if (logoUrl) {
-      img.src = logoUrl;
-      img.style.display = "block";
+        const img = document.getElementById("companyLogo");
+        const nameEl = document.getElementById("companyName");
+
+        if (logoUrl) {
+          img.src = logoUrl;
+          img.style.display = "block";
+        }
+
+        if (displayName) {
+          nameEl.textContent = displayName;
+          nameEl.style.display = "block";
+        }
+      } catch (e) {
+        console.error("Branding load failed:", e);
+      }
     }
 
-    if (displayName) {
-      nameEl.textContent = displayName;
-      nameEl.style.display = "block";
-    }
-  } catch (e) {
-    console.error("Branding load failed:", e);
-  }
-}
     async function tryAutoResume(uid, companyCode) {
       const sessionId = getSessionId(uid);
       const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
@@ -213,12 +250,13 @@ async function loadCompanyBranding(companyCode){
 
       let companyCode = companyCodeFromUrl;
       if (!companyCode) companyCode = await getUserCompany(user.uid);
-      await loadCompanyBranding(companyCode);
 
       if (!companyCode) {
         showMsg("No company code found for this account.");
         return;
       }
+
+      await loadCompanyBranding(companyCode);
 
       // If this device already selected a station previously, auto-open it
       await tryAutoResume(user.uid, companyCode);
