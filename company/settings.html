@@ -1242,20 +1242,26 @@ containsOpsEl.addEventListener("drop", async (e) => {
     setDropActive(containsItemsEl, false);
   });
   containsItemsEl.addEventListener("drop", async (e) => {
-    e.preventDefault();
-    setDropActive(containsItemsEl, false);
+  e.preventDefault();
+  setDropActive(containsItemsEl, false);
 
-    const payload = readDragPayload(e.dataTransfer);
-    if (!payload?.code) return;
+  const payload = readDragPayload(e.dataTransfer);
+  if (!payload?.code) return;
 
-    try {
-      await addContainedItemToActiveItem(payload.code);
-    } catch (err) {
-      console.error(err);
-      alert(err?.message || "Failed to add contained item.");
-    }
-  });
+  // 🚫 BLOCK operations from being dropped into Contains Items
+  const type = await resolveItemType(payload.code, payload.type);
+  if (type === "operation") {
+    alert("Operations can only be dropped into Contains Operations.");
+    return;
+  }
 
+  try {
+    await addContainedItemToActiveItem(payload.code);
+  } catch (err) {
+    console.error(err);
+    alert(err?.message || "Failed to add contained item.");
+  }
+});
   // ---------- Drop into Contains Operations ----------
   async function resolveItemType(code, fallbackType){
     const clean = String(code || "").trim().toUpperCase();
