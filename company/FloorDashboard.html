@@ -469,7 +469,8 @@ header{
         const job = d.data() || {};
         const id = d.id;
 
-        if (String(job.status || "").toLowerCase() === "complete") return;
+        const st = String(job.status || "").toLowerCase();
+        if (st === "complete" || st === "booked" || st === "to_book") return;
 
         const ops = normalizeOpsArray(job.ops);
         const currentOpIndex = Number(job.currentOpIndex ?? 0);
@@ -655,14 +656,14 @@ header{
           assignedTo: null,
           updatedAt: serverTimestamp()
         });
-      } else {
-        tx.update(jobRef, {
-          status: "complete",
-          assignedTo: null,
-          completedAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
-      }
+          } else {
+            tx.update(jobRef, {
+              status: "to_book",           // ✅ finished production, waiting to be booked
+              assignedTo: null,
+              completedAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+          }
     });
   }
 
