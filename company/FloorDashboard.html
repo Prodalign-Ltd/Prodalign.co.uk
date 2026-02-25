@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Station Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -12,66 +12,97 @@
   --border:rgba(255,255,255,0.10);
   --text:#ffffff;
   --muted:rgba(255,255,255,0.78);
-  --orange:#f57c00;
+
   --green:#2e7d32;
+  --green2:rgba(46,125,50,0.18);
+
   --amber:#f9a825;
+  --amber2:rgba(249,168,37,0.18);
+
   --gray:#90a4ae;
+  --gray2:rgba(144,164,174,0.14);
+
   --radius:14px;
 }
 
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:system-ui;
-  background:linear-gradient(180deg,#071826,#06131e);
+  background:
+    radial-gradient(1200px 700px at 20% -10%, rgba(245,124,0,0.18), transparent 60%),
+    radial-gradient(900px 600px at 120% 0%, rgba(211,47,47,0.12), transparent 55%),
+    linear-gradient(180deg,#071826,#06131e);
   color:var(--text);
 }
 
 /* HEADER */
 header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:16px 20px;
-  background:#0b2235;
+  padding:18px;
+  text-align:center;
   border-bottom:1px solid var(--border);
+  background:#0b2235;
 }
 
 .stationTitle{
-  font-weight:900;
-  font-size:1.4rem;
+  font-weight:950;
+  font-size:1.8rem;
+  margin-bottom:12px;
 }
+
+/* LEGEND */
+.legend{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  color:var(--muted);
+  font-weight:850;
+}
+
+.legendItem{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(0,0,0,0.18);
+}
+
+.swatch{
+  width:10px;height:10px;border-radius:999px;
+}
+.wip{background:var(--green)}
+.available{background:var(--amber)}
+.na{background:var(--gray)}
 
 /* PAGE */
 .page{
-  padding:20px;
+  padding:18px;
+  max-width:1300px;
+  margin:auto;
   display:grid;
-  gap:20px;
+  gap:18px;
 }
 
-/* SECTION */
+/* SECTIONS */
 .section{
-  background:var(--panel);
-  border:1px solid var(--border);
   border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:var(--panel);
   overflow:hidden;
 }
 
-.sectionHeader{
-  padding:14px 16px;
+.sectionHead{
+  padding:14px;
   font-weight:900;
+  text-align:center;
   border-bottom:1px solid rgba(255,255,255,0.08);
-  display:flex;
-  align-items:center;
-  gap:10px;
 }
 
-.dot{
-  width:10px;height:10px;border-radius:999px;
-}
-
-.grid{
-  padding:20px;
+.sectionBody{
   min-height:180px;
   display:grid;
   place-items:center;
@@ -79,10 +110,9 @@ header{
   font-weight:800;
 }
 
-/* COLORS */
-.wip .dot{background:var(--green)}
-.available .dot{background:var(--amber)}
-.notavailable .dot{background:var(--gray)}
+.wipSection .sectionHead{background:var(--green2)}
+.availableSection .sectionHead{background:var(--amber2)}
+.naSection .sectionHead{background:var(--gray2)}
 
 </style>
 </head>
@@ -91,39 +121,33 @@ header{
 
 <header>
   <div class="stationTitle" id="stationTitle">Bending Dashboard</div>
+
+  <div class="legend">
+    <div class="legendItem"><div class="swatch wip"></div> Work in Progress</div>
+    <div class="legendItem"><div class="swatch available"></div> Available</div>
+    <div class="legendItem"><div class="swatch na"></div> Not Available</div>
+  </div>
 </header>
 
 <div class="page">
 
-  <!-- WORK IN PROGRESS -->
-  <div class="section wip">
-    <div class="sectionHeader">
-      <div class="dot"></div>
-      Work In Progress
-    </div>
-    <div class="grid">
-      Waiting for jobs from Manager Dashboard
+  <div class="section wipSection">
+    <div class="sectionHead">Work In Progress</div>
+    <div class="sectionBody">
+      Jobs currently being worked will appear here
     </div>
   </div>
 
-  <!-- AVAILABLE -->
-  <div class="section available">
-    <div class="sectionHeader">
-      <div class="dot"></div>
-      Available To Work
-    </div>
-    <div class="grid">
+  <div class="section availableSection">
+    <div class="sectionHead">Available</div>
+    <div class="sectionBody">
       Jobs ready to start will appear here
     </div>
   </div>
 
-  <!-- NOT AVAILABLE -->
-  <div class="section notavailable">
-    <div class="sectionHeader">
-      <div class="dot"></div>
-      Not Available
-    </div>
-    <div class="grid">
+  <div class="section naSection">
+    <div class="sectionHead">Not Available</div>
+    <div class="sectionBody">
       Waiting on previous operations
     </div>
   </div>
@@ -131,12 +155,9 @@ header{
 </div>
 
 <script>
-// Later this will come from Firebase user → station
-// For now we allow ?station=bending in URL
-
+// Allows ?station=bending later
 const params = new URLSearchParams(window.location.search);
 const station = params.get("station");
-
 if(station){
   document.getElementById("stationTitle").textContent =
     station.charAt(0).toUpperCase() + station.slice(1) + " Dashboard";
