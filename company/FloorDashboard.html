@@ -23,6 +23,8 @@
   --gray2:rgba(144,164,174,0.14);
 
   --radius:14px;
+
+  --danger:#d32f2f;
 }
 
 *{box-sizing:border-box}
@@ -43,12 +45,33 @@ header{
   text-align:center;
   border-bottom:1px solid var(--border);
   background:#0b2235;
+  position: relative; /* allows top-right button */
 }
 
 .stationTitle{
   font-weight:950;
   font-size:1.8rem;
   margin-bottom:12px;
+}
+
+/* Logout button (top-right) */
+.logoutBtn{
+  position:absolute;
+  top:14px;
+  right:14px;
+  border:1px solid rgba(211,47,47,0.40);
+  border-radius:12px;
+  padding:10px 12px;
+  background:rgba(255,255,255,0.08);
+  color:#fff;
+  cursor:pointer;
+  font-weight:900;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.logoutBtn:hover{
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(211,47,47,0.55);
+  transform: translateY(-1px);
 }
 
 /* LEGEND */
@@ -114,12 +137,18 @@ header{
 .availableSection .sectionHead{background:var(--amber2)}
 .naSection .sectionHead{background:var(--gray2)}
 
+@media (max-width: 520px){
+  .logoutBtn{ top:12px; right:12px; padding:9px 10px; }
+  .stationTitle{ font-size:1.55rem; }
+}
 </style>
 </head>
 
 <body>
 
 <header>
+  <button id="logoutBtn" class="logoutBtn" type="button">Log out</button>
+
   <div class="stationTitle" id="stationTitle">Bending Dashboard</div>
 
   <div class="legend">
@@ -154,14 +183,36 @@ header{
 
 </div>
 
+<!-- Title from ?station= -->
 <script>
-// Allows ?station=bending later
-const params = new URLSearchParams(window.location.search);
-const station = params.get("station");
-if(station){
-  document.getElementById("stationTitle").textContent =
-    station.charAt(0).toUpperCase() + station.slice(1) + " Dashboard";
-}
+  const params = new URLSearchParams(window.location.search);
+  const station = params.get("station");
+  if (station) {
+    document.getElementById("stationTitle").textContent =
+      station.charAt(0).toUpperCase() + station.slice(1) + " Dashboard";
+  }
+</script>
+
+<!-- Firebase logout -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
+    authDomain: "prodalign-ltd.firebaseapp.com",
+    projectId: "prodalign-ltd"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  logoutBtn.addEventListener("click", async () => {
+    try { await signOut(auth); } catch {}
+    window.location.assign("/companylogin/");
+  });
 </script>
 
 </body>
