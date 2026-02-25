@@ -293,9 +293,9 @@ header{
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
-  getFirestore, doc, getDoc, collection, onSnapshot,
-  runTransaction, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    getFirestore, doc, getDoc, collection, onSnapshot,
+    runTransaction, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
@@ -310,50 +310,56 @@ header{
   const logoutBtn = document.getElementById("logoutBtn");
   const stationTitleEl = document.getElementById("stationTitle");
   const wipBody = document.getElementById("wipBody");
-const availableBody = document.getElementById("availableBody");
-const naBody = document.getElementById("naBody");
-
-function getUserIdentifier(){
-  const u = auth.currentUser;
-  return u?.email || u?.displayName || u?.uid || "unknown";
-}
-
-function opsToString(ops, currentIndex){
-  if (!Array.isArray(ops) || ops.length === 0) return "Ops: —";
-  return ops
-    .map((o, i) => {
-      const code = String(o?.code || "").toUpperCase();
-      if (!code) return "";
-      return (i === currentIndex) ? `[${code}]` : code;
-    })
-    .filter(Boolean)
-    .join(" → ");
-}
-
-function renderEmpty(el, text){
-  el.innerHTML = `<div class="emptyState">${text}</div>`;
-}
-
-function normalizeOpsArray(ops){
-  if (!Array.isArray(ops)) return [];
-  return ops
-    .map(x => {
-      const code = String(x?.code || "").trim().toUpperCase();
-      const iph = Number(x?.iph);
-      return code ? { code, iph: Number.isFinite(iph) ? iph : 0 } : null;
-    })
-    .filter(Boolean);
-}
+  const availableBody = document.getElementById("availableBody");
+  const naBody = document.getElementById("naBody");
 
   // URL params
   const params = new URLSearchParams(window.location.search);
   const companyId = (params.get("c") || "").trim().toLowerCase();
-  const stationParam = (params.get("station") || "").trim().toLowerCase();
+  const stationParam = (params.get("station") || "").trim(); // keep case (we normalize later)
 
   // If missing company, bounce
   if (!companyId) {
     window.location.assign("/companylogin/");
     throw new Error("Missing ?c=");
+  }
+
+  function getUserIdentifier(){
+    const u = auth.currentUser;
+    return u?.email || u?.displayName || u?.uid || "unknown";
+  }
+
+  function opsToString(ops, currentIndex){
+    if (!Array.isArray(ops) || ops.length === 0) return "Ops: —";
+    return ops
+      .map((o, i) => {
+        const code = String(o?.code || "").toUpperCase();
+        if (!code) return "";
+        return (i === currentIndex) ? `[${code}]` : code;
+      })
+      .filter(Boolean)
+      .join(" → ");
+  }
+
+  function renderEmpty(el, text){
+    el.innerHTML = `<div class="emptyState">${text}</div>`;
+  }
+
+  function normalizeOpsArray(ops){
+    if (!Array.isArray(ops)) return [];
+    return ops
+      .map(x => {
+        const code = String(x?.code || "").trim().toUpperCase();
+        const iph = Number(x?.iph);
+        return code ? { code, iph: Number.isFinite(iph) ? iph : 0 } : null;
+      })
+      .filter(Boolean);
+  }
+
+  function escapeHtml(s){
+    return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
   }
 
   function prettyStationName(s) {
@@ -372,268 +378,294 @@ function normalizeOpsArray(ops){
     window.location.assign("/companylogin/");
   }
 
+  // ✅ Per-device kiosk session id
+  function getKioskDeviceId() {
+    let id = localStorage.getItem("kioskDeviceId");
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("kioskDeviceId", id);
+    }
+    return id;
+  }
+
+  function getKioskSessionId(uid) {
+    return `${uid}_${getKioskDeviceId()}`;
+  }
+
+  // ✅ NEW: gate based on kiosk session (NOT users/{uid}.station)
   async function enforceOperatorGate(user) {
+    // 1) Basic user profile check (company + role)
     const snap = await getDoc(doc(db, "users", user.uid));
     if (!snap.exists()) throw new Error("User profile missing.");
 
     const data = snap.data();
-
     const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
     const role = String(data.role ?? "").trim().toLowerCase();
-    const station = String(data.station ?? "").trim().toLowerCase();
 
     if (!userCompany || userCompany !== companyId) throw new Error("Wrong company.");
     if (role !== "operator") throw new Error("Not an operator.");
-    if (!station) throw new Error("Operator missing station.");
 
-    // ✅ Title ALWAYS from Firestore
-    stationTitleEl.textContent = `${prettyStationName(station)} Dashboard`;
+    // 2) Determine station:
+    //    - Prefer URL param (when coming from StationPin.html)
+    //    - Else fallback to kioskSessions/{uid_deviceId}
+    let station = String(stationParam || "").trim();
 
-    // ✅ Force the URL station to the operator's station (or add it)
-    if (!stationParam || stationParam !== station) {
+    if (!station) {
+      const sessionId = getKioskSessionId(user.uid);
+      const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
+      if (!sessSnap.exists()) {
+        // No station selected on this kiosk yet → go to pin page
+        window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
+        return false;
+      }
+      station = String(sessSnap.data()?.stationId || "").trim();
+      if (!station) {
+        window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
+        return false;
+      }
+
+      // Put station into URL for consistency
       const newUrl = `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`;
       window.location.replace(newUrl);
       return false;
     }
 
+    // 3) Update session doc so this kiosk “remembers” station (nice v1 behaviour)
+    try{
+      const sessionId = getKioskSessionId(user.uid);
+      await getDoc(doc(db, "kioskSessions", sessionId)); // not required but keeps errors obvious
+      // best-effort write (don't crash if rules prevent)
+      await (async () => {
+        // merge write to keep operatorLabel etc
+        // if this fails due to rules, dashboard still works from URL param
+        const ref = doc(db, "kioskSessions", sessionId);
+        // dynamic import not needed; we already imported serverTimestamp
+        await (await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js")).setDoc(
+          ref,
+          { companyId, stationId: station, updatedAt: serverTimestamp() },
+          { merge: true }
+        );
+      })();
+    } catch {}
+
+    // 4) Set title (use station string directly)
+    stationTitleEl.textContent = `${prettyStationName(station)} Dashboard`;
+
     return { station };
   }
 
   function watchJobsForStation(stationLower){
-  const stationCode = String(stationLower || "").trim().toUpperCase();
-  if (!stationCode) return;
+    const stationCode = String(stationLower || "").trim().toUpperCase();
+    if (!stationCode) return;
 
-  const jobsRef = collection(db, "companies", companyId, "jobs");
+    const jobsRef = collection(db, "companies", companyId, "jobs");
 
-  // Listen to ALL jobs for company, then bucket them for THIS station.
-  // This avoids complex queries/indexes for now.
-  return onSnapshot(jobsRef, (snap) => {
-    const available = [];
-    const wip = [];
-    const notAvailable = [];
+    return onSnapshot(jobsRef, (snap) => {
+      const available = [];
+      const wip = [];
+      const notAvailable = [];
 
-    snap.forEach((d) => {
-      const job = d.data() || {};
-      const id = d.id;
+      snap.forEach((d) => {
+        const job = d.data() || {};
+        const id = d.id;
 
-      if (String(job.status || "").toLowerCase() === "complete") return;
+        if (String(job.status || "").toLowerCase() === "complete") return;
 
-      const ops = normalizeOpsArray(job.ops);
-      const currentOpIndex = Number(job.currentOpIndex ?? 0);
+        const ops = normalizeOpsArray(job.ops);
+        const currentOpIndex = Number(job.currentOpIndex ?? 0);
 
-      // Find where THIS station appears in the ops list
-      const myIndex = ops.findIndex(o => o.code === stationCode);
-      if (myIndex === -1) return; // job doesn't involve this station
+        const myIndex = ops.findIndex(o => o.code === stationCode);
+        if (myIndex === -1) return;
+        if (currentOpIndex > myIndex) return;
 
-      // If job already passed this station, ignore
-      if (currentOpIndex > myIndex) return;
+        const currentOpCode = String(job.currentOpCode || "").trim().toUpperCase();
+        const status = String(job.status || "").trim().toLowerCase();
 
-      const currentOpCode = String(job.currentOpCode || "").trim().toUpperCase();
-      const status = String(job.status || "").trim().toLowerCase();
+        const jobView = {
+          id,
+          itemCode: String(job.itemCode || "").toUpperCase(),
+          orderNo: String(job.orderNo || ""),
+          qty: Number(job.qty || 0),
+          ops,
+          currentOpIndex,
+          currentOpCode,
+          status,
+          assignedTo: String(job.assignedTo || ""),
+        };
 
-      const jobView = {
-        id,
-        itemCode: String(job.itemCode || "").toUpperCase(),
-        orderNo: String(job.orderNo || ""),
-        qty: Number(job.qty || 0),
-        ops,
-        currentOpIndex,
-        currentOpCode,
-        status,
-        assignedTo: String(job.assignedTo || ""),
-      };
+        if (currentOpIndex === myIndex) {
+          if (status === "ready") available.push(jobView);
+          else wip.push(jobView);
+        } else {
+          notAvailable.push(jobView);
+        }
+      });
 
-      // Bucket rules:
-      // - If it's our turn (currentOpIndex === myIndex)
-      //    - ready => Available
-      //    - in_progress => WIP (even if assigned to someone else, we can show "locked")
-      // - If we're later in the list (currentOpIndex < myIndex) => Not Available
-      if (currentOpIndex === myIndex) {
-        if (status === "ready") available.push(jobView);
-        else wip.push(jobView);
-      } else {
-        notAvailable.push(jobView);
-      }
+      renderJobLists({ stationCode, available, wip, notAvailable });
+    }, (err) => {
+      console.error("Jobs listener error:", err);
+      renderEmpty(availableBody, `Error loading jobs: ${err.message}`);
+      renderEmpty(wipBody, `Error loading jobs: ${err.message}`);
+      renderEmpty(naBody, `Error loading jobs: ${err.message}`);
     });
+  }
 
-    // Render
-    renderJobLists({ stationCode, available, wip, notAvailable });
-  }, (err) => {
-    console.error("Jobs listener error:", err);
-    renderEmpty(availableBody, `Error loading jobs: ${err.message}`);
-    renderEmpty(wipBody, `Error loading jobs: ${err.message}`);
-    renderEmpty(naBody, `Error loading jobs: ${err.message}`);
-  });
-}
   function renderJobLists({ stationCode, available, wip, notAvailable }){
-  // AVAILABLE
-  if (!available.length) renderEmpty(availableBody, "No jobs ready for this station.");
-  else {
-    availableBody.innerHTML = `<div class="jobsGrid">${
-      available.map(j => jobCardHtml(j, stationCode, "available")).join("")
-    }</div>`;
-    wireCardButtons(availableBody, stationCode);
-  }
-
-  // WIP
-  if (!wip.length) renderEmpty(wipBody, "No jobs in progress at this station.");
-  else {
-    wipBody.innerHTML = `<div class="jobsGrid">${
-      wip.map(j => jobCardHtml(j, stationCode, "wip")).join("")
-    }</div>`;
-    wireCardButtons(wipBody, stationCode);
-  }
-
-  // NOT AVAILABLE
-  if (!notAvailable.length) renderEmpty(naBody, "Nothing waiting on previous operations.");
-  else {
-    naBody.innerHTML = `<div class="jobsGrid">${
-      notAvailable.map(j => jobCardHtml(j, stationCode, "na")).join("")
-    }</div>`;
-    // no buttons here
-  }
-}
-
-function jobCardHtml(job, stationCode, bucket){
-  const title = `${job.itemCode || "—"} × ${job.qty || 0}`;
-  const meta = `
-    <div class="jobMeta">
-      <div><b>Order:</b> ${escapeHtml(job.orderNo || "—")}</div>
-      <div><b>Current:</b> ${escapeHtml(String(job.currentOpCode || "—"))}</div>
-      <div><b>Status:</b> ${escapeHtml(job.status)}</div>
-      ${job.assignedTo ? `<div><b>Assigned:</b> ${escapeHtml(job.assignedTo)}</div>` : ``}
-    </div>
-  `;
-
-  const opsLine = `<div class="jobOps"><b>Flow:</b> ${escapeHtml(opsToString(job.ops, job.currentOpIndex))}</div>`;
-
-  let btns = "";
-  if (bucket === "available") {
-    btns = `
-      <div class="jobBtns">
-        <button class="smallBtn primary" data-start="${job.id}">Start</button>
-      </div>
-    `;
-  } else if (bucket === "wip") {
-    // allow Complete. If you want to restrict to only the assigned user, we can enforce it.
-    btns = `
-      <div class="jobBtns">
-        <button class="smallBtn warn" data-complete="${job.id}">Complete / Move On</button>
-      </div>
-    `;
-  }
-
-  return `
-    <div class="jobCard">
-      <div class="jobTop">
-        <div>
-          <div class="jobTitle">${escapeHtml(title)}</div>
-          ${meta}
-        </div>
-      </div>
-      ${opsLine}
-      ${btns}
-    </div>
-  `;
-}
-
-function escapeHtml(s){
-  return String(s ?? "").replace(/[&<>"']/g, (c) => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
-
-function wireCardButtons(container, stationCode){
-  container.querySelectorAll("button[data-start]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const id = btn.getAttribute("data-start");
-      btn.disabled = true;
-      try{
-        await startJob(id, stationCode);
-      } catch(e){
-        console.error(e);
-        alert(e?.message || "Could not start job.");
-        btn.disabled = false;
-      }
-    });
-  });
-
-  container.querySelectorAll("button[data-complete]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const id = btn.getAttribute("data-complete");
-      btn.disabled = true;
-      try{
-        await completeJobStep(id, stationCode);
-      } catch(e){
-        console.error(e);
-        alert(e?.message || "Could not complete job.");
-        btn.disabled = false;
-      }
-    });
-  });
-}
-  async function startJob(jobId, stationCode){
-  const jobRef = doc(db, "companies", companyId, "jobs", jobId);
-
-  await runTransaction(db, async (tx) => {
-    const snap = await tx.get(jobRef);
-    if (!snap.exists()) throw new Error("Job not found.");
-
-    const job = snap.data() || {};
-    const status = String(job.status || "").toLowerCase();
-    const currentOpCode = String(job.currentOpCode || "").toUpperCase();
-
-    if (status !== "ready") throw new Error("This job is not available.");
-    if (currentOpCode !== stationCode) throw new Error("This job is not for your station.");
-
-    tx.update(jobRef, {
-      status: "in_progress",
-      assignedTo: getUserIdentifier(),
-      startedAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-  });
-}
-
-async function completeJobStep(jobId, stationCode){
-  const jobRef = doc(db, "companies", companyId, "jobs", jobId);
-
-  await runTransaction(db, async (tx) => {
-    const snap = await tx.get(jobRef);
-    if (!snap.exists()) throw new Error("Job not found.");
-
-    const job = snap.data() || {};
-    const ops = normalizeOpsArray(job.ops);
-    const idx = Number(job.currentOpIndex ?? 0);
-    const currentOpCode = String(job.currentOpCode || "").toUpperCase();
-    const status = String(job.status || "").toLowerCase();
-
-    if (!ops.length) throw new Error("Job has no operations.");
-    if (currentOpCode !== stationCode) throw new Error("This job is not at your station.");
-
-    // Optional: only allow complete if it's in_progress
-    // if (status !== "in_progress") throw new Error("Start the job before completing.");
-
-    const nextIndex = idx + 1;
-
-    if (nextIndex < ops.length) {
-      tx.update(jobRef, {
-        currentOpIndex: nextIndex,
-        currentOpCode: ops[nextIndex].code,
-        status: "ready",
-        assignedTo: null,
-        updatedAt: serverTimestamp()
-      });
-    } else {
-      tx.update(jobRef, {
-        status: "complete",
-        assignedTo: null,
-        completedAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+    if (!available.length) renderEmpty(availableBody, "No jobs ready for this station.");
+    else {
+      availableBody.innerHTML = `<div class="jobsGrid">${
+        available.map(j => jobCardHtml(j, stationCode, "available")).join("")
+      }</div>`;
+      wireCardButtons(availableBody, stationCode);
     }
-  });
-}
+
+    if (!wip.length) renderEmpty(wipBody, "No jobs in progress at this station.");
+    else {
+      wipBody.innerHTML = `<div class="jobsGrid">${
+        wip.map(j => jobCardHtml(j, stationCode, "wip")).join("")
+      }</div>`;
+      wireCardButtons(wipBody, stationCode);
+    }
+
+    if (!notAvailable.length) renderEmpty(naBody, "Nothing waiting on previous operations.");
+    else {
+      naBody.innerHTML = `<div class="jobsGrid">${
+        notAvailable.map(j => jobCardHtml(j, stationCode, "na")).join("")
+      }</div>`;
+    }
+  }
+
+  function jobCardHtml(job, stationCode, bucket){
+    const title = `${job.itemCode || "—"} × ${job.qty || 0}`;
+    const meta = `
+      <div class="jobMeta">
+        <div><b>Order:</b> ${escapeHtml(job.orderNo || "—")}</div>
+        <div><b>Current:</b> ${escapeHtml(String(job.currentOpCode || "—"))}</div>
+        <div><b>Status:</b> ${escapeHtml(job.status)}</div>
+        ${job.assignedTo ? `<div><b>Assigned:</b> ${escapeHtml(job.assignedTo)}</div>` : ``}
+      </div>
+    `;
+
+    const opsLine = `<div class="jobOps"><b>Flow:</b> ${escapeHtml(opsToString(job.ops, job.currentOpIndex))}</div>`;
+
+    let btns = "";
+    if (bucket === "available") {
+      btns = `
+        <div class="jobBtns">
+          <button class="smallBtn primary" data-start="${job.id}">Start</button>
+        </div>
+      `;
+    } else if (bucket === "wip") {
+      btns = `
+        <div class="jobBtns">
+          <button class="smallBtn warn" data-complete="${job.id}">Complete / Move On</button>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="jobCard">
+        <div class="jobTop">
+          <div>
+            <div class="jobTitle">${escapeHtml(title)}</div>
+            ${meta}
+          </div>
+        </div>
+        ${opsLine}
+        ${btns}
+      </div>
+    `;
+  }
+
+  function wireCardButtons(container, stationCode){
+    container.querySelectorAll("button[data-start]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.getAttribute("data-start");
+        btn.disabled = true;
+        try{
+          await startJob(id, stationCode);
+        } catch(e){
+          console.error(e);
+          alert(e?.message || "Could not start job.");
+          btn.disabled = false;
+        }
+      });
+    });
+
+    container.querySelectorAll("button[data-complete]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.getAttribute("data-complete");
+        btn.disabled = true;
+        try{
+          await completeJobStep(id, stationCode);
+        } catch(e){
+          console.error(e);
+          alert(e?.message || "Could not complete job.");
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  async function startJob(jobId, stationCode){
+    const jobRef = doc(db, "companies", companyId, "jobs", jobId);
+
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(jobRef);
+      if (!snap.exists()) throw new Error("Job not found.");
+
+      const job = snap.data() || {};
+      const status = String(job.status || "").toLowerCase();
+      const currentOpCode = String(job.currentOpCode || "").toUpperCase();
+
+      if (status !== "ready") throw new Error("This job is not available.");
+      if (currentOpCode !== stationCode) throw new Error("This job is not for your station.");
+
+      tx.update(jobRef, {
+        status: "in_progress",
+        assignedTo: getUserIdentifier(),
+        startedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    });
+  }
+
+  async function completeJobStep(jobId, stationCode){
+    const jobRef = doc(db, "companies", companyId, "jobs", jobId);
+
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(jobRef);
+      if (!snap.exists()) throw new Error("Job not found.");
+
+      const job = snap.data() || {};
+      const ops = normalizeOpsArray(job.ops);
+      const idx = Number(job.currentOpIndex ?? 0);
+      const currentOpCode = String(job.currentOpCode || "").toUpperCase();
+
+      if (!ops.length) throw new Error("Job has no operations.");
+      if (currentOpCode !== stationCode) throw new Error("This job is not at your station.");
+
+      const nextIndex = idx + 1;
+
+      if (nextIndex < ops.length) {
+        tx.update(jobRef, {
+          currentOpIndex: nextIndex,
+          currentOpCode: ops[nextIndex].code,
+          status: "ready",
+          assignedTo: null,
+          updatedAt: serverTimestamp()
+        });
+      } else {
+        tx.update(jobRef, {
+          status: "complete",
+          assignedTo: null,
+          completedAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      }
+    });
+  }
+
   // ✅ Auth gate
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -643,14 +675,10 @@ async function completeJobStep(jobId, stationCode){
 
     try {
       const result = await enforceOperatorGate(user);
-if (!result) return;
+      if (!result) return;
 
-const { station } = result;
-
-// ✅ start live job feed for this operator station
-watchJobsForStation(station);
-      // ✅ at this point: user is operator + correct company + correct station dashboard
-      // later: load jobs for this station using station from Firestore (NOT the URL)
+      const { station } = result;
+      watchJobsForStation(station);
 
     } catch (e) {
       console.error(e);
