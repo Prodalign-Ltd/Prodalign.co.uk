@@ -208,6 +208,19 @@
       return String(d.companycode ?? d.companyCode ?? "").trim().toLowerCase();
     }
 
+    function positionBrandingAboveCard() {
+  const brandTop = document.getElementById("brandTop");
+  const card = document.getElementById("stationCard");
+  if (!brandTop || !card) return;
+
+  const gap = 18;
+  const cardRect = card.getBoundingClientRect();
+  const brandHeight = brandTop.offsetHeight || 0;
+
+  const top = Math.max(12, cardRect.top - gap - brandHeight);
+  brandTop.style.top = `${top}px`;
+}
+    
     async function loadCompanyBranding(companyCode){
       try{
         const snap = await getDoc(doc(db, "companies", companyCode));
@@ -258,27 +271,32 @@ requestAnimationFrame(() => {
     }
 
     async function setSession(uid, companyCode, stationId, operatorLabel) {
-      const sessionId = getSessionId(uid);
-      await setDoc(doc(db, "kioskSessions", sessionId), {
-        companyId: companyCode,
-        stationId,
-        operatorLabel: operatorLabel || null,
-        updatedAt: serverTimestamp(),
-      }, { merge: true });
-    }
-function positionBrandingAboveCard() {
-  const brandTop = document.getElementById("brandTop");
-  const card = document.getElementById("stationCard");
-  if (!brandTop || !card) return;
+  // 1) Read station doc so we can grab opCode (BEND/WELDING etc)
+  const stationRef = doc(db, "companies", companyCode, "stations", stationId);
+  const stationSnap = await getDoc(stationRef);
+  if (!stationSnap.exists()) throw new Error("Station not found.");
 
-  const gap = 18; // spacing between logo and card
+  const s = stationSnap.data() || {};
+  const stationCode = String(s.opCode || stationId).trim().toUpperCase();
+  const stationName = String(s.displayName || s.displayname || stationId).trim();
 
-  const cardRect = card.getBoundingClientRect();
-  const brandHeight = brandTop.offsetHeight || 0;
+  // 2) Save kiosk session
+  const sessionId = getSessionId(uid);
+  await setDoc(doc(db, "kioskSessions", sessionId), {
+    uid: uid,
+    companyId: companyCode,
 
-  const top = Math.max(12, cardRect.top - gap - brandHeight);
-  brandTop.style.top = `${top}px`;
+    stationId: stationId,
+    stationName: stationName,
+    stationCode: stationCode,
+
+    operator: String(operatorLabel || "").trim(),
+
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
 }
+    
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         location.assign("/companylogin/");
