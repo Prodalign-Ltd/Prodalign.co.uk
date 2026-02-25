@@ -1051,6 +1051,11 @@
         <input id="orderReadyQty" type="number" min="1" step="1" value="1" />
       </div>
 
+      <div class="form-group">
+        <label for="orderReadyDue">Due date</label>
+        <input id="orderReadyDue" type="datetime-local" />
+      </div>
+
       <div style="color: rgba(255,255,255,0.72); font-weight: 800; font-size: 0.9rem; line-height: 1.35;">
         Confirming will send this job to the operator dashboard.
       </div>
@@ -1069,7 +1074,7 @@
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
   getFirestore, doc, getDoc, setDoc, deleteDoc, addDoc,
-  collection, onSnapshot, serverTimestamp
+  collection, onSnapshot, serverTimestamp, Timestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
   import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
@@ -1598,6 +1603,7 @@ const confirmOrderReady = document.getElementById("confirmOrderReady");
 const orderReadyItem = document.getElementById("orderReadyItem");
 const orderReadyOrderNo = document.getElementById("orderReadyOrderNo");
 const orderReadyQty = document.getElementById("orderReadyQty");
+const orderReadyDue = document.getElementById("orderReadyDue");
 const orderReadyStatus = document.getElementById("orderReadyStatus");
 
 let pendingOrderReady = null; // { code, type }
@@ -1608,6 +1614,7 @@ function openOrderReadyModal(payload){
   orderReadyItem.textContent = payload?.code || "—";
   orderReadyOrderNo.value = "";
   orderReadyQty.value = "1";
+  orderReadyDue.value = "";
   orderReadyStatus.textContent = "";
 
   orderReadyModal.classList.add("open");
@@ -1662,7 +1669,15 @@ async function sendOrderToOperators({ code, type }){
   const orderNo = String(orderReadyOrderNo.value || "").trim();
   const qty = Math.max(1, Math.floor(Number(orderReadyQty.value || 1)));
   if (!orderNo) throw new Error("Order number is required.");
-
+  
+  const dueRaw = String(orderReadyDue.value || "").trim();
+  if (!dueRaw) throw new Error("Due date is required.");
+  
+  const dueDate = new Date(dueRaw);
+  if (Number.isNaN(dueDate.getTime())) throw new Error("Invalid due date.");
+  
+  const dueAt = Timestamp.fromDate(dueDate);
+  
   // ✅ Pull the ordered operation list from the item
   const ops = await getItemOpsInOrder(itemCode);
 
@@ -1672,7 +1687,9 @@ async function sendOrderToOperators({ code, type }){
     itemCode,
     orderNo,
     qty,
-
+    
+    dueAt, 
+    
     ops,                    // ordered queue: [{code, iph}, ...]
     currentOpIndex: 0,
     currentOpCode: ops[0].code,
