@@ -644,12 +644,13 @@
       <div class="panel-body">
         <div class="detailsGrid">
           <div class="card">
-            <div class="kv">
-              <div><b>Item:</b> <span id="detailItem">—</span></div>
-              <div><b>Item Cost:</b> <span id="detailCost">—</span></div>
-              <div><b>Operation Time:</b> <span id="detailTime">—</span></div>
-              <div><b>Description:</b> <span id="detailEtc">—</span></div>
-            </div>
+<div class="kv">
+  <div><b>Item:</b> <span id="detailItem">—</span></div>
+  <div><b>Type:</b> <span id="detailType">—</span></div>
+  <div><b>Item Cost:</b> <span id="detailCost">—</span></div>
+  <div><b>Operation Time:</b> <span id="detailTime">—</span></div>
+  <div><b>Description:</b> <span id="detailEtc">—</span></div>
+</div>
           </div>
 
           <div class="emptyHint">
@@ -705,22 +706,34 @@
       <button class="modal-close" id="closeNewItemModal" type="button">✕</button>
     </div>
 
-    <div class="modal-body">
-      <div class="form-group">
-        <label for="newItemCode">Item Code</label>
-        <input type="text" id="newItemCode" placeholder="e.g. P40000" autocomplete="off">
-      </div>
+<div class="modal-body">
 
-      <div class="form-group">
-        <label for="newItemDescription">Description</label>
-        <input type="text" id="newItemDescription" placeholder="Item description" autocomplete="off">
-      </div>
+  <div class="form-group">
+    <label for="newItemCode">Item Code</label>
+    <input type="text" id="newItemCode" placeholder="e.g. P40000" autocomplete="off">
+  </div>
 
-      <div class="form-group">
-        <label for="newItemCost">Base Cost</label>
-        <input type="number" id="newItemCost" placeholder="0.00" inputmode="decimal">
-      </div>
-    </div>
+  <div class="form-group">
+    <label for="newItemType">Item Type</label>
+    <select id="newItemType">
+      <option value="raw_material">Raw material</option>
+      <option value="bought_out">Bought out item</option>
+      <option value="final_saleable" selected>Final Saleable</option>
+      <option value="operation">Operation</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="newItemDescription">Description</label>
+    <input type="text" id="newItemDescription" placeholder="Item description" autocomplete="off">
+  </div>
+
+  <div class="form-group">
+    <label for="newItemCost">Base Cost</label>
+    <input type="number" id="newItemCost" placeholder="0.00" inputmode="decimal">
+  </div>
+
+</div>
 
     <div class="modal-footer">
       <div class="modal-status" id="newItemStatus"></div>
@@ -807,6 +820,7 @@
   const detailCost = document.getElementById("detailCost");
   const detailTime = document.getElementById("detailTime");
   const detailEtc = document.getElementById("detailEtc");
+  const detailType = document.getElementById("detailType");
 
   // Add member UI
   const addMemberBtn = document.getElementById("addMemberBtn");
@@ -827,6 +841,7 @@
   const newItemDescription = document.getElementById("newItemDescription");
   const newItemCost = document.getElementById("newItemCost");
   const newItemStatus = document.getElementById("newItemStatus");
+  const newItemType = document.getElementById("newItemType");
 
   // Delete modal UI
   const deleteItemModal = document.getElementById("deleteItemModal");
@@ -930,10 +945,11 @@
     // ops still as pills
     renderPills(containsOpsEl, item?.operations, true, "No operations");
 
-    detailItem.textContent = code;
-    detailCost.textContent = (item?.baseCost ?? "—");
-    detailTime.textContent = (item?.operationTime ?? "—");
-    detailEtc.textContent = (item?.description ?? "—");
+detailItem.textContent = code;
+detailType.textContent = item?.type ?? "—";
+detailCost.textContent = (item?.baseCost ?? "—");
+detailTime.textContent = (item?.operationTime ?? "—");
+detailEtc.textContent = (item?.description ?? "—");
   }
 
   // ---------- Firestore writes for contains ----------
@@ -1187,15 +1203,16 @@
   });
 
   // ---------- New Item modal ----------
-  function openNewItemModal() {
-    newItemStatus.textContent = "";
-    newItemCode.value = "";
-    newItemDescription.value = "";
-    newItemCost.value = "";
-    newItemModal.classList.add("open");
-    newItemModal.setAttribute("aria-hidden", "false");
-    setTimeout(() => newItemCode.focus(), 0);
-  }
+function openNewItemModal() {
+  newItemStatus.textContent = "";
+  newItemCode.value = "";
+  newItemDescription.value = "";
+  newItemCost.value = "";
+  newItemType.value = "final_saleable"; // ✅ added
+  newItemModal.classList.add("open");
+  newItemModal.setAttribute("aria-hidden", "false");
+  setTimeout(() => newItemCode.focus(), 0);
+}
   function closeNewItemModalFn() {
     newItemModal.classList.remove("open");
     newItemModal.setAttribute("aria-hidden", "true");
@@ -1209,6 +1226,7 @@
   });
 
   saveNewItem.addEventListener("click", async () => {
+    const type = String(newItemType.value || "final_saleable");
     const code = String(newItemCode.value || "").trim().toUpperCase();
     const description = String(newItemDescription.value || "").trim();
     const baseCost = Number(newItemCost.value || 0);
@@ -1230,15 +1248,16 @@
         return;
       }
 
-      await setDoc(itemRef, {
-        code,
-        description,
-        baseCost: Number.isFinite(baseCost) ? baseCost : 0,
-        contains: [],
-        operations: [],
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+await setDoc(itemRef, {
+  code,
+  type, // ✅ added
+  description,
+  baseCost: Number.isFinite(baseCost) ? baseCost : 0,
+  contains: [],
+  operations: [],
+  createdAt: serverTimestamp(),
+  updatedAt: serverTimestamp()
+});
 
       newItemStatus.textContent = "Saved!";
       setTimeout(closeNewItemModalFn, 350);
