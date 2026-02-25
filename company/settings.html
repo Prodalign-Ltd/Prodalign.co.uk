@@ -155,8 +155,22 @@
 }
 
 /* ✅ Tree toggle styles */
+    /* ===== TREE HEADER GRID (locks toggle right) ===== */
+.treeHeader{
+  display: grid;
+  grid-template-columns: auto 1fr auto; /* dot | title | toggle */
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.treeHeaderTitle{
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .treeToggle{
-  margin-left: auto;
   display: inline-flex;
   gap: 6px;
   padding: 4px;
@@ -607,21 +621,23 @@
     </div>
 
     <div class="panel tree">
-      <div class="panel-header">
-        <div class="panel-title" style="gap:10px;">
-  <span class="dot"></span>
-  <span id="treeTitle">Tree of Items</span>
+  <div class="panel-header">
+    <div class="treeHeader">
+      <span class="dot"></span>
 
-  <div class="treeToggle" role="tablist" aria-label="Tree toggle">
-    <button id="toggleTreeItems" type="button" class="treeTab active" role="tab" aria-selected="true">Items</button>
-    <button id="toggleTreeOps" type="button" class="treeTab" role="tab" aria-selected="false">Operations</button>
-  </div>
-</div>
-      </div>
-      <div class="panel-body">
-        <div id="treeList"></div>
+      <span id="treeTitle" class="treeHeaderTitle">Tree of Items</span>
+
+      <div class="treeToggle" role="tablist" aria-label="Tree toggle">
+        <button id="toggleTreeItems" type="button" class="treeTab active" role="tab" aria-selected="true">Items</button>
+        <button id="toggleTreeOps" type="button" class="treeTab" role="tab" aria-selected="false">Operations</button>
       </div>
     </div>
+  </div>
+
+  <div class="panel-body">
+    <div id="treeList"></div>
+  </div>
+</div>
 
     <div class="panel order-ready" id="dropzone">
       <div class="panel-body">
