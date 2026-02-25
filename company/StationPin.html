@@ -312,17 +312,34 @@ function positionBrandingAboveCard() {
         if (!companyCode) companyCode = await getUserCompany(user.uid);
         if (!companyCode) throw new Error("Missing company code.");
 
-        const pin = pinEl.value.trim();
-        const operatorLabel = opEl.value.trim();
+        const pinRaw = pinEl.value.trim();
+        if (!/^\d+$/.test(pinRaw)) throw new Error("PIN must be numbers only.");
+const operatorLabel = opEl.value.trim();
 
-       const stationsRef = collection(db, "companies", companyCode, "stations");
+const stationsRef = collection(db, "companies", companyCode, "stations");
 
-const q = query(
-  stationsRef,
-  where("pin", "==", pin),
-  where("active", "==", true)
-);
-        const snap = await getDocs(q);
+// Try numeric match first (if pins stored as numbers)
+const pinNum = Number(pinRaw);
+let snap;
+
+if (Number.isFinite(pinNum)) {
+  const qNum = query(
+    stationsRef,
+    where("pin", "==", pinNum),
+    where("active", "==", true)
+  );
+  snap = await getDocs(qNum);
+}
+
+// If no match, try string match (if pins stored as text)
+if (!snap || snap.empty) {
+  const qStr = query(
+    stationsRef,
+    where("pin", "==", pinRaw),
+    where("active", "==", true)
+  );
+  snap = await getDocs(qStr);
+}
         if (snap.empty) throw new Error("Invalid PIN.");
 
         const stationId = snap.docs[0].id;
