@@ -392,26 +392,46 @@ header{
     return `${uid}_${getKioskDeviceId()}`;
   }
 
-  // ✅ NEW: gate based on kiosk session (NOT users/{uid}.station)
-  async function enforceOperatorGate(user) {
-    // 1) Basic user profile check (company + role)
-    const snap = await getDoc(doc(db, "users", user.uid));
-    if (!snap.exists()) throw new Error("User profile missing.");
+async function enforceOperatorGate(user) {
+  // 1) Basic user profile check (company + role)
+  const snap = await getDoc(doc(db, "users", user.uid));
+  if (!snap.exists()) throw new Error("User profile missing.");
 
-    const data = snap.data();
-    const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
-    const role = String(data.role ?? "").trim().toLowerCase();
+  const data = snap.data() || {};
+  const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
+  const role = String(data.role ?? "").trim().toLowerCase();
 
-    if (!userCompany || userCompany !== companyId) throw new Error("Wrong company.");
-    if (role !== "operator") throw new Error("Not an operator.");
+  if (!userCompany || userCompany !== companyId) throw new Error("Wrong company.");
+  if (role !== "operator") throw new Error("Not an operator.");
 
-// 2) Determine station ONLY from kiosk session (never trust URL)
-const sessionId = getKioskSessionId(user.uid);
-const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
+  // 2) Determine station ONLY from kiosk session (never trust URL)
+  const sessionId = getKioskSessionId(user.uid);
+  const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
 
-if (!sessSnap.exists()) {
-  window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
-  return false;
+  if (!sessSnap.exists()) {
+    window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
+    return false;
+  }
+
+  const sess = sessSnap.data() || {};
+  const station = String(sess.stationId || "").trim();
+  const sessCompany = String(sess.companyId || "").trim().toLowerCase();
+
+  if (!station || sessCompany !== companyId) {
+    window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
+    return false;
+  }
+
+  // OPTIONAL: keep URL tidy (but doesn't grant access)
+  const desiredUrl = `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`;
+  const currentUrl = location.pathname + location.search;
+  if (currentUrl !== desiredUrl) {
+    window.location.replace(desiredUrl);
+    return false;
+  }
+
+  stationTitleEl.textContent = `${prettyStationName(station)} Dashboard`;
+  return { station };
 }
 
 const sess = sessSnap.data() || {};
@@ -613,63 +633,63 @@ const jobsRef = collection(db, "stations", stationCode, "jobs");
   }
 
   async function startJob(jobId, stationCode){
-    const jobRef = doc(db, "companies", companyId, "jobs", jobId);
+  const jobRef = doc(db, "stations", stationCode, "jobs", jobId);
 
-    await runTransaction(db, async (tx) => {
-      const snap = await tx.get(jobRef);
-      if (!snap.exists()) throw new Error("Job not found.");
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(jobRef);
+    if (!snap.exists()) throw new Error("Job not found.");
 
-      const job = snap.data() || {};
-      const status = String(job.status || "").toLowerCase();
-      const currentOpCode = String(job.currentOpCode || "").toUpperCase();
+    const job = snap.data() || {};
+    const status = String(job.status || "").toLowerCase();
+    const currentOpCode = String(job.currentOpCode || "").toUpperCase();
 
-      if (status !== "ready") throw new Error("This job is not available.");
-      if (currentOpCode !== stationCode) throw new Error("This job is not for your station.");
+    if (status !== "ready") throw new Error("This job is not available.");
+    if (currentOpCode !== stationCode) throw new Error("This job is not for your station.");
 
+    tx.update(jobRef, {
+      status: "in_progress",
+      assignedTo: getUserIdentifier(),
+      startedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+  });
+}
+
+async function completeJobStep(jobId, stationCode){
+  const jobRef = doc(db, "stations", stationCode, "jobs", jobId);
+
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(jobRef);
+    if (!snap.exists()) throw new Error("Job not found.");
+
+    const job = snap.data() || {};
+    const ops = normalizeOpsArray(job.ops);
+    const idx = Number(job.currentOpIndex ?? 0);
+    const currentOpCode = String(job.currentOpCode || "").toUpperCase();
+
+    if (!ops.length) throw new Error("Job has no operations.");
+    if (currentOpCode !== stationCode) throw new Error("This job is not at your station.");
+
+    const nextIndex = idx + 1;
+
+    if (nextIndex < ops.length) {
       tx.update(jobRef, {
-        status: "in_progress",
-        assignedTo: getUserIdentifier(),
-        startedAt: serverTimestamp(),
+        currentOpIndex: nextIndex,
+        currentOpCode: ops[nextIndex].code,
+        status: "ready",
+        assignedTo: null,
         updatedAt: serverTimestamp()
       });
-    });
-  }
-
-  async function completeJobStep(jobId, stationCode){
-    const jobRef = doc(db, "companies", companyId, "jobs", jobId);
-
-    await runTransaction(db, async (tx) => {
-      const snap = await tx.get(jobRef);
-      if (!snap.exists()) throw new Error("Job not found.");
-
-      const job = snap.data() || {};
-      const ops = normalizeOpsArray(job.ops);
-      const idx = Number(job.currentOpIndex ?? 0);
-      const currentOpCode = String(job.currentOpCode || "").toUpperCase();
-
-      if (!ops.length) throw new Error("Job has no operations.");
-      if (currentOpCode !== stationCode) throw new Error("This job is not at your station.");
-
-      const nextIndex = idx + 1;
-
-      if (nextIndex < ops.length) {
-        tx.update(jobRef, {
-          currentOpIndex: nextIndex,
-          currentOpCode: ops[nextIndex].code,
-          status: "ready",
-          assignedTo: null,
-          updatedAt: serverTimestamp()
-        });
-          } else {
-            tx.update(jobRef, {
-              status: "to_book",           // ✅ finished production, waiting to be booked
-              assignedTo: null,
-              completedAt: serverTimestamp(),
-              updatedAt: serverTimestamp()
-            });
-          }
-    });
-  }
+    } else {
+      tx.update(jobRef, {
+        status: "to_book",
+        assignedTo: null,
+        completedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    }
+  });
+}
 
   // ✅ Auth gate
   onAuthStateChanged(auth, async (user) => {
