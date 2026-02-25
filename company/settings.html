@@ -339,7 +339,7 @@
       opacity: 0.8;
     }
 
-    ..mainTop{
+    .mainTop{
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -785,7 +785,8 @@
   <!-- RIGHT -->
   <div class="main">
     <div class="topbar">
-      <button id="newItemBtn" class="btn-primary" type="button">New Item</button>
+     <button id="newItemBtn" class="btn-primary" type="button">New Item</button>
+<button id="newOpBtn" class="btn-primary" type="button">New Operation</button>
       <div class="center-dot" aria-hidden="true"></div>
       <div style="display:flex; gap:10px; align-items:center; color:var(--muted); font-weight:800;">
         <span style="opacity:.9;">Company Workspace</span>
@@ -962,6 +963,45 @@
     </div>
   </div>
 </div>
+  
+  <!-- ✅ New Operation Modal -->
+<div id="newOpModal" class="modal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="newOpTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="newOpTitle">Create New Operation</div>
+      <button class="modal-close" id="closeNewOpModal" type="button">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="newOpCode">Operation Code</label>
+        <input type="text" id="newOpCode" placeholder="e.g. BEND" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label for="newOpPin">Station PIN</label>
+        <input type="text" id="newOpPin" placeholder="e.g. 1234" inputmode="numeric" autocomplete="one-time-code">
+      </div>
+
+      <div class="form-group">
+        <label for="newOpName">Display name (optional)</label>
+        <input type="text" id="newOpName" placeholder="e.g. Bending" autocomplete="off">
+      </div>
+
+      <div style="color: rgba(255,255,255,0.72); font-weight: 800; font-size: 0.9rem; line-height: 1.35;">
+        This creates:
+        <b>companies/{companyId}/items/{OPCODE}</b> as an Operation, and
+        <b>stations/{OPCODE}</b> with your PIN.
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="modal-status" id="newOpStatus"></div>
+      <button id="cancelNewOp" type="button">Cancel</button>
+      <button class="btn-primary" id="saveNewOp" type="button">Create Operation</button>
+    </div>
+  </div>
+</div>
 
 <!-- ✅ Delete Confirm Modal -->
 <div id="deleteItemModal" class="modal" aria-hidden="true">
@@ -1071,9 +1111,10 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import {
+ import {
   getFirestore, doc, getDoc, setDoc, deleteDoc, addDoc,
-  collection, onSnapshot, serverTimestamp, Timestamp
+  collection, onSnapshot, serverTimestamp, Timestamp,
+  query, where, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
   import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
@@ -1159,6 +1200,17 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
   const newItemCost = document.getElementById("newItemCost");
   const newItemStatus = document.getElementById("newItemStatus");
 
+  // New operation modal UI
+  const newOpBtn = document.getElementById("newOpBtn");
+  const newOpModal = document.getElementById("newOpModal");
+  const closeNewOpModal = document.getElementById("closeNewOpModal");
+  const cancelNewOp = document.getElementById("cancelNewOp");
+  const saveNewOp = document.getElementById("saveNewOp");
+  const newOpCode = document.getElementById("newOpCode");
+  const newOpPin = document.getElementById("newOpPin");
+  const newOpName = document.getElementById("newOpName");
+  const newOpStatus = document.getElementById("newOpStatus");
+  
   // Delete modal UI
   const deleteItemModal = document.getElementById("deleteItemModal");
   const closeDeleteItemModal = document.getElementById("closeDeleteItemModal");
@@ -2212,6 +2264,133 @@ updatedBy: getUserIdentifier(),
     }
   });
 
+  // ---------- New Operation modal ----------
+function openNewOpModal() {
+  newOpStatus.textContent = "";
+  newOpCode.value = "";
+  newOpPin.value = "";
+  newOpName.value = "";
+  newOpModal.classList.add("open");
+  newOpModal.setAttribute("aria-hidden", "false");
+  setTimeout(() => newOpCode.focus(), 0);
+}
+
+function closeNewOpModalFn() {
+  newOpModal.classList.remove("open");
+  newOpModal.setAttribute("aria-hidden", "true");
+}
+
+newOpBtn?.addEventListener("click", openNewOpModal);
+closeNewOpModal?.addEventListener("click", closeNewOpModalFn);
+cancelNewOp?.addEventListener("click", closeNewOpModalFn);
+newOpModal?.addEventListener("click", (e) => {
+  if (e.target === newOpModal) closeNewOpModalFn();
+});
+
+// helper: only allow digits in pin
+newOpPin?.addEventListener("input", () => {
+  newOpPin.value = newOpPin.value.replace(/[^\d]/g, "").slice(0, 12);
+});
+
+async function isPinTaken(companyId, pin) {
+  const qPins = query(
+    collection(db, "stations"),
+    where("companyId", "==", companyId),
+    where("pin", "==", pin),
+    where("active", "==", true)
+  );
+  const snap = await getDocs(qPins);
+  return !snap.empty;
+}
+
+saveNewOp?.addEventListener("click", async () => {
+  const code = String(newOpCode.value || "").trim().toUpperCase();
+  const pin = String(newOpPin.value || "").trim();
+  const displayName = String(newOpName.value || "").trim();
+
+  if (!code) {
+    newOpStatus.textContent = "Operation code is required.";
+    return;
+  }
+  if (!pin) {
+    newOpStatus.textContent = "Station PIN is required.";
+    return;
+  }
+
+  saveNewOp.disabled = true;
+  newOpStatus.textContent = "Checking…";
+
+  try {
+    // 1) ensure PIN is unique for this company
+    const taken = await isPinTaken(companyId, pin);
+    if (taken) {
+      newOpStatus.textContent = "That PIN is already in use for this company.";
+      return;
+    }
+
+    // 2) ensure station doc does not already exist (prevents half-creates)
+    const stationRef = doc(db, "stations", code);
+    const existingStation = await getDoc(stationRef);
+    if (existingStation.exists()) {
+      throw new Error(`Station '${code}' already exists. Choose a different code.`);
+    }
+
+    // 3) ensure item doc doesn't exist as a NON-operation
+    const itemRef = doc(db, "companies", companyId, "items", code);
+    const existingItem = await getDoc(itemRef);
+
+    if (existingItem.exists()) {
+      const data = existingItem.data() || {};
+      const t = String(data.type || "").toLowerCase();
+      if (t && t !== "operation") {
+        throw new Error(`${code} already exists and is not an Operation.`);
+      }
+      // if it already exists as operation, we can either:
+      // - stop (safer), or
+      // - allow creating station anyway
+      // We'll stop to avoid confusion:
+      throw new Error(`${code} operation already exists.`);
+    }
+
+    newOpStatus.textContent = "Saving…";
+
+    // 4) create Operation item so it shows in Operations tab
+    await setDoc(itemRef, {
+      code,
+      type: "operation",
+      description: displayName || code,
+      baseCost: 0,
+      contains: [],
+      operations: [],
+      createdBy: getUserIdentifier(),
+      updatedBy: getUserIdentifier(),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+
+    // 5) create station doc used by StationPin.html
+    await setDoc(stationRef, {
+      companyId,
+      pin,
+      active: true,
+      opCode: code,
+      displayName: displayName || code,
+      createdBy: getUserIdentifier(),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+
+    newOpStatus.textContent = "Created!";
+    setTimeout(closeNewOpModalFn, 350);
+
+  } catch (err) {
+    console.error(err);
+    newOpStatus.textContent = err?.message || "Failed to create operation.";
+  } finally {
+    saveNewOp.disabled = false;
+  }
+});
+  
   // ---------- Delete modal ----------
   function openDeleteModal(code){
     pendingDeleteCode = code;
@@ -2329,6 +2508,7 @@ deleteActiveItemBtn?.addEventListener("click", () => {
     else if (editItemModal.classList.contains("open")) closeEditItemModalFn();
     else if (addMemberModal.classList.contains("open")) closeAddMemberModalFn();
     else if (newItemModal.classList.contains("open")) closeNewItemModalFn();
+    else if (newOpModal.classList.contains("open")) closeNewOpModalFn();
   });
 
   // Find (still placeholder)
