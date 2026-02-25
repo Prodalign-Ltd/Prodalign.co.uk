@@ -114,7 +114,7 @@
       height: calc(100vh - 73px);
       padding: 14px;
       display: grid;
-      grid-template-columns: 320px 1fr;
+      grid-template-columns: 380px 1fr;
       gap: 14px;
     }
 
@@ -902,6 +902,7 @@
 
   // Cache latest items for type validation + active refresh
   const itemsByCode = new Map(); // code -> item data
+  let allItems = []; // used by Find search filter
 
   if (!companyId) {
     companyNameEl.textContent = "Missing company id (?c=...)";
@@ -1332,18 +1333,119 @@ containsOpsEl.addEventListener("drop", async (e) => {
   });
 
   // ---------- Firestore: live tree ----------
+  
+  // ===== TREE RENDERER (used for search filtering) =====
+function renderTree(items, queryText = "") {
+  const q = String(queryText || "").trim().toLowerCase();
+  treeListEl.innerHTML = "";
+
+  const filtered = !q
+    ? items
+    : items.filter(it => {
+        const code = String(it.code || "").toLowerCase();
+        const desc = String(it.description || "").toLowerCase();
+        return code.includes(q) || desc.includes(q);
+      });
+
+  if (filtered.length === 0) {
+    treeListEl.style.color = "rgba(255,255,255,0.65)";
+    treeListEl.textContent = q
+      ? `No results for "${queryText}"`
+      : "No items yet. Click “New Item” to create one.";
+    return;
+  }
+
+  treeListEl.style.color = "";
+
+  filtered.forEach((item) => {
+    const code = (item.code || "").toUpperCase();
+
+    const row = document.createElement("div");
+    row.className = "tree-item";
+    row.draggable = true;
+
+    row.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("application/json", JSON.stringify({ code, type: item.type || "" }));
+      e.dataTransfer.setData("text/plain", code);
+      e.dataTransfer.effectAllowed = "copy";
+    });
+
+    const left = document.createElement("div");
+    left.className = "left";
+    left.innerHTML = `
+      <strong>${code}</strong>
+      <div class="muted">${item.description || "—"}</div>
+    `;
+    left.addEventListener("click", () => setActiveItem(item));
+
+    const btnWrap = document.createElement("div");
+    btnWrap.style.display = "flex";
+    btnWrap.style.flexDirection = "column";
+    btnWrap.style.gap = "6px";
+    btnWrap.style.flex = "0 0 auto";
+
+    const edit = document.createElement("button");
+    edit.className = "rowBtn";
+    edit.textContent = "Edit";
+    edit.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openEditItemModal(item);
+    });
+
+    const del = document.createElement("button");
+    del.className = "del";
+    del.textContent = "Delete";
+    del.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openDeleteModal(code);
+    });
+
+    btnWrap.appendChild(edit);
+    btnWrap.appendChild(del);
+    row.appendChild(left);
+    row.appendChild(btnWrap);
+    treeListEl.appendChild(row);
+  });
+}
   function watchItems(companyId){
     const itemsRef = collection(db, "companies", companyId, "items");
 
     onSnapshot(itemsRef, (snap) => {
-      treeListEl.innerHTML = "";
-      itemsByCode.clear();
+  itemsByCode.clear();
+  allItems = [];
 
-      if (snap.empty) {
-        treeListEl.style.color = "rgba(255,255,255,0.65)";
-        treeListEl.textContent = "No items yet. Click “New Item” to create one.";
-        setActiveItem(null);
-        return;
+  if (snap.empty) {
+    treeListEl.style.color = "rgba(255,255,255,0.65)";
+    treeListEl.textContent = "No items yet. Click “New Item” to create one.";
+    setActiveItem(null);
+    return;
+  }
+
+  let first = null;
+
+  snap.forEach((d) => {
+    const item = d.data();
+    const code = (item.code || d.id || "").toUpperCase();
+    const normalized = { ...item, code };
+
+    itemsByCode.set(code, normalized);
+    allItems.push(normalized);
+
+    if (!first) first = normalized;
+  });
+
+  if (!activeItemCode && first) setActiveItem(first);
+  else if (activeItemCode && itemsByCode.has(activeItemCode)) setActiveItem(itemsByCode.get(activeItemCode));
+  else if (first) setActiveItem(first);
+
+  renderTree(allItems, findInput.value);
+}, (err) => {
+  console.error("Tree listener error:", err);
+  treeListEl.innerHTML = `<div style="color:#ffb4b4;font-weight:900;">
+    Error loading items: ${err.message}
+  </div>`;
+});
+      
       }
 
       treeListEl.style.color = "";
@@ -1716,11 +1818,11 @@ containsOpsEl.addEventListener("drop", async (e) => {
   });
 
   // Find (still placeholder)
-  findInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      alert(`Find: ${findInput.value}\n(wire up search later)`);
-    }
-  });
+  // ===== LIVE SEARCH FILTER =====
+findInput.addEventListener("input", () => {
+  renderTree(allItems, findInput.value);
+});
+  
 </script>
 </body>
 </html>
