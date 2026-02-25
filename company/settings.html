@@ -124,7 +124,7 @@
       border-radius: var(--radius);
       overflow: hidden;
     }
-    
+
     .panel-header{
       padding: 10px 12px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -146,59 +146,54 @@
     }
 
     .panel-title .dot{
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--orange);
-  box-shadow: 0 0 0 4px rgba(245,124,0,0.15);
-  display: inline-block;
-}
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--orange);
+      box-shadow: 0 0 0 4px rgba(245,124,0,0.15);
+      display: inline-block;
+    }
 
-/* ✅ Tree toggle styles */
     /* ===== TREE HEADER GRID (locks toggle right) ===== */
-.treeHeader{
-  display: grid;
-  grid-template-columns: auto 1fr auto; /* dot | title | toggle */
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
+    .treeHeader{
+      display: grid;
+      grid-template-columns: auto 1fr auto; /* dot | title | toggle */
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+    .treeHeaderTitle{
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .treeToggle{
+      display: inline-flex;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.18);
+    }
+    .treeTab{
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      font-weight: 900;
+      cursor: pointer;
+      transform: none !important;
+    }
+    .treeTab:hover{
+      border-color: rgba(245,124,0,0.35);
+      background: rgba(255,255,255,0.10);
+    }
+    .treeTab.active{
+      border-color: rgba(245,124,0,0.55);
+      background: linear-gradient(180deg, rgba(245,124,0,0.20), rgba(245,124,0,0.08));
+    }
 
-.treeHeaderTitle{
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.treeToggle{
-  display: inline-flex;
-  gap: 6px;
-  padding: 4px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.18);
-}
-
-.treeTab{
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.06);
-  font-weight: 900;
-  cursor: pointer;
-  transform: none !important;
-}
-
-.treeTab:hover{
-  border-color: rgba(245,124,0,0.35);
-  background: rgba(255,255,255,0.10);
-}
-
-.treeTab.active{
-  border-color: rgba(245,124,0,0.55);
-  background: linear-gradient(180deg, rgba(245,124,0,0.20), rgba(245,124,0,0.08));
-}
-    
     .panel-body{ padding: 12px; }
 
     .sidebar {
@@ -237,11 +232,11 @@
       grid-template-rows: auto 1fr;
     }
     .tree .panel-body{
-  padding: 10px 10px 12px;
-  overflow: auto;
-  overflow-x: hidden;
-}
-    
+      padding: 10px 10px 12px;
+      overflow: auto;
+      overflow-x: hidden;
+    }
+
     .tree-item{
       padding: 10px 10px;
       border-radius: 12px;
@@ -261,39 +256,20 @@
       background: rgba(255,255,255,0.06);
     }
     .tree-item .left{
-  min-width: 0;   /* ✅ required for ellipsis */
-  cursor: pointer;
-  flex: 1;
-}
+      min-width: 0;
+      cursor: pointer;
+      flex: 1;
+    }
     .tree-item strong{ display:block; font-size: 0.92rem; }
     .tree-item .muted{
-  opacity: 0.75;
-  font-size: 0.86rem;
-  margin-top: 6px;
+      opacity: 0.75;
+      font-size: 0.86rem;
+      margin-top: 6px;
 
-  /* ✅ one-line ellipsis */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  /* ✅ important inside flex layouts */
-  min-width: 0;
-}
-
-    .tree-item .del{
-      border: 1px solid rgba(211,47,47,0.45);
-      background: rgba(211,47,47,0.12);
-      padding: 8px 10px;
-      border-radius: 10px;
-      font-weight: 950;
-      cursor: pointer;
-      line-height: 1;
-      flex: 0 0 auto;
-    }
-    .tree-item .del:hover{
-      background: rgba(211,47,47,0.20);
-      border-color: rgba(211,47,47,0.65);
-      transform:none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
 
     .order-ready {
@@ -339,39 +315,39 @@
       opacity: 0.8;
     }
 
-    ..mainTop{
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.mainTop > .containsRow{
-  flex: 1;
-  min-height: 0;
-}
+    .mainTop{
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .mainTop > .containsRow{
+      flex: 1;
+      min-height: 0;
+    }
 
     .containsRow{
-  display: grid;
-  grid-template-columns: 110px 1fr 1fr;
-  gap: 10px;
-  padding: 10px;
+      display: grid;
+      grid-template-columns: 110px 1fr 1fr;
+      gap: 10px;
+      padding: 10px;
 
-  height: 100%;
-  min-height: 0;
-  align-items: stretch;
-}
+      height: 100%;
+      min-height: 0;
+      align-items: stretch;
+    }
+
     .idCard{
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.18);
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.18);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
 
-  height: 100%;
-  min-height: 0;
-}
+      height: 100%;
+      min-height: 0;
+    }
     .idCard .id{
       font-weight: 950;
       letter-spacing: 0.3px;
@@ -393,16 +369,16 @@
     }
 
     .miniPanel{
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.04);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
 
-  height: 100%;
-  min-height: 0;
-}
+      height: 100%;
+      min-height: 0;
+    }
     .miniPanel .miniHeader{
       padding: 10px 10px 8px;
       font-weight: 950;
@@ -411,16 +387,16 @@
       background: linear-gradient(180deg, rgba(245,124,0,0.10), transparent);
     }
     .miniPanel .miniBody{
-  padding: 10px;
-  color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.35;
-  overflow-y: auto;   
-  overflow-x: hidden; 
-  flex: 1;
-  min-height: 0;      
-  align-items: flex-start;
-}
+      padding: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.35;
+      overflow-y: auto;
+      overflow-x: hidden;
+      flex: 1;
+      min-height: 0;
+      align-items: flex-start;
+    }
 
     .details {
       min-height: 0;
@@ -432,25 +408,18 @@
       overflow: auto;
     }
     .detailsGrid{
-  display: grid;
-  grid-template-columns: minmax(420px, 720px) 1fr; 
-  gap: 14px;
-  align-items: start;
-}
+      display: grid;
+      grid-template-columns: minmax(420px, 720px) 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
     .card {
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.10);
       background: rgba(255,255,255,0.04);
       padding: 12px;
     }
-    .kv{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-    .kv b{ color: #fff; }
 
     .emptyHint{
       height: 100%;
@@ -464,115 +433,101 @@
       font-weight: 800;
       text-align: center;
     }
-/* ===== ITEM DATA CARD (cleaner) ===== */
-.itemCard{
-  padding: 14px;
-  width: 100%;          
-  min-width: 420px;
-  max-width: 720px;    
-  overflow: hidden;     
-}
-.itemMetaGrid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px 14px;
-}
 
-.metaRow{
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
+    /* ===== ITEM DATA CARD (cleaner) ===== */
+    .itemCard{
+      padding: 14px;
+      width: 100%;
+      min-width: 420px;
+      max-width: 720px;
+      overflow: hidden;
+    }
+    .itemMetaGrid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 14px;
+    }
 
-.metaRowFull{
-  grid-column: 1 / -1;
-}
+    .metaRow{
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
 
-.itemCard .k{
-  font-size: 0.75rem;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.62);
-  font-weight: 900;
-}
+    .metaRowFull{ grid-column: 1 / -1; }
 
-.itemCard .v{
-  font-weight: 900;
-  color: rgba(255,255,255,0.92);
+    .itemCard .k{
+      font-size: 0.75rem;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.62);
+      font-weight: 900;
+    }
 
-  /* allow wrapping when card hits max width */
-  white-space: normal;
-  word-break: break-word;
-}
-    
-.itemCard #detailEtc{
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: unset !important;
-  word-break: break-word;
-  line-height: 1.35;
-  color: rgba(255,255,255,0.80);
-  font-weight: 800;
-}
+    .itemCard .v{
+      font-weight: 900;
+      color: rgba(255,255,255,0.92);
+      white-space: normal;
+      word-break: break-word;
+    }
 
-.itemDivider{
-  height: 1px;
-  margin: 14px 0 12px;
-  background: rgba(255,255,255,0.08);
-}
+    .itemDivider{
+      height: 1px;
+      margin: 14px 0 12px;
+      background: rgba(255,255,255,0.08);
+    }
 
-.auditGrid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
+    .auditGrid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
 
-.auditCard{
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.16);
-  border-radius: 12px;
-  padding: 10px 10px;
-}
+    .auditCard{
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.16);
+      border-radius: 12px;
+      padding: 10px 10px;
+    }
 
-.auditLabel{
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  color: rgba(255,255,255,0.60);
-  font-weight: 900;
-  margin-bottom: 6px;
-}
+    .auditLabel{
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: rgba(255,255,255,0.60);
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
 
-.auditValue{
-  font-weight: 950;
-  color: rgba(255,255,255,0.92);
+    .auditValue{
+      font-weight: 950;
+      color: rgba(255,255,255,0.92);
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+      word-break: break-word;
+    }
+    .auditSub{
+      margin-top: 4px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.68);
+      font-size: 0.88rem;
+    }
 
-  /* allow long emails/ids to wrap and grow the card */
-  white-space: normal;
-  overflow: visible;
-  text-overflow: unset;
-  word-break: break-word;
-}
-.auditSub{
-  margin-top: 4px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.68);
-  font-size: 0.88rem;
-}
-   /* ===== TABLES (contains items / ops) ===== */
-.containsTable{
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
+    /* ===== TABLES (contains items / ops) ===== */
+    .containsTable{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
 
-/* Drag reorder rows */
-.containsRowDraggable { cursor: grab; }
-.containsRowDraggable.dragging { opacity: 0.35; }
-.containsRowDraggable.dragOver { outline: 2px dashed rgba(245,124,0,0.7); }
-    
-.containsTable th,
-.containsTable td{
+    /* Drag reorder rows */
+    .containsRowDraggable { cursor: grab; }
+    .containsRowDraggable.dragging { opacity: 0.35; }
+    .containsRowDraggable.dragOver { outline: 2px dashed rgba(245,124,0,0.7); }
+
+    .containsTable th,
+    .containsTable td{
       padding: 8px 8px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       vertical-align: middle;
@@ -614,12 +569,13 @@
       background: rgba(211,47,47,0.12);
       transform:none;
     }
-    
-/* ===== ORDER READY DROPZONE ACTIVE ===== */
-#dropzone.drop-active{
-  border-color: rgba(245,124,0,0.75) !important;
-  box-shadow: 0 0 0 4px rgba(245,124,0,0.14);
-}
+
+    /* ===== ORDER READY DROPZONE ACTIVE ===== */
+    #dropzone.drop-active{
+      border-color: rgba(245,124,0,0.75) !important;
+      box-shadow: 0 0 0 4px rgba(245,124,0,0.14);
+    }
+
     /* ===== MODAL SYSTEM ===== */
     .modal {
       position: fixed;
@@ -751,23 +707,21 @@
     </div>
 
     <div class="panel tree">
-  <div class="panel-header">
-    <div class="treeHeader">
-      <span class="dot"></span>
+      <div class="panel-header">
+        <div class="treeHeader">
+          <span class="dot"></span>
+          <span id="treeTitle" class="treeHeaderTitle">Tree of Items</span>
+          <div class="treeToggle" role="tablist" aria-label="Tree toggle">
+            <button id="toggleTreeItems" type="button" class="treeTab active" role="tab" aria-selected="true">Items</button>
+            <button id="toggleTreeOps" type="button" class="treeTab" role="tab" aria-selected="false">Operations</button>
+          </div>
+        </div>
+      </div>
 
-      <span id="treeTitle" class="treeHeaderTitle">Tree of Items</span>
-
-      <div class="treeToggle" role="tablist" aria-label="Tree toggle">
-        <button id="toggleTreeItems" type="button" class="treeTab active" role="tab" aria-selected="true">Items</button>
-        <button id="toggleTreeOps" type="button" class="treeTab" role="tab" aria-selected="false">Operations</button>
+      <div class="panel-body">
+        <div id="treeList"></div>
       </div>
     </div>
-  </div>
-
-  <div class="panel-body">
-    <div id="treeList"></div>
-  </div>
-</div>
 
     <div class="panel order-ready" id="dropzone">
       <div class="panel-body">
@@ -776,7 +730,7 @@
           Order Ready?
         </div>
         <div class="hint">
-          (Drag &amp; drop items; opens pop-up to fill quantity, order number, etc.)
+          (Drag &amp; drop items; opens pop-up to fill quantity, order number, due date)
         </div>
       </div>
     </div>
@@ -806,11 +760,11 @@
 
         <div class="miniPanel">
           <div class="miniHeader">
-  Contains Operations:
-  <div style="font-weight:700;font-size:.75rem;opacity:.7;margin-top:2px;">
-    Drag operations into the order required (top = first operation)
-  </div>
-</div>
+            Contains Operations:
+            <div style="font-weight:700;font-size:.75rem;opacity:.7;margin-top:2px;">
+              Drag operations into the order required (top = first operation)
+            </div>
+          </div>
           <div class="miniBody" id="containsOps"></div>
         </div>
       </div>
@@ -818,68 +772,65 @@
 
     <div class="panel details" id="mainArea">
       <div class="panel-header">
-  <div class="panel-title"><span class="dot"></span> Item Data</div>
+        <div class="panel-title"><span class="dot"></span> Item Data</div>
 
-  <!-- NEW ACTION BUTTONS -->
-  <div style="display:flex; gap:10px;">
-    <button id="editActiveItemBtn" type="button">Edit</button>
-    <button id="deleteActiveItemBtn" class="btn-danger" type="button">Delete</button>
-  </div>
-</div>
+        <div style="display:flex; gap:10px;">
+          <button id="editActiveItemBtn" type="button">Edit</button>
+          <button id="deleteActiveItemBtn" class="btn-danger" type="button">Delete</button>
+        </div>
+      </div>
+
       <div class="panel-body">
-       <div class="detailsGrid">
+        <div class="detailsGrid">
+          <div class="card itemCard" id="leftItemCard">
+            <div class="itemMetaGrid">
+              <div class="metaRow">
+                <div class="k">Item</div>
+                <div class="v" id="detailItem">—</div>
+              </div>
 
-  <div class="card itemCard" id="leftItemCard">
-    <div class="itemMetaGrid">
-      <div class="metaRow">
-        <div class="k">Item</div>
-        <div class="v" id="detailItem">—</div>
-      </div>
+              <div class="metaRow">
+                <div class="k">Type</div>
+                <div class="v" id="detailType">—</div>
+              </div>
 
-      <div class="metaRow">
-        <div class="k">Type</div>
-        <div class="v" id="detailType">—</div>
-      </div>
+              <div class="metaRow">
+                <div class="k">Item Cost</div>
+                <div class="v" id="detailCost">—</div>
+              </div>
 
-      <div class="metaRow">
-        <div class="k">Item Cost</div>
-        <div class="v" id="detailCost">—</div>
-      </div>
+              <div class="metaRow">
+                <div class="k">Operation Time</div>
+                <div class="v" id="detailTime">—</div>
+              </div>
 
-      <div class="metaRow">
-        <div class="k">Operation Time</div>
-        <div class="v" id="detailTime">—</div>
-      </div>
+              <div class="metaRow metaRowFull">
+                <div class="k">Description</div>
+                <div class="v" id="detailEtc">—</div>
+              </div>
+            </div>
 
-      <div class="metaRow metaRowFull">
-        <div class="k">Description</div>
-        <div class="v" id="detailEtc">—</div>
-      </div>
-    </div>
+            <div class="itemDivider"></div>
 
-    <div class="itemDivider"></div>
+            <div class="auditGrid">
+              <div class="auditCard">
+                <div class="auditLabel">Created</div>
+                <div class="auditValue" id="detailCreatedBy">—</div>
+                <div class="auditSub" id="detailCreatedDate">—</div>
+              </div>
 
-    <div class="auditGrid">
-      <div class="auditCard">
-        <div class="auditLabel">Created</div>
-        <div class="auditValue" id="detailCreatedBy">—</div>
-        <div class="auditSub" id="detailCreatedDate">—</div>
-      </div>
+              <div class="auditCard">
+                <div class="auditLabel">Last edited</div>
+                <div class="auditValue" id="detailUpdatedBy">—</div>
+                <div class="auditSub" id="detailUpdatedDate">—</div>
+              </div>
+            </div>
+          </div>
 
-      <div class="auditCard">
-        <div class="auditLabel">Last edited</div>
-        <div class="auditValue" id="detailUpdatedBy">—</div>
-        <div class="auditSub" id="detailUpdatedDate">—</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="emptyHint" id="detailPanel">
-  Click an item in the Tree to view it here.<br/>
-  Use “New Item” to create an item.
-</div>
-
-</div>
+          <div class="emptyHint" id="detailPanel">
+            Click an item in the Tree to view it here.<br/>
+            Use “New Item” to create an item.
+          </div>
         </div>
       </div>
     </div>
@@ -1028,7 +979,8 @@
     </div>
   </div>
 </div>
-  <!-- ✅ Order Ready Modal -->
+
+<!-- ✅ Order Ready Modal (NOW INCLUDES DUE DATE) -->
 <div id="orderReadyModal" class="modal" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="orderReadyTitle">
     <div class="modal-header">
@@ -1051,6 +1003,11 @@
         <input id="orderReadyQty" type="number" min="1" step="1" value="1" />
       </div>
 
+      <div class="form-group">
+        <label for="orderReadyDueDate">Due date</label>
+        <input id="orderReadyDueDate" type="date" />
+      </div>
+
       <div style="color: rgba(255,255,255,0.72); font-weight: 800; font-size: 0.9rem; line-height: 1.35;">
         Confirming will send this job to the operator dashboard.
       </div>
@@ -1068,9 +1025,9 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
-  getFirestore, doc, getDoc, setDoc, deleteDoc, addDoc,
-  collection, onSnapshot, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    getFirestore, doc, getDoc, setDoc, deleteDoc, addDoc,
+    collection, onSnapshot, serverTimestamp, Timestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
   import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
   const firebaseConfig = {
@@ -1108,12 +1065,13 @@
   // Tree + active UI
   const treeListEl = document.getElementById("treeList");
   const treeTitleEl = document.getElementById("treeTitle");
-const toggleTreeItemsBtn = document.getElementById("toggleTreeItems");
-const toggleTreeOpsBtn = document.getElementById("toggleTreeOps");
+  const toggleTreeItemsBtn = document.getElementById("toggleTreeItems");
+  const toggleTreeOpsBtn = document.getElementById("toggleTreeOps");
 
-let treeMode = "items"; // "items" | "ops"
-let allOps = [];
-let allNonOps = [];
+  let treeMode = "items"; // "items" | "ops"
+  let allOps = [];
+  let allNonOps = [];
+
   const activeItemIdEl = document.getElementById("activeItemId");
   const containsItemsEl = document.getElementById("containsItems");
   const containsOpsEl = document.getElementById("containsOps");
@@ -1125,14 +1083,15 @@ let allNonOps = [];
   const detailTime = document.getElementById("detailTime");
   const detailEtc = document.getElementById("detailEtc");
   const detailCreatedBy = document.getElementById("detailCreatedBy");
-const detailCreatedDate = document.getElementById("detailCreatedDate");
-const detailUpdatedBy = document.getElementById("detailUpdatedBy");
-const detailUpdatedDate = document.getElementById("detailUpdatedDate");
+  const detailCreatedDate = document.getElementById("detailCreatedDate");
+  const detailUpdatedBy = document.getElementById("detailUpdatedBy");
+  const detailUpdatedDate = document.getElementById("detailUpdatedDate");
   const detailPanelEl = document.getElementById("detailPanel");
   const leftItemCardEl = document.getElementById("leftItemCard");
+
   // Active item action buttons
-const editActiveItemBtn = document.getElementById("editActiveItemBtn");
-const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
+  const editActiveItemBtn = document.getElementById("editActiveItemBtn");
+  const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
 
   // Add member UI
   const addMemberBtn = document.getElementById("addMemberBtn");
@@ -1182,52 +1141,44 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
 
   // Cache latest items for type validation + active refresh
   const itemsByCode = new Map(); // code -> item data
-  let allItems = []; // used by Find search filter
+  let allItems = [];
 
   if (!companyId) {
     companyNameEl.textContent = "Missing company id (?c=...)";
     throw new Error("Missing ?c=");
   }
+
   function formatDateOnly(ts){
-  try{
-    const d =
-      ts?.toDate ? ts.toDate() :
-      ts instanceof Date ? ts :
-      typeof ts === "number" ? new Date(ts) :
-      null;
+    try{
+      const d =
+        ts?.toDate ? ts.toDate() :
+        ts instanceof Date ? ts :
+        typeof ts === "number" ? new Date(ts) :
+        null;
 
-    if (!d || Number.isNaN(d.getTime())) return "—";
+      if (!d || Number.isNaN(d.getTime())) return "—";
 
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "2-digit", month: "short", year: "numeric"
-    }).format(d);
-  } catch {
-    return "—";
+      return new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit", month: "short", year: "numeric"
+      }).format(d);
+    } catch {
+      return "—";
+    }
   }
-}
-  // ---------- Normalizers + renderers ----------
-  function getUserIdentifier(){
-  const u = auth.currentUser;
-  if (!u) return null;
 
-  // Prefer email; fall back to provider email; then displayName; then uid
-  return (
-    u.email ||
-    u.providerData?.find(p => p?.email)?.email ||
-    u.displayName ||
-    u.uid ||
-    null
-  );
-}
-  function formatDate(ts){
-  if (!ts?.toDate) return "—";
-  const d = ts.toDate();
-  return d.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit"
-  });
-}
+  function getUserIdentifier(){
+    const u = auth.currentUser;
+    if (!u) return null;
+    return (
+      u.email ||
+      u.providerData?.find(p => p?.email)?.email ||
+      u.displayName ||
+      u.uid ||
+      null
+    );
+  }
+
+  // ---------- Normalizers ----------
   function normalizeContains(contains){
     if (!Array.isArray(contains)) return [];
     return contains
@@ -1260,6 +1211,7 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
       .filter(Boolean);
   }
 
+  // ---------- Render tables ----------
   function renderContainsTable(container, containsArr){
     const rows = normalizeContains(containsArr);
 
@@ -1279,7 +1231,7 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
             <th style="width:20%;"></th>
           </tr>
         </thead>
-        <tbody id="containsTbody">
+        <tbody>
           ${rows.map(r => `
             <tr data-code="${r.code}">
               <td class="containsCode">${r.code}</td>
@@ -1293,38 +1245,38 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
   }
 
   function renderOperationsTable(container, opsArr){
-  const rows = normalizeOperations(opsArr);
+    const rows = normalizeOperations(opsArr);
 
-  if (rows.length === 0) {
-    container.style.color = "rgba(255,255,255,0.65)";
-    container.innerHTML = "No operations";
-    return;
-  }
+    if (rows.length === 0) {
+      container.style.color = "rgba(255,255,255,0.65)";
+      container.innerHTML = "No operations";
+      return;
+    }
 
-  container.style.color = "";
-  container.innerHTML = `
-    <table class="containsTable">
-      <thead>
-        <tr>
-          <th style="width:10%;">#</th>
-          <th style="width:45%;">Operation</th>
-          <th style="width:25%;">Items/hr</th>
-          <th style="width:20%;"></th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map((r,i) => `
-          <tr data-code="${r.code}" draggable="true" class="containsRowDraggable">
-            <td style="font-weight:900;">${i+1}</td>
-            <td class="containsCode">${r.code}</td>
-            <td><input class="qtyInput opIphInput" type="number" min="0" step="0.1" value="${r.iph}" /></td>
-            <td style="text-align:right;"><button class="rowBtn" type="button" data-op-remove="1">Remove</button></td>
+    container.style.color = "";
+    container.innerHTML = `
+      <table class="containsTable">
+        <thead>
+          <tr>
+            <th style="width:10%;">#</th>
+            <th style="width:45%;">Operation</th>
+            <th style="width:25%;">Items/hr</th>
+            <th style="width:20%;"></th>
           </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
-}
+        </thead>
+        <tbody>
+          ${rows.map((r,i) => `
+            <tr data-code="${r.code}" draggable="true" class="containsRowDraggable">
+              <td style="font-weight:900;">${i+1}</td>
+              <td class="containsCode">${r.code}</td>
+              <td><input class="qtyInput opIphInput" type="number" min="0" step="0.1" value="${r.iph}" /></td>
+              <td style="text-align:right;"><button class="rowBtn" type="button" data-op-remove="1">Remove</button></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
 
   function setActiveItem(item){
     const code = item?.code || "—";
@@ -1342,119 +1294,117 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
     detailTime.textContent = (item?.operationTime ?? "—");
     detailEtc.textContent = (item?.description ?? "—");
     detailCreatedBy.textContent = item?.createdBy ?? "—";
-detailCreatedDate.textContent = formatDateOnly(item?.createdAt);
+    detailCreatedDate.textContent = formatDateOnly(item?.createdAt);
+    detailUpdatedBy.textContent = item?.updatedBy ?? "—";
+    detailUpdatedDate.textContent = formatDateOnly(item?.updatedAt);
 
-detailUpdatedBy.textContent = item?.updatedBy ?? "—";
-detailUpdatedDate.textContent = formatDateOnly(item?.updatedAt);
+    // Right panel content (single card)
+    if (leftItemCardEl) leftItemCardEl.style.display = "none";
 
-    /// ===== Right panel content (matches left-card style) =====
-if (leftItemCardEl) leftItemCardEl.style.display = "none"; // hide the left one so no duplicates
+    if (detailPanelEl) {
+      if (!item || !activeItemCode) {
+        detailPanelEl.className = "emptyHint";
+        detailPanelEl.innerHTML = `
+          Click an item in the Tree to view it here.<br/>
+          Use “New Item” to create an item.
+        `;
+      } else {
+        detailPanelEl.className = "card itemCard";
+        detailPanelEl.innerHTML = `
+          <div class="itemMetaGrid">
+            <div class="metaRow">
+              <div class="k">Item</div>
+              <div class="v">${activeItemCode}</div>
+            </div>
 
-if (detailPanelEl) {
-  if (!item || !activeItemCode) {
-    detailPanelEl.className = "emptyHint";
-    detailPanelEl.innerHTML = `
-      Click an item in the Tree to view it here.<br/>
-      Use “New Item” to create an item.
-    `;
-  } else {
-    detailPanelEl.className = "card itemCard";
-    detailPanelEl.innerHTML = `
-      <div class="itemMetaGrid">
-        <div class="metaRow">
-          <div class="k">Item</div>
-          <div class="v">${activeItemCode}</div>
-        </div>
+            <div class="metaRow">
+              <div class="k">Type</div>
+              <div class="v">${TYPE_LABELS[item?.type] || "—"}</div>
+            </div>
 
-        <div class="metaRow">
-          <div class="k">Type</div>
-          <div class="v">${TYPE_LABELS[item?.type] || "—"}</div>
-        </div>
+            <div class="metaRow">
+              <div class="k">Item Cost</div>
+              <div class="v">${item?.baseCost ?? "—"}</div>
+            </div>
 
-        <div class="metaRow">
-          <div class="k">Item Cost</div>
-          <div class="v">${item?.baseCost ?? "—"}</div>
-        </div>
+            <div class="metaRow">
+              <div class="k">Operation Time</div>
+              <div class="v">${item?.operationTime ?? "—"}</div>
+            </div>
 
-        <div class="metaRow">
-          <div class="k">Operation Time</div>
-          <div class="v">${item?.operationTime ?? "—"}</div>
-        </div>
-
-        <div class="metaRow metaRowFull">
-          <div class="k">Description</div>
-          <div class="v" style="white-space:normal; overflow:visible; text-overflow:unset;">
-            ${item?.description ?? "—"}
+            <div class="metaRow metaRowFull">
+              <div class="k">Description</div>
+              <div class="v" style="white-space:normal; overflow:visible; text-overflow:unset;">
+                ${item?.description ?? "—"}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="itemDivider"></div>
+          <div class="itemDivider"></div>
 
-      <div class="auditGrid">
-        <div class="auditCard">
-          <div class="auditLabel">Created</div>
-          <div class="auditValue">${item?.createdBy ?? "—"}</div>
-          <div class="auditSub">${formatDateOnly(item?.createdAt)}</div>
-        </div>
+          <div class="auditGrid">
+            <div class="auditCard">
+              <div class="auditLabel">Created</div>
+              <div class="auditValue">${item?.createdBy ?? "—"}</div>
+              <div class="auditSub">${formatDateOnly(item?.createdAt)}</div>
+            </div>
 
-        <div class="auditCard">
-          <div class="auditLabel">Last edited</div>
-          <div class="auditValue">${item?.updatedBy ?? "—"}</div>
-          <div class="auditSub">${formatDateOnly(item?.updatedAt)}</div>
-        </div>
-      </div>
-    `;
+            <div class="auditCard">
+              <div class="auditLabel">Last edited</div>
+              <div class="auditValue">${item?.updatedBy ?? "—"}</div>
+              <div class="auditSub">${formatDateOnly(item?.updatedAt)}</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    const hasItem = !!activeItemCode;
+    if (editActiveItemBtn && deleteActiveItemBtn) {
+      editActiveItemBtn.disabled = !hasItem;
+      deleteActiveItemBtn.disabled = !hasItem;
+    }
   }
-}
-  // Enable/disable buttons depending on selection
-const hasItem = !!activeItemCode;
-
-if (editActiveItemBtn && deleteActiveItemBtn) {
-  editActiveItemBtn.disabled = !hasItem;
-  deleteActiveItemBtn.disabled = !hasItem;
-}
-}
 
   // ---------- Firestore save helpers ----------
-let qtySaveTimer = null;
-let iphSaveTimer = null;
+  let qtySaveTimer = null;
+  let iphSaveTimer = null;
 
-async function saveContainsToActive(newContains){
-  if (!activeItemCode) return;
-  const ref = doc(db, "companies", companyId, "items", activeItemCode);
+  async function saveContainsToActive(newContains){
+    if (!activeItemCode) return;
+    const ref = doc(db, "companies", companyId, "items", activeItemCode);
 
-  await setDoc(ref, {
-    contains: newContains,
-    updatedBy: getUserIdentifier(),
-    updatedAt: serverTimestamp()
-  }, { merge: true });
-}
+    await setDoc(ref, {
+      contains: newContains,
+      updatedBy: getUserIdentifier(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
 
-function scheduleQtySave(newContains){
-  clearTimeout(qtySaveTimer);
-  qtySaveTimer = setTimeout(() => {
-    saveContainsToActive(newContains).catch(console.error);
-  }, 250);
-}
+  function scheduleQtySave(newContains){
+    clearTimeout(qtySaveTimer);
+    qtySaveTimer = setTimeout(() => {
+      saveContainsToActive(newContains).catch(console.error);
+    }, 250);
+  }
 
-async function saveOperationsToActive(newOperations){
-  if (!activeItemCode) return;
-  const ref = doc(db, "companies", companyId, "items", activeItemCode);
+  async function saveOperationsToActive(newOperations){
+    if (!activeItemCode) return;
+    const ref = doc(db, "companies", companyId, "items", activeItemCode);
 
-  await setDoc(ref, {
-    operations: newOperations,
-    updatedBy: getUserIdentifier(),
-    updatedAt: serverTimestamp()
-  }, { merge: true });
-}
+    await setDoc(ref, {
+      operations: newOperations,
+      updatedBy: getUserIdentifier(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
 
-function scheduleIphSave(newOperations){
-  clearTimeout(iphSaveTimer);
-  iphSaveTimer = setTimeout(() => {
-    saveOperationsToActive(newOperations).catch(console.error);
-  }, 250);
-}
+  function scheduleIphSave(newOperations){
+    clearTimeout(iphSaveTimer);
+    iphSaveTimer = setTimeout(() => {
+      saveOperationsToActive(newOperations).catch(console.error);
+    }, 250);
+  }
 
   // ---------- Editable tables: qty + remove ----------
   containsItemsEl.addEventListener("input", (e) => {
@@ -1496,7 +1446,6 @@ function scheduleIphSave(newOperations){
 
   // ---------- Editable tables: items/hr + remove ----------
   containsOpsEl.addEventListener("input", (e) => {
-    
     const input = e.target;
     if (!(input instanceof HTMLInputElement)) return;
     if (!input.classList.contains("opIphInput")) return;
@@ -1515,61 +1464,61 @@ function scheduleIphSave(newOperations){
     activeItemData = { ...activeItemData, operations: next, code: activeItemCode };
     scheduleIphSave(next);
   });
-// ===== REORDER OPERATIONS =====
 
-let opDragSourceCode = null;
+  // ===== REORDER OPERATIONS =====
+  let opDragSourceCode = null;
 
-containsOpsEl.addEventListener("dragstart", (e) => {
-  const row = e.target.closest("tr");
-  if (!row) return;
+  containsOpsEl.addEventListener("dragstart", (e) => {
+    const row = e.target.closest("tr");
+    if (!row) return;
 
-  opDragSourceCode = row.dataset.code;
-  row.classList.add("dragging");
-});
+    opDragSourceCode = row.dataset.code;
+    row.classList.add("dragging");
+  });
 
-containsOpsEl.addEventListener("dragend", (e) => {
-  const row = e.target.closest("tr");
-  if (row) row.classList.remove("dragging");
-  opDragSourceCode = null;
-});
+  containsOpsEl.addEventListener("dragend", (e) => {
+    const row = e.target.closest("tr");
+    if (row) row.classList.remove("dragging");
+    opDragSourceCode = null;
+  });
 
-containsOpsEl.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  const row = e.target.closest("tr");
-  if (!row || !opDragSourceCode) return;
-  row.classList.add("dragOver");
-});
+  containsOpsEl.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    const row = e.target.closest("tr");
+    if (!row || !opDragSourceCode) return;
+    row.classList.add("dragOver");
+  });
 
-containsOpsEl.addEventListener("dragleave", (e) => {
-  const row = e.target.closest("tr");
-  if (row) row.classList.remove("dragOver");
-});
+  containsOpsEl.addEventListener("dragleave", (e) => {
+    const row = e.target.closest("tr");
+    if (row) row.classList.remove("dragOver");
+  });
 
-containsOpsEl.addEventListener("drop", async (e) => {
-  e.preventDefault();
+  containsOpsEl.addEventListener("drop", async (e) => {
+    e.preventDefault();
 
-  const targetRow = e.target.closest("tr");
-  if (!targetRow || !opDragSourceCode || !activeItemData) return;
+    const targetRow = e.target.closest("tr");
+    if (!targetRow || !opDragSourceCode || !activeItemData) return;
 
-  targetRow.classList.remove("dragOver");
+    targetRow.classList.remove("dragOver");
 
-  const targetCode = targetRow.dataset.code;
-  if (targetCode === opDragSourceCode) return;
+    const targetCode = targetRow.dataset.code;
+    if (targetCode === opDragSourceCode) return;
 
-  const list = normalizeOperations(activeItemData.operations);
+    const list = normalizeOperations(activeItemData.operations);
 
-  const fromIndex = list.findIndex(i => i.code === opDragSourceCode);
-  const toIndex = list.findIndex(i => i.code === targetCode);
+    const fromIndex = list.findIndex(i => i.code === opDragSourceCode);
+    const toIndex = list.findIndex(i => i.code === targetCode);
 
-  const moved = list.splice(fromIndex, 1)[0];
-  list.splice(toIndex, 0, moved);
+    const moved = list.splice(fromIndex, 1)[0];
+    list.splice(toIndex, 0, moved);
 
-  activeItemData = { ...activeItemData, operations: list, code: activeItemCode };
-  renderOperationsTable(containsOpsEl, list);
+    activeItemData = { ...activeItemData, operations: list, code: activeItemCode };
+    renderOperationsTable(containsOpsEl, list);
 
-  await saveOperationsToActive(list);
-});
-  
+    await saveOperationsToActive(list);
+  });
+
   containsOpsEl.addEventListener("click", (e) => {
     const btn = e.target;
     if (!(btn instanceof HTMLElement)) return;
@@ -1588,236 +1537,52 @@ containsOpsEl.addEventListener("drop", async (e) => {
   });
 
   // ===================== ORDER READY (DROPZONE -> MODAL -> FIRESTORE) =====================
-const dropzone = document.getElementById("dropzone");
+  const dropzone = document.getElementById("dropzone");
 
-const orderReadyModal = document.getElementById("orderReadyModal");
-const closeOrderReadyModal = document.getElementById("closeOrderReadyModal");
-const cancelOrderReady = document.getElementById("cancelOrderReady");
-const confirmOrderReady = document.getElementById("confirmOrderReady");
+  const orderReadyModal = document.getElementById("orderReadyModal");
+  const closeOrderReadyModal = document.getElementById("closeOrderReadyModal");
+  const cancelOrderReady = document.getElementById("cancelOrderReady");
+  const confirmOrderReady = document.getElementById("confirmOrderReady");
 
-const orderReadyItem = document.getElementById("orderReadyItem");
-const orderReadyOrderNo = document.getElementById("orderReadyOrderNo");
-const orderReadyQty = document.getElementById("orderReadyQty");
-const orderReadyStatus = document.getElementById("orderReadyStatus");
+  const orderReadyItem = document.getElementById("orderReadyItem");
+  const orderReadyOrderNo = document.getElementById("orderReadyOrderNo");
+  const orderReadyQty = document.getElementById("orderReadyQty");
+  const orderReadyDueDate = document.getElementById("orderReadyDueDate");
+  const orderReadyStatus = document.getElementById("orderReadyStatus");
 
-let pendingOrderReady = null; // { code, type }
+  let pendingOrderReady = null; // { code, type }
 
-function openOrderReadyModal(payload){
-  pendingOrderReady = payload;
+  function openOrderReadyModal(payload){
+    pendingOrderReady = payload;
 
-  orderReadyItem.textContent = payload?.code || "—";
-  orderReadyOrderNo.value = "";
-  orderReadyQty.value = "1";
-  orderReadyStatus.textContent = "";
+    orderReadyItem.textContent = payload?.code || "—";
+    orderReadyOrderNo.value = "";
+    orderReadyQty.value = "1";
+    orderReadyDueDate.value = "";
+    orderReadyStatus.textContent = "";
 
-  orderReadyModal.classList.add("open");
-  orderReadyModal.setAttribute("aria-hidden", "false");
-  setTimeout(() => orderReadyOrderNo.focus(), 0);
-}
-
-function closeOrderReadyModalFn(){
-  orderReadyModal.classList.remove("open");
-  orderReadyModal.setAttribute("aria-hidden", "true");
-  pendingOrderReady = null;
-}
-
-closeOrderReadyModal?.addEventListener("click", closeOrderReadyModalFn);
-cancelOrderReady?.addEventListener("click", closeOrderReadyModalFn);
-orderReadyModal?.addEventListener("click", (e) => {
-  if (e.target === orderReadyModal) closeOrderReadyModalFn();
-});
-
-// Allow ESC to close this one too (your existing ESC handler can be extended)
-document.addEventListener("keydown", (e) => {
-  if (e.key !== "Escape") return;
-  if (orderReadyModal.classList.contains("open")) closeOrderReadyModalFn();
-});
-
-// Firestore write: creates a "job" for operators to pick up
-async function getItemOpsInOrder(itemCode){
-  const snap = await getDoc(doc(db, "companies", companyId, "items", itemCode));
-  if (!snap.exists()) throw new Error(`Item ${itemCode} not found.`);
-  const data = snap.data() || {};
-
-  // Your items store operations like: [{code:"LASER", iph:0}, {code:"BEND", iph:0}]
-  const ops = normalizeOperations(data.operations);
-
-  if (!ops.length) {
-    throw new Error(`Item ${itemCode} has no operations. Add operations first.`);
+    orderReadyModal.classList.add("open");
+    orderReadyModal.setAttribute("aria-hidden", "false");
+    setTimeout(() => orderReadyOrderNo.focus(), 0);
   }
 
-  return ops; // already ordered
-}
-
-async function sendOrderToOperators({ code, type }){
-  const itemCode = String(code || "").trim().toUpperCase();
-  if (!itemCode) throw new Error("Missing item code.");
-
-  // Block sending an OPERATION item as a job
-  const resolvedType = await resolveItemType(itemCode, type);
-  if (resolvedType === "operation") {
-    throw new Error("Drop a normal item (not an Operation).");
+  function closeOrderReadyModalFn(){
+    orderReadyModal.classList.remove("open");
+    orderReadyModal.setAttribute("aria-hidden", "true");
+    pendingOrderReady = null;
   }
 
-  const orderNo = String(orderReadyOrderNo.value || "").trim();
-  const qty = Math.max(1, Math.floor(Number(orderReadyQty.value || 1)));
-  if (!orderNo) throw new Error("Order number is required.");
-
-  // ✅ Pull the ordered operation list from the item
-  const ops = await getItemOpsInOrder(itemCode);
-
-  const jobsRef = collection(db, "companies", companyId, "jobs");
-
-  await addDoc(jobsRef, {
-    itemCode,
-    orderNo,
-    qty,
-
-    ops,                    // ordered queue: [{code, iph}, ...]
-    currentOpIndex: 0,
-    currentOpCode: ops[0].code,
-
-    status: "ready",        // ready -> in_progress -> ready -> ... -> complete
-    createdBy: getUserIdentifier(),
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-
-    // optional history trail
-    history: [{
-      event: "created",
-      at: Date.now(),
-      by: getUserIdentifier()
-    }]
-  });
-}
-
-confirmOrderReady?.addEventListener("click", async () => {
-  if (!pendingOrderReady?.code) return;
-
-  confirmOrderReady.disabled = true;
-  orderReadyStatus.textContent = "Sending…";
-
-  try{
-    await sendOrderToOperators(pendingOrderReady);
-    orderReadyStatus.textContent = "Sent!";
-    setTimeout(closeOrderReadyModalFn, 350);
-  } catch(err){
-    console.error(err);
-    orderReadyStatus.textContent = err?.message || "Failed to send.";
-  } finally{
-    confirmOrderReady.disabled = false;
-  }
-});
-
-// Dropzone drag/drop
-if (dropzone){
-  dropzone.addEventListener("dragenter", (e) => {
-    e.preventDefault();
-    dropzone.classList.add("drop-active");
+  closeOrderReadyModal?.addEventListener("click", closeOrderReadyModalFn);
+  cancelOrderReady?.addEventListener("click", closeOrderReadyModalFn);
+  orderReadyModal?.addEventListener("click", (e) => {
+    if (e.target === orderReadyModal) closeOrderReadyModalFn();
   });
 
-  dropzone.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dropzone.classList.add("drop-active");
-    e.dataTransfer.dropEffect = "copy";
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (orderReadyModal.classList.contains("open")) closeOrderReadyModalFn();
   });
 
-  dropzone.addEventListener("dragleave", (e) => {
-    // only remove highlight if leaving the dropzone fully
-    if (e.relatedTarget && dropzone.contains(e.relatedTarget)) return;
-    dropzone.classList.remove("drop-active");
-  });
-
-  dropzone.addEventListener("drop", async (e) => {
-    e.preventDefault();
-    dropzone.classList.remove("drop-active");
-
-    const payload = readDragPayload(e.dataTransfer);
-    if (!payload?.code) return;
-
-    // Optional: only allow "items" tree to feed this
-    // (we already block operations in sendOrderToOperators anyway)
-    openOrderReadyModal(payload);
-  });
-}
-  
-  // ---------- Drag/drop UI helpers ----------
-  function setDropActive(el, isActive){
-    const panel = el.closest(".miniPanel");
-    if (!panel) return;
-    panel.style.borderColor = isActive ? "rgba(245,124,0,0.65)" : "rgba(255,255,255,0.10)";
-    panel.style.boxShadow = isActive ? "0 0 0 4px rgba(245,124,0,0.12)" : "none";
-  }
-
-  function readDragPayload(dt){
-    try {
-      const raw = dt.getData("application/json");
-      if (raw) return JSON.parse(raw);
-    } catch {}
-    const code = (dt.getData("text/plain") || "").trim().toUpperCase();
-    return code ? { code, type: "" } : null;
-  }
-
-  // ---------- Drop into Contains Items ----------
-  async function addContainedItemToActiveItem(containedCode) {
-    if (!activeItemCode) {
-      alert("Select an item first (the one that will contain the part).");
-      return;
-    }
-
-    const child = String(containedCode || "").trim().toUpperCase();
-    if (!child) return;
-
-    if (child === activeItemCode) {
-      alert("An item cannot contain itself.");
-      return;
-    }
-
-    const parentRef = doc(db, "companies", companyId, "items", activeItemCode);
-    const snap = await getDoc(parentRef);
-    if (!snap.exists()) throw new Error(`Active item '${activeItemCode}' no longer exists.`);
-
-    const data = snap.data() || {};
-    const current = normalizeContains(data.contains);
-
-    if (current.some(r => r.code === child)) return;
-
-    const next = [...current, { code: child, qty: 1 }];
-
-    await setDoc(parentRef, { contains: next, updatedAt: serverTimestamp() }, { merge: true });
-
-    activeItemData = { ...(activeItemData || {}), code: activeItemCode, contains: next };
-    renderContainsTable(containsItemsEl, next);
-  }
-
-  containsItemsEl.addEventListener("dragenter", (e) => { e.preventDefault(); setDropActive(containsItemsEl, true); });
-  containsItemsEl.addEventListener("dragover", (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; });
-  containsItemsEl.addEventListener("dragleave", (e) => {
-    if (e.relatedTarget && containsItemsEl.contains(e.relatedTarget)) return;
-    setDropActive(containsItemsEl, false);
-  });
-  containsItemsEl.addEventListener("drop", async (e) => {
-  e.preventDefault();
-  setDropActive(containsItemsEl, false);
-
-  const payload = readDragPayload(e.dataTransfer);
-  if (!payload?.code) return;
-
-  // 🚫 BLOCK operations from being dropped into Contains Items
-  const type = await resolveItemType(payload.code, payload.type);
-  if (type === "operation") {
-    alert("Operations can only be dropped into Contains Operations.");
-    return;
-  }
-
-  try {
-    await addContainedItemToActiveItem(payload.code);
-  } catch (err) {
-    console.error(err);
-    alert(err?.message || "Failed to add contained item.");
-  }
-});
-  // ---------- Drop into Contains Operations ----------
   async function resolveItemType(code, fallbackType){
     const clean = String(code || "").trim().toUpperCase();
     const typeLower = String(fallbackType || "").toLowerCase();
@@ -1835,6 +1600,195 @@ if (dropzone){
     }
   }
 
+  async function getItemOpsInOrder(itemCode){
+    const snap = await getDoc(doc(db, "companies", companyId, "items", itemCode));
+    if (!snap.exists()) throw new Error(\`Item \${itemCode} not found.\`);
+    const data = snap.data() || {};
+
+    const ops = normalizeOperations(data.operations);
+    if (!ops.length) throw new Error(\`Item \${itemCode} has no operations. Add operations first.\`);
+    return ops;
+  }
+
+  function parseDueDateToTimestamp(dateStr){
+    // dateStr is "YYYY-MM-DD"
+    if (!dateStr) return null;
+
+    const [y, m, d] = dateStr.split("-").map(n => parseInt(n, 10));
+    if (!y || !m || !d) throw new Error("Invalid due date.");
+
+    // Use midday UTC to avoid timezone edge cases shifting date
+    return Timestamp.fromDate(new Date(Date.UTC(y, m - 1, d, 12, 0, 0)));
+  }
+
+  async function sendOrderToOperators({ code, type }){
+    const itemCode = String(code || "").trim().toUpperCase();
+    if (!itemCode) throw new Error("Missing item code.");
+
+    const resolvedType = await resolveItemType(itemCode, type);
+    if (resolvedType === "operation") throw new Error("Drop a normal item (not an Operation).");
+
+    const orderNo = String(orderReadyOrderNo.value || "").trim();
+    if (!orderNo) throw new Error("Order number is required.");
+
+    const qty = Math.max(1, Math.floor(Number(orderReadyQty.value || 1)));
+
+    // ✅ DUE DATE (required)
+    const dueStr = String(orderReadyDueDate.value || "").trim();
+    if (!dueStr) throw new Error("Due date is required.");
+    const dueDate = parseDueDateToTimestamp(dueStr);
+
+    const ops = await getItemOpsInOrder(itemCode);
+
+    const jobsRef = collection(db, "companies", companyId, "jobs");
+    await addDoc(jobsRef, {
+      itemCode,
+      orderNo,
+      qty,
+      dueDate, // ✅ stored in Firestore as Timestamp
+
+      ops,
+      currentOpIndex: 0,
+      currentOpCode: ops[0].code,
+
+      status: "ready",
+      createdBy: getUserIdentifier(),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+
+      history: [{
+        event: "created",
+        at: Date.now(),
+        by: getUserIdentifier()
+      }]
+    });
+  }
+
+  confirmOrderReady?.addEventListener("click", async () => {
+    if (!pendingOrderReady?.code) return;
+
+    confirmOrderReady.disabled = true;
+    orderReadyStatus.textContent = "Sending…";
+
+    try{
+      await sendOrderToOperators(pendingOrderReady);
+      orderReadyStatus.textContent = "Sent!";
+      setTimeout(closeOrderReadyModalFn, 350);
+    } catch(err){
+      console.error(err);
+      orderReadyStatus.textContent = err?.message || "Failed to send.";
+    } finally{
+      confirmOrderReady.disabled = false;
+    }
+  });
+
+  function readDragPayload(dt){
+    try {
+      const raw = dt.getData("application/json");
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    const code = (dt.getData("text/plain") || "").trim().toUpperCase();
+    return code ? { code, type: "" } : null;
+  }
+
+  if (dropzone){
+    dropzone.addEventListener("dragenter", (e) => {
+      e.preventDefault();
+      dropzone.classList.add("drop-active");
+    });
+
+    dropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropzone.classList.add("drop-active");
+      e.dataTransfer.dropEffect = "copy";
+    });
+
+    dropzone.addEventListener("dragleave", (e) => {
+      if (e.relatedTarget && dropzone.contains(e.relatedTarget)) return;
+      dropzone.classList.remove("drop-active");
+    });
+
+    dropzone.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      dropzone.classList.remove("drop-active");
+
+      const payload = readDragPayload(e.dataTransfer);
+      if (!payload?.code) return;
+
+      openOrderReadyModal(payload);
+    });
+  }
+
+  // ---------- Drop into Contains Items ----------
+  function setDropActive(el, isActive){
+    const panel = el.closest(".miniPanel");
+    if (!panel) return;
+    panel.style.borderColor = isActive ? "rgba(245,124,0,0.65)" : "rgba(255,255,255,0.10)";
+    panel.style.boxShadow = isActive ? "0 0 0 4px rgba(245,124,0,0.12)" : "none";
+  }
+
+  async function addContainedItemToActiveItem(containedCode) {
+    if (!activeItemCode) {
+      alert("Select an item first (the one that will contain the part).");
+      return;
+    }
+
+    const child = String(containedCode || "").trim().toUpperCase();
+    if (!child) return;
+
+    if (child === activeItemCode) {
+      alert("An item cannot contain itself.");
+      return;
+    }
+
+    const parentRef = doc(db, "companies", companyId, "items", activeItemCode);
+    const snap = await getDoc(parentRef);
+    if (!snap.exists()) throw new Error(\`Active item '\${activeItemCode}' no longer exists.\`);
+
+    const data = snap.data() || {};
+    const current = normalizeContains(data.contains);
+    if (current.some(r => r.code === child)) return;
+
+    const next = [...current, { code: child, qty: 1 }];
+
+    await setDoc(parentRef, {
+      contains: next,
+      updatedBy: getUserIdentifier(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    activeItemData = { ...(activeItemData || {}), code: activeItemCode, contains: next };
+    renderContainsTable(containsItemsEl, next);
+  }
+
+  containsItemsEl.addEventListener("dragenter", (e) => { e.preventDefault(); setDropActive(containsItemsEl, true); });
+  containsItemsEl.addEventListener("dragover", (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; });
+  containsItemsEl.addEventListener("dragleave", (e) => {
+    if (e.relatedTarget && containsItemsEl.contains(e.relatedTarget)) return;
+    setDropActive(containsItemsEl, false);
+  });
+  containsItemsEl.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    setDropActive(containsItemsEl, false);
+
+    const payload = readDragPayload(e.dataTransfer);
+    if (!payload?.code) return;
+
+    const type = await resolveItemType(payload.code, payload.type);
+    if (type === "operation") {
+      alert("Operations can only be dropped into Contains Operations.");
+      return;
+    }
+
+    try {
+      await addContainedItemToActiveItem(payload.code);
+    } catch (err) {
+      console.error(err);
+      alert(err?.message || "Failed to add contained item.");
+    }
+  });
+
+  // ---------- Drop into Contains Operations ----------
   async function addOperationToActiveItem(opCode){
     if (!activeItemCode) {
       alert("Select an item first (the one that will contain the operation).");
@@ -1851,16 +1805,19 @@ if (dropzone){
 
     const parentRef = doc(db, "companies", companyId, "items", activeItemCode);
     const snap = await getDoc(parentRef);
-    if (!snap.exists()) throw new Error(`Active item '${activeItemCode}' no longer exists.`);
+    if (!snap.exists()) throw new Error(\`Active item '\${activeItemCode}' no longer exists.\`);
 
     const data = snap.data() || {};
     const current = normalizeOperations(data.operations);
-
     if (current.some(r => r.code === child)) return;
 
     const next = [...current, { code: child, iph: 0 }];
 
-    await setDoc(parentRef, { operations: next, updatedAt: serverTimestamp() }, { merge: true });
+    await setDoc(parentRef, {
+      operations: next,
+      updatedBy: getUserIdentifier(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
 
     activeItemData = { ...(activeItemData || {}), code: activeItemCode, operations: next };
     renderOperationsTable(containsOpsEl, next);
@@ -1894,116 +1851,109 @@ if (dropzone){
   });
 
   // ---------- Firestore: live tree ----------
-  
-  // ===== TREE RENDERER (used for search filtering) =====
-function renderTree(items, queryText = "") {
-  const q = String(queryText || "").trim().toLowerCase();
-  treeListEl.innerHTML = "";
+  function renderTree(items, queryText = "") {
+    const q = String(queryText || "").trim().toLowerCase();
+    treeListEl.innerHTML = "";
 
-  const filtered = !q
-    ? items
-    : items.filter(it => {
-        const code = String(it.code || "").toLowerCase();
-        const desc = String(it.description || "").toLowerCase();
-        return code.includes(q) || desc.includes(q);
+    const filtered = !q
+      ? items
+      : items.filter(it => {
+          const code = String(it.code || "").toLowerCase();
+          const desc = String(it.description || "").toLowerCase();
+          return code.includes(q) || desc.includes(q);
+        });
+
+    if (filtered.length === 0) {
+      treeListEl.style.color = "rgba(255,255,255,0.65)";
+      treeListEl.textContent = q
+        ? `No results for "${queryText}"`
+        : "No items yet. Click “New Item” to create one.";
+      return;
+    }
+
+    treeListEl.style.color = "";
+
+    filtered.forEach((item) => {
+      const code = (item.code || "").toUpperCase();
+
+      const row = document.createElement("div");
+      row.className = "tree-item";
+      row.draggable = true;
+
+      row.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("application/json", JSON.stringify({ code, type: item.type || "" }));
+        e.dataTransfer.setData("text/plain", code);
+        e.dataTransfer.effectAllowed = "copy";
       });
 
-  if (filtered.length === 0) {
-    treeListEl.style.color = "rgba(255,255,255,0.65)";
-    treeListEl.textContent = q
-      ? `No results for "${queryText}"`
-      : "No items yet. Click “New Item” to create one.";
-    return;
-  }
+      const left = document.createElement("div");
+      left.className = "left";
+      left.innerHTML = `
+        <strong>${code}</strong>
+        <div class="muted">${item.description || "—"}</div>
+      `;
+      left.addEventListener("click", () => setActiveItem(item));
 
-  treeListEl.style.color = "";
-
-  filtered.forEach((item) => {
-    const code = (item.code || "").toUpperCase();
-
-    const row = document.createElement("div");
-    row.className = "tree-item";
-    row.draggable = true;
-
-    row.addEventListener("dragstart", (e) => {
-      e.dataTransfer.setData("application/json", JSON.stringify({ code, type: item.type || "" }));
-      e.dataTransfer.setData("text/plain", code);
-      e.dataTransfer.effectAllowed = "copy";
+      row.appendChild(left);
+      treeListEl.appendChild(row);
     });
-
-    const left = document.createElement("div");
-    left.className = "left";
-    left.innerHTML = `
-      <strong>${code}</strong>
-      <div class="muted">${item.description || "—"}</div>
-    `;
-    left.addEventListener("click", () => setActiveItem(item));
-
-    const btnWrap = document.createElement("div");
-    btnWrap.style.display = "flex";
-    btnWrap.style.flexDirection = "column";
-    btnWrap.style.gap = "6px";
-    btnWrap.style.flex = "0 0 auto";
-
-    row.appendChild(left);
-treeListEl.appendChild(row);
-  });
-}
-
-function renderCurrentTree() {
-  const list = (treeMode === "ops") ? allOps : allNonOps;
-
-  if (treeTitleEl) {
-    treeTitleEl.textContent = (treeMode === "ops") ? "Tree of Operations" : "Tree of Items";
   }
 
-  renderTree(list, findInput.value);
-}
+  function renderCurrentTree() {
+    const list = (treeMode === "ops") ? allOps : allNonOps;
+
+    if (treeTitleEl) {
+      treeTitleEl.textContent = (treeMode === "ops") ? "Tree of Operations" : "Tree of Items";
+    }
+
+    renderTree(list, findInput.value);
+  }
+
   function watchItems(companyId){
     const itemsRef = collection(db, "companies", companyId, "items");
 
     onSnapshot(itemsRef, (snap) => {
-  itemsByCode.clear();
-allItems = [];
+      itemsByCode.clear();
+      allItems = [];
+      allOps = [];
+      allNonOps = [];
 
-allOps = [];
-allNonOps = [];
+      if (snap.empty) {
+        treeListEl.style.color = "rgba(255,255,255,0.65)";
+        treeListEl.textContent = "No items yet. Click “New Item” to create one.";
+        setActiveItem(null);
+        return;
+      }
 
-  if (snap.empty) {
-    treeListEl.style.color = "rgba(255,255,255,0.65)";
-    treeListEl.textContent = "No items yet. Click “New Item” to create one.";
-    setActiveItem(null);
-    return;
+      let first = null;
+
+      snap.forEach((d) => {
+        const item = d.data();
+        const code = (item.code || d.id || "").toUpperCase();
+        const normalized = { ...item, code };
+
+        itemsByCode.set(code, normalized);
+        allItems.push(normalized);
+
+        const type = String(normalized.type || "").toLowerCase();
+        if (type === "operation") allOps.push(normalized);
+        else allNonOps.push(normalized);
+
+        if (!first) first = normalized;
+      });
+
+      if (!activeItemCode && first) setActiveItem(first);
+      else if (activeItemCode && itemsByCode.has(activeItemCode)) setActiveItem(itemsByCode.get(activeItemCode));
+      else if (first) setActiveItem(first);
+
+      renderCurrentTree();
+    }, (err) => {
+      console.error("Tree listener error:", err);
+      treeListEl.innerHTML = `<div style="color:#ffb4b4;font-weight:900;">
+        Error loading items: ${err.message}
+      </div>`;
+    });
   }
-
-  let first = null;
-
-  snap.forEach((d) => {
-    const item = d.data();
-    const code = (item.code || d.id || "").toUpperCase();
-    const normalized = { ...item, code };
-
-    itemsByCode.set(code, normalized);
-    allItems.push(normalized);
-    const type = String(normalized.type || "").toLowerCase();
-if (type === "operation") allOps.push(normalized);
-else allNonOps.push(normalized);
-
-    if (!first) first = normalized;
-  });
-
-  if (!activeItemCode && first) setActiveItem(first);
-  else if (activeItemCode && itemsByCode.has(activeItemCode)) setActiveItem(itemsByCode.get(activeItemCode));
-  else if (first) setActiveItem(first);
-
-  renderCurrentTree();
-}, (err) => {
-  console.error("Tree listener error:", err);
-  treeListEl.innerHTML = `<div style="color:#ffb4b4;font-weight:900;">
-    Error loading items: ${err.message}
-  </div>`;
-});
-}
 
   // ---------- Branding + auth ----------
   async function loadCompanyBranding(companyId) {
@@ -2102,25 +2052,25 @@ else allNonOps.push(normalized);
     editItemStatus.textContent = "Saving…";
 
     try{
-  await setDoc(
-    doc(db, "companies", companyId, "items", pendingEditCode),
-    {
-      description,
-      baseCost: Number.isFinite(baseCost) ? baseCost : 0,
-      updatedBy: getUserIdentifier(),
-      updatedAt: serverTimestamp()
-    },
-    { merge: true }
-  );
+      await setDoc(
+        doc(db, "companies", companyId, "items", pendingEditCode),
+        {
+          description,
+          baseCost: Number.isFinite(baseCost) ? baseCost : 0,
+          updatedBy: getUserIdentifier(),
+          updatedAt: serverTimestamp()
+        },
+        { merge: true }
+      );
 
-  editItemStatus.textContent = "Saved!";
-  setTimeout(closeEditItemModalFn, 300);
-} catch(err){
-  console.error(err);
-  editItemStatus.textContent = err?.message || "Save failed.";
-} finally{
-  saveEditItem.disabled = false;
-}
+      editItemStatus.textContent = "Saved!";
+      setTimeout(closeEditItemModalFn, 300);
+    } catch(err){
+      console.error(err);
+      editItemStatus.textContent = err?.message || "Save failed.";
+    } finally{
+      saveEditItem.disabled = false;
+    }
   });
 
   // ---------- New Item modal ----------
@@ -2169,23 +2119,19 @@ else allNonOps.push(normalized);
         return;
       }
 
-      const user = auth.currentUser;
+      await setDoc(itemRef, {
+        code,
+        type,
+        description,
+        baseCost: Number.isFinite(baseCost) ? baseCost : 0,
+        contains: [],
+        operations: [],
+        createdBy: getUserIdentifier(),
+        updatedBy: getUserIdentifier(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
 
-await setDoc(itemRef, {
-  code,
-  type,
-  description,
-  baseCost: Number.isFinite(baseCost) ? baseCost : 0,
-  contains: [],
-  operations: [],
-
-  // ⭐ ADD THESE TWO LINES
-  createdBy: getUserIdentifier(),
-updatedBy: getUserIdentifier(),
-  
-  createdAt: serverTimestamp(),
-  updatedAt: serverTimestamp()
-});
       newItemStatus.textContent = "Saved!";
       setTimeout(closeNewItemModalFn, 350);
     } catch (err) {
@@ -2295,50 +2241,48 @@ updatedBy: getUserIdentifier(),
     }
   });
 
-  // ---------- ESC closes topmost modal ----------
-    // ===== ACTIVE ITEM ACTION BUTTONS =====
-editActiveItemBtn?.addEventListener("click", () => {
-  if (!activeItemData) return;
-  openEditItemModal(activeItemData);
-});
+  // ===== ACTIVE ITEM ACTION BUTTONS =====
+  editActiveItemBtn?.addEventListener("click", () => {
+    if (!activeItemData) return;
+    openEditItemModal(activeItemData);
+  });
 
-deleteActiveItemBtn?.addEventListener("click", () => {
-  if (!activeItemCode) return;
-  openDeleteModal(activeItemCode);
-});
-    document.addEventListener("keydown", (e) => {
+  deleteActiveItemBtn?.addEventListener("click", () => {
+    if (!activeItemCode) return;
+    openDeleteModal(activeItemCode);
+  });
+
+  // ---------- ESC closes topmost modal ----------
+  document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
 
     if (deleteItemModal.classList.contains("open")) closeDeleteModal();
     else if (editItemModal.classList.contains("open")) closeEditItemModalFn();
     else if (addMemberModal.classList.contains("open")) closeAddMemberModalFn();
     else if (newItemModal.classList.contains("open")) closeNewItemModalFn();
+    // orderReadyModal ESC handled earlier too (safe either way)
   });
 
-  // Find (still placeholder)
-  // ===== LIVE SEARCH FILTER =====
+  // ===== LIVE SEARCH FILTER + TREE MODE =====
   function setTreeMode(nextMode){
-  treeMode = (nextMode === "ops") ? "ops" : "items";
+    treeMode = (nextMode === "ops") ? "ops" : "items";
 
-  if (toggleTreeItemsBtn && toggleTreeOpsBtn) {
-    const isItems = treeMode === "items";
+    if (toggleTreeItemsBtn && toggleTreeOpsBtn) {
+      const isItems = treeMode === "items";
 
-    toggleTreeItemsBtn.classList.toggle("active", isItems);
-    toggleTreeOpsBtn.classList.toggle("active", !isItems);
+      toggleTreeItemsBtn.classList.toggle("active", isItems);
+      toggleTreeOpsBtn.classList.toggle("active", !isItems);
 
-    toggleTreeItemsBtn.setAttribute("aria-selected", isItems ? "true" : "false");
-    toggleTreeOpsBtn.setAttribute("aria-selected", !isItems ? "true" : "false");
+      toggleTreeItemsBtn.setAttribute("aria-selected", isItems ? "true" : "false");
+      toggleTreeOpsBtn.setAttribute("aria-selected", !isItems ? "true" : "false");
+    }
+
+    renderCurrentTree();
   }
 
-  renderCurrentTree();
-}
-
-toggleTreeItemsBtn?.addEventListener("click", () => setTreeMode("items"));
-toggleTreeOpsBtn?.addEventListener("click", () => setTreeMode("ops"));
-findInput.addEventListener("input", () => {
-  renderCurrentTree();
-});
-  
+  toggleTreeItemsBtn?.addEventListener("click", () => setTreeMode("items"));
+  toggleTreeOpsBtn?.addEventListener("click", () => setTreeMode("ops"));
+  findInput.addEventListener("input", () => renderCurrentTree());
 </script>
 </body>
 </html>
