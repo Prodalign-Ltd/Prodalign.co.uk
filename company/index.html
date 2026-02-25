@@ -66,14 +66,23 @@
     .wrap{
       flex:1;
       display:grid;
-      place-items:center;
+      place-items:start center;
       padding:22px;
+    }
+
+    .stack{
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      align-items:center;
+      width:100%;
+      max-width: 1100px;
     }
 
     .hero{
       width:min(980px, 96vw);
       text-align:center;
-      margin-bottom:16px;
+      margin-bottom:6px;
     }
     .hero h1{
       margin:10px 0 0;
@@ -96,12 +105,13 @@
       font-weight: 900;
       text-shadow: 0 8px 30px rgba(0,0,0,.35);
     }
+
+    /* Tile styling (same as you had) */
     .tiles{
       display:grid;
       grid-template-columns: repeat(4, 1fr);
       gap:16px;
     }
-
     .tile{
       border-radius: 18px;
       border:1px solid rgba(255,255,255,0.10);
@@ -144,12 +154,149 @@
 
     #settingsBtn[hidden]{ display:none !important; }
 
+    /* =========================
+       Orders to Book (top strip)
+       ========================= */
+    .ordersStrip{
+      width:min(1040px, 96vw);
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.05);
+      box-shadow: var(--shadow);
+      padding:16px 16px 14px;
+    }
+    .ordersStripHeader{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .ordersStripHeader h2{
+      margin:0;
+      font-size: 20px;
+      font-weight: 900;
+      text-shadow: 0 8px 30px rgba(0,0,0,.35);
+    }
+    .ordersStripHeader .hint{
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .ordersRow{
+      display:flex;
+      gap:12px;
+      overflow-x:auto;
+      padding-bottom:6px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ordersRow::-webkit-scrollbar{ height:10px; }
+    .ordersRow::-webkit-scrollbar-thumb{
+      background: rgba(255,255,255,0.10);
+      border-radius: 999px;
+    }
+
+    .jobCard{
+      flex: 0 0 auto;
+      width: 230px;
+      min-height: 92px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      padding:14px 14px 12px;
+      cursor:pointer;
+      scroll-snap-align:start;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .jobCard:hover{
+      transform: translateY(-2px);
+      border-color: rgba(245,124,0,0.35);
+      background: rgba(255,255,255,0.08);
+    }
+    .jobTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .pill{
+      font-size: 11px;
+      font-weight: 900;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(245,124,0,0.14);
+      border: 1px solid rgba(245,124,0,0.25);
+      color: rgba(255,255,255,0.92);
+      white-space:nowrap;
+    }
+    .jobNo{
+      font-weight: 950;
+      letter-spacing: .2px;
+    }
+    .jobSub{
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    /* =========================
+       Operations Overview grid
+       ========================= */
+    .opsGrid{
+      display:grid;
+      grid-template-columns: repeat(10, 1fr); /* 10 across */
+      gap: 12px;
+    }
+
+    .opsBtn{
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      padding:14px 12px;
+      cursor:pointer;
+      user-select:none;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+      min-height: 120px; /* same height feel as tiles */
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+      align-items:flex-start;
+      gap:10px;
+    }
+    .opsBtn:hover{
+      transform: translateY(-2px);
+      border-color: rgba(245,124,0,0.35);
+      background: rgba(255,255,255,0.08);
+    }
+    .opsBtn .label{ font-weight: 900; font-size: 14px; }
+    .opsBtn .sub{ color: var(--muted); font-size: 12px; margin-top:-6px; }
+
+    @media (max-width: 1100px){
+      /* on smaller screens make ops grid scroll instead of crushing */
+      .opsGridWrap{
+        overflow-x:auto;
+        padding-bottom:6px;
+      }
+      .opsGrid{
+        width: 1200px; /* gives room to keep 10 columns */
+      }
+    }
+
     @media (max-width: 980px){
       .tiles{ grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 520px){
       .tiles{ grid-template-columns: 1fr; }
       .brand .name{ max-width: 48vw; }
+      .jobCard{ width: 200px; }
     }
   </style>
 </head>
@@ -168,7 +315,8 @@
 </header>
 
 <div class="wrap">
-  <div style="display:flex; flex-direction:column; gap:18px; align-items:center; width:100%;">
+  <div class="stack">
+
     <div class="hero">
       <h1>Production Overview</h1>
       <div style="color:var(--muted); font-weight:800; margin-top:6px;">
@@ -176,6 +324,50 @@
       </div>
     </div>
 
+    <!-- ✅ Orders to Book strip (scrollable left/right) -->
+    <section class="ordersStrip">
+      <div class="ordersStripHeader">
+        <h2>Orders to Book</h2>
+        <div class="hint">Scroll ← → to view jobs (template)</div>
+      </div>
+
+      <div class="ordersRow" id="ordersRow">
+        <!-- template job cards (JS also adds more below if you want) -->
+        <div class="jobCard" data-job="JOB-1001">
+          <div class="jobTop">
+            <div class="jobNo">JOB-1001</div>
+            <div class="pill">Completed</div>
+          </div>
+          <div class="jobSub">Customer: Example Ltd<br/>Qty: 250 • Due: 02/03</div>
+        </div>
+
+        <div class="jobCard" data-job="JOB-1002">
+          <div class="jobTop">
+            <div class="jobNo">JOB-1002</div>
+            <div class="pill">Completed</div>
+          </div>
+          <div class="jobSub">Customer: Demo Co<br/>Qty: 80 • Due: 04/03</div>
+        </div>
+
+        <div class="jobCard" data-job="JOB-1003">
+          <div class="jobTop">
+            <div class="jobNo">JOB-1003</div>
+            <div class="pill">Completed</div>
+          </div>
+          <div class="jobSub">Customer: Sample Group<br/>Qty: 40 • Due: 05/03</div>
+        </div>
+
+        <div class="jobCard" data-job="JOB-1004">
+          <div class="jobTop">
+            <div class="jobNo">JOB-1004</div>
+            <div class="pill">Completed</div>
+          </div>
+          <div class="jobSub">Customer: Placeholder<br/>Qty: 120 • Due: 06/03</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Production Overview board (your existing tiles) -->
     <div class="board">
       <h2>Production Overview (Past 30 Days)</h2>
 
@@ -201,10 +393,22 @@
         <div class="tile" id="ordersDueTile">
           <div class="icon">📄</div>
           <div class="label">Orders Due</div>
-          <div class="sub">Template tile</div>
+          <div class="sub">Go to Orders Due</div>
         </div>
       </div>
     </div>
+
+    <!-- ✅ Operations Overview section -->
+    <div class="board">
+      <h2>Operations Overview</h2>
+
+      <div class="opsGridWrap">
+        <div class="opsGrid" id="opsGrid">
+          <!-- 40 buttons inserted by JS as a template -->
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -231,6 +435,9 @@
   const deliveryTile = document.getElementById("deliveryTile");
   const scrapTile = document.getElementById("scrapTile");
   const ordersDueTile = document.getElementById("ordersDueTile");
+
+  const ordersRow = document.getElementById("ordersRow");
+  const opsGrid = document.getElementById("opsGrid");
 
   const params = new URLSearchParams(window.location.search);
   const companyId = (params.get("c") || "").trim().toLowerCase();
@@ -267,9 +474,39 @@
     return String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
   }
 
+  // ✅ Template fill for Operations Overview (4 x 10 = 40)
+  function buildOpsGrid() {
+    const total = 40;
+    const frag = document.createDocumentFragment();
+
+    for (let i = 1; i <= total; i++) {
+      const btn = document.createElement("div");
+      btn.className = "opsBtn";
+      btn.innerHTML = `
+        <div class="icon">⚙️</div>
+        <div class="label">Op ${i}</div>
+        <div class="sub">Template button</div>
+      `;
+      btn.addEventListener("click", () => alert(`Operations Overview: Op ${i} (template)`));
+      frag.appendChild(btn);
+    }
+
+    opsGrid.innerHTML = "";
+    opsGrid.appendChild(frag);
+  }
+
+  // ✅ Optional: click behaviour for job cards (template)
+  function wireJobCards() {
+    ordersRow.querySelectorAll(".jobCard").forEach((card) => {
+      card.addEventListener("click", () => {
+        const job = card.getAttribute("data-job") || "JOB";
+        alert(`Orders to Book: ${job} (template)`);
+      });
+    });
+  }
+
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      // ✅ Always go to the real login page
       window.location.assign(`/companylogin/`);
       return;
     }
@@ -279,7 +516,6 @@
       const userCompany = normalizeCompanyCode(profile);
       if (!userCompany || userCompany !== companyId) throw new Error("Access denied for this company.");
 
-      // ✅ If operator, force them to FloorDashboard instead of this admin page
       const role = String(profile.role ?? "").trim().toLowerCase();
       const station = String(profile.station ?? "").trim().toLowerCase();
 
@@ -293,10 +529,13 @@
 
       await loadCompanyBranding(companyId);
 
-      // Admin-only Settings
       const license = String(profile.license ?? "").toLowerCase();
       const isAdmin = Boolean(profile.isAdmin) || role === "admin" || license === "admin";
       settingsBtn.hidden = !isAdmin;
+
+      // Build template UI
+      buildOpsGrid();
+      wireJobCards();
 
     } catch (e) {
       console.error(e);
@@ -307,7 +546,6 @@
 
   logoutBtn.addEventListener("click", async () => {
     try { await signOut(auth); } catch {}
-    // ✅ Always go to login page (prevents blank page)
     window.location.assign(`/companylogin/`);
   });
 
@@ -317,7 +555,11 @@
 
   deliveryTile.addEventListener("click", () => alert("Delivery Performance (template)"));
   scrapTile.addEventListener("click", () => alert("Scrap Reasons (template)"));
-  ordersDueTile.addEventListener("click", () => alert("Orders Due (template)"));
+
+  // ✅ Orders Due goes to Ordersdue.html with the same companyId
+  ordersDueTile.addEventListener("click", () => {
+    window.location.href = `https://prodalign.co.uk/company/Ordersdue.html?c=${encodeURIComponent(companyId)}`;
+  });
 </script>
 </body>
 </html>
