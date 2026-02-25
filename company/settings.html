@@ -831,10 +831,10 @@
     </div>
   </div>
 
-  <div class="emptyHint">
-    Click an item in the Tree to view it here.<br/>
-    Use “New Item” to create your first item.
-  </div>
+  <div class="emptyHint" id="detailPanel">
+  Click an item in the Tree to view it here.<br/>
+  Use “New Item” to create an item.
+</div>
 
 </div>
         </div>
@@ -1050,6 +1050,7 @@ let allNonOps = [];
 const detailCreatedDate = document.getElementById("detailCreatedDate");
 const detailUpdatedBy = document.getElementById("detailUpdatedBy");
 const detailUpdatedDate = document.getElementById("detailUpdatedDate");
+  const detailPanelEl = document.getElementById("detailPanel");
   // Active item action buttons
 const editActiveItemBtn = document.getElementById("editActiveItemBtn");
 const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
@@ -1253,6 +1254,33 @@ detailCreatedDate.textContent = formatDateOnly(item?.createdAt);
 
 detailUpdatedBy.textContent = item?.updatedBy ?? "—";
 detailUpdatedDate.textContent = formatDateOnly(item?.updatedAt);
+
+    // ===== Right panel content (replaces the "Click an item..." message) =====
+if (detailPanelEl) {
+  if (!item || !activeItemCode) {
+    detailPanelEl.className = "emptyHint";
+    detailPanelEl.innerHTML = `
+      Click an item in the Tree to view it here.<br/>
+      Use “New Item” to create an item.
+    `;
+  } else {
+    detailPanelEl.className = "card";
+    detailPanelEl.innerHTML = `
+      <div style="font-weight:950; font-size:1.05rem; margin-bottom:10px;">
+        ${activeItemCode}
+      </div>
+
+      <div class="kv" style="gap:8px;">
+        <div><b>Type:</b> ${TYPE_LABELS[item?.type] || "—"}</div>
+        <div><b>Base cost:</b> ${item?.baseCost ?? "—"}</div>
+        <div><b>Operation time:</b> ${item?.operationTime ?? "—"}</div>
+        <div><b>Description:</b> ${item?.description ?? "—"}</div>
+        <div style="margin-top:8px;"><b>Created:</b> ${item?.createdBy ?? "—"} • ${formatDateOnly(item?.createdAt)}</div>
+        <div><b>Last edited:</b> ${item?.updatedBy ?? "—"} • ${formatDateOnly(item?.updatedAt)}</div>
+      </div>
+    `;
+  }
+}
   // Enable/disable buttons depending on selection
 const hasItem = !!activeItemCode;
 
