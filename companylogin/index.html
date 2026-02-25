@@ -250,7 +250,7 @@
       else sessionStorage.removeItem("loggingOut");
     }
 
-    // ✅ NEW: get full user profile (company + role + station)
+    // ✅ get full user profile (company + role)
     async function getUserProfile(uid) {
       const userSnap = await getDoc(doc(db, "users", uid));
       if (!userSnap.exists()) return null;
@@ -259,9 +259,8 @@
 
       const companyCode = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
       const role = String(data.role ?? "admin").trim().toLowerCase();
-      const station = String(data.station ?? "").trim().toLowerCase();
 
-      return { companyCode, role, station };
+      return { companyCode, role };
     }
 
     async function goToCompanyPortal(user) {
@@ -287,19 +286,10 @@
           return;
         }
 
-        // ✅ OPERATOR → FloorDashboard (station)
+        // ✅ OPERATOR (shared kiosk login) → Station PIN select screen
         if (profile.role === "operator") {
-          if (!profile.station) {
-            showMsg(
-              "Signed in as operator, but no station is assigned.\n" +
-              "Set users/{uid}.station (example: bending).",
-              "err"
-            );
-            return;
-          }
-
           window.location.assign(
-            `/company/FloorDashboard.html?c=${encodeURIComponent(profile.companyCode)}&station=${encodeURIComponent(profile.station)}`
+            `/company/StationPin.html?c=${encodeURIComponent(profile.companyCode)}`
           );
           return;
         }
