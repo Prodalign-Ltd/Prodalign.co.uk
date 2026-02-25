@@ -402,7 +402,7 @@
     }
     .detailsGrid{
   display: grid;
-  grid-template-columns: minmax(420px, 40%) 1fr;
+  grid-template-columns: max-content 1fr;
   gap: 14px;
   align-items: start;
 }
@@ -435,7 +435,9 @@
     }
 /* ===== ITEM DATA CARD (cleaner) ===== */
 .itemCard{
-  padding: 14px;
+  padding: 14px;min-width: 420px;
+  max-width: 720px;   /* this controls when wrapping begins */
+  width: fit-content; /* allows growth */
 }
 
 .itemMetaGrid{
@@ -465,11 +467,12 @@
 .itemCard .v{
   font-weight: 900;
   color: rgba(255,255,255,0.92);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
+  /* allow wrapping when card hits max width */
+  white-space: normal;
+  word-break: break-word;
+}
+    
 .itemCard #detailEtc{
   white-space: normal !important;
   overflow: visible !important;
