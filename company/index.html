@@ -61,7 +61,6 @@
       font-weight:800;
     }
     button:hover{ background:rgba(255,255,255,0.12); border-color:rgba(245,124,0,0.35); }
-    button:disabled{ opacity:.55; cursor:not-allowed; }
     .btn-danger{ border-color:rgba(211,47,47,0.40); }
     #settingsBtn[hidden]{ display:none !important; }
 
@@ -267,7 +266,10 @@
     .opsBtn .sub{ color: var(--muted); font-size: 12px; margin-top:-6px; }
 
     @media (max-width: 1100px){
-      .opsGridWrap{ overflow-x:auto; padding-bottom:6px; }
+      .opsGridWrap{
+        overflow-x:auto;
+        padding-bottom:6px;
+      }
       .opsGrid{ width: 1200px; }
     }
     @media (max-width: 980px){
@@ -278,97 +280,6 @@
       .brand .name{ max-width: 48vw; }
       .jobCard{ width: 200px; }
     }
-
-    /* Booking modal */
-    .modalOverlay{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.62);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      z-index: 999;
-    }
-    .modalOverlay.show{ display:flex; }
-    .modal{
-      width: min(560px, 96vw);
-      border-radius: 18px;
-      border:1px solid rgba(255,255,255,0.12);
-      background: rgba(10, 26, 40, 0.92);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      backdrop-filter: blur(10px);
-    }
-    .modalHeader{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:10px;
-    }
-    .modalTitle{
-      font-weight: 950;
-      font-size: 18px;
-      letter-spacing:.2px;
-    }
-    .modalClose{
-      border-radius: 12px;
-      padding: 8px 10px;
-    }
-    .modalBody{
-      border-top: 1px solid rgba(255,255,255,0.10);
-      padding-top: 12px;
-      color: rgba(255,255,255,0.92);
-    }
-    .kv{
-      display:grid;
-      grid-template-columns: 120px 1fr;
-      gap: 8px 10px;
-      margin: 12px 0;
-      font-weight: 850;
-      font-size: 13px;
-    }
-    .kv .k{ color: var(--muted); font-weight: 900; }
-    .modalHint{
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 800;
-      line-height: 1.4;
-      margin-top: 10px;
-    }
-    .modalActions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top: 12px;
-      border-top: 1px solid rgba(255,255,255,0.10);
-      padding-top: 12px;
-    }
-    .btn-primary{
-      border-color: rgba(245,124,0,0.35);
-      background: rgba(245,124,0,0.16);
-    }
-    .btn-primary:hover{
-      border-color: rgba(245,124,0,0.55);
-      background: rgba(245,124,0,0.22);
-    }
-    .toast{
-      position: fixed;
-      left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.14);
-      padding: 10px 12px;
-      border-radius: 14px;
-      font-weight: 850;
-      font-size: 12px;
-      box-shadow: 0 14px 40px rgba(0,0,0,.40);
-      display:none;
-      z-index: 1000;
-      backdrop-filter: blur(10px);
-    }
-    .toast.show{ display:block; }
   </style>
 </head>
 
@@ -446,44 +357,11 @@
   </div>
 </div>
 
-<!-- Booking Modal -->
-<div class="modalOverlay" id="bookModalOverlay" aria-hidden="true">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="bookModalTitle">
-    <div class="modalHeader">
-      <div>
-        <div class="modalTitle" id="bookModalTitle">Book into MRP/ERP</div>
-        <div class="modalHint" id="bookModalSub">Use this info to book the item into your own system.</div>
-      </div>
-      <button class="modalClose" id="bookModalClose" type="button">Close</button>
-    </div>
-
-    <div class="modalBody">
-      <div class="kv">
-        <div class="k">Job</div><div id="bmJob">—</div>
-        <div class="k">Item</div><div id="bmItem">—</div>
-        <div class="k">Qty</div><div id="bmQty">—</div>
-      </div>
-
-      <div class="modalHint" id="bmViewOnlyHint" style="display:none;">
-        View-only account: you can view details but cannot mark as booked.
-      </div>
-
-      <div class="modalActions">
-        <button id="bmCopy" type="button">Copy details</button>
-        <button id="bmBooked" class="btn-primary" type="button">Mark as booked</button>
-        <button id="bmCancel" class="btn-danger" type="button">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast">Copied</div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, updateDoc, serverTimestamp,
+    getFirestore, doc, getDoc,
     collection, query, where, onSnapshot, limit
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -511,18 +389,6 @@
   const ordersHint = document.getElementById("ordersHint");
   const opsGrid = document.getElementById("opsGrid");
 
-  // Booking modal DOM
-  const bookModalOverlay = document.getElementById("bookModalOverlay");
-  const bookModalClose = document.getElementById("bookModalClose");
-  const bmJob = document.getElementById("bmJob");
-  const bmItem = document.getElementById("bmItem");
-  const bmQty = document.getElementById("bmQty");
-  const bmCopy = document.getElementById("bmCopy");
-  const bmBooked = document.getElementById("bmBooked");
-  const bmCancel = document.getElementById("bmCancel");
-  const bmViewOnlyHint = document.getElementById("bmViewOnlyHint");
-  const toast = document.getElementById("toast");
-
   // URL param
   const params = new URLSearchParams(window.location.search);
   const companyId = (params.get("c") || "").trim().toLowerCase();
@@ -531,11 +397,6 @@
     companyNameEl.textContent = "Missing company id (?c=...)";
     throw new Error("Missing ?c=");
   }
-
-  // State
-  let currentRole = "";
-  let currentUserIsAdmin = false;
-  let currentJobInModal = null;
 
   function escapeHtml(s){
     return String(s ?? "").replace(/[&<>"']/g, (c) => ({
@@ -588,7 +449,7 @@
         <div class="label">Op ${i}</div>
         <div class="sub">Template button</div>
       `;
-      btn.addEventListener("click", () => alert(\`Operations Overview: Op ${i} (template)\`));
+      btn.addEventListener("click", () => alert(`Operations Overview: Op ${i} (template)`));
       frag.appendChild(btn);
     }
 
@@ -610,7 +471,7 @@
       const item = escapeHtml(String(j.itemCode || "").toUpperCase());
 
       return `
-        <div class="jobCard" data-job="${escapeHtml(j.id)}" title="Click to book into your ERP/MRP">
+        <div class="jobCard" data-job="${escapeHtml(j.id)}">
           <div class="jobTop">
             <div class="jobNo">${jobNo}</div>
             <div class="pill">To book</div>
@@ -638,143 +499,12 @@
     });
   }
 
-  // IMPORTANT: overview lockdown should NOT disable job cards if you want them clickable
   function applyOverviewLockdown() {
-    document.querySelectorAll(".tile, .opsBtn").forEach((el) => {
+    document.querySelectorAll(".tile, .opsBtn, .jobCard").forEach((el) => {
       el.style.pointerEvents = "none";
       el.style.opacity = "0.90";
     });
   }
-
-  function canMarkBooked(){
-    // Managers/admins/supervisors etc. can mark booked.
-    // Overview role is view-only.
-    if (currentRole === "overview") return false;
-    return true;
-  }
-
-  function showToast(text){
-    toast.textContent = text;
-    toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 1200);
-  }
-
-  function openBookModal(job){
-    currentJobInModal = job;
-
-    const jobNo = job.orderNo || job.id || "JOB";
-    const item = String(job.itemCode || "").toUpperCase();
-    const qty = Number(job.qty || 0);
-
-    bmJob.textContent = jobNo;
-    bmItem.textContent = item || "—";
-    bmQty.textContent = String(qty);
-
-    const allowed = canMarkBooked();
-    bmBooked.disabled = !allowed;
-    bmViewOnlyHint.style.display = allowed ? "none" : "block";
-
-    bookModalOverlay.classList.add("show");
-    bookModalOverlay.setAttribute("aria-hidden", "false");
-  }
-
-  function closeBookModal(){
-    currentJobInModal = null;
-    bookModalOverlay.classList.remove("show");
-    bookModalOverlay.setAttribute("aria-hidden", "true");
-  }
-
-  async function fetchJob(jobId){
-    const jobSnap = await getDoc(doc(db, "companies", companyId, "jobs", jobId));
-    if (!jobSnap.exists()) return null;
-    return { id: jobSnap.id, ...(jobSnap.data() || {}) };
-  }
-
-  async function markJobBooked(job){
-    const ref = doc(db, "companies", companyId, "jobs", job.id);
-
-    // Update status so it disappears from "to_book" list
-    await updateDoc(ref, {
-      status: "booked",
-      bookedAt: serverTimestamp(),
-      bookedBy: auth.currentUser?.uid || null
-    });
-  }
-
-  // Event delegation: click any job card to open booking prompt
-  ordersRow.addEventListener("click", async (e) => {
-    const card = e.target.closest(".jobCard");
-    if (!card) return;
-
-    const jobId = card.getAttribute("data-job");
-    if (!jobId) return;
-
-    try {
-      const job = await fetchJob(jobId);
-      if (!job) {
-        alert("This job no longer exists.");
-        return;
-      }
-      openBookModal(job);
-    } catch (err) {
-      console.error(err);
-      alert("Could not load job details.");
-    }
-  });
-
-  // Modal controls
-  bookModalClose.addEventListener("click", closeBookModal);
-  bmCancel.addEventListener("click", closeBookModal);
-
-  // Close modal if clicking overlay background
-  bookModalOverlay.addEventListener("click", (e) => {
-    if (e.target === bookModalOverlay) closeBookModal();
-  });
-
-  // Copy details for pasting into ERP
-  bmCopy.addEventListener("click", async () => {
-    if (!currentJobInModal) return;
-
-    const jobNo = currentJobInModal.orderNo || currentJobInModal.id || "JOB";
-    const item = String(currentJobInModal.itemCode || "").toUpperCase();
-    const qty = Number(currentJobInModal.qty || 0);
-
-    const text =
-`BOOK INTO ERP/MRP
-Job: ${jobNo}
-Item: ${item}
-Qty: ${qty}`;
-
-    try {
-      await navigator.clipboard.writeText(text);
-      showToast("Copied details");
-    } catch {
-      // Fallback if clipboard blocked
-      window.prompt("Copy details:", text);
-    }
-  });
-
-  // Mark as booked (writes back to Firestore)
-  bmBooked.addEventListener("click", async () => {
-    if (!currentJobInModal) return;
-    if (!canMarkBooked()) return;
-
-    bmBooked.disabled = true;
-    bmBooked.textContent = "Saving…";
-
-    try {
-      await markJobBooked(currentJobInModal);
-      showToast("Marked as booked");
-      closeBookModal();
-    } catch (err) {
-      console.error(err);
-      alert("Could not mark as booked: " + (err?.message || "Unknown error"));
-      bmBooked.disabled = false;
-    } finally {
-      bmBooked.textContent = "Mark as booked";
-      bmBooked.disabled = !canMarkBooked();
-    }
-  });
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -790,7 +520,6 @@ Qty: ${qty}`;
 
       const role = normalizeRole(profile);
       const station = normalizeStation(profile);
-      currentRole = role;
 
       // Operator redirect
       if (role === "operator") {
@@ -806,14 +535,13 @@ Qty: ${qty}`;
       // Admin logic
       const license = String(profile.license ?? "").trim().toLowerCase();
       const isAdmin = Boolean(profile.isAdmin) || role === "admin" || license === "admin";
-      currentUserIsAdmin = isAdmin;
       settingsBtn.hidden = !isAdmin;
 
       // UI
       buildOpsGrid();
       watchOrdersToBook();
 
-      // Overview view-only mode (keeps Orders To Book clickable, but disables marking as booked)
+      // Overview view-only mode
       if (role === "overview") {
         applyOverviewLockdown();
       }
@@ -839,13 +567,6 @@ Qty: ${qty}`;
 
   ordersDueTile.addEventListener("click", () => {
     window.location.assign(`https://prodalign.co.uk/company/Ordersdue.html?c=${encodeURIComponent(companyId)}`);
-  });
-
-  // Optional: ESC closes modal
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && bookModalOverlay.classList.contains("show")) {
-      closeBookModal();
-    }
   });
 </script>
 </body>
