@@ -754,6 +754,39 @@
   </div>
 </div>
 
+<!-- ✅ Edit Item Modal -->
+<div id="editItemModal" class="modal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="editItemTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="editItemTitle">Edit Item</div>
+      <button class="modal-close" id="closeEditItemModal" type="button">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Item Code</label>
+        <input type="text" id="editItemCode" disabled />
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" id="editItemDescription" />
+      </div>
+
+      <div class="form-group">
+        <label>Base Cost</label>
+        <input type="number" id="editItemCost" />
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="modal-status" id="editItemStatus"></div>
+      <button id="cancelEditItem" type="button">Cancel</button>
+      <button class="btn-primary" id="saveEditItem" type="button">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -838,6 +871,17 @@
   const deleteItemName = document.getElementById("deleteItemName");
   const deleteStatus = document.getElementById("deleteStatus");
   let pendingDeleteCode = null;
+
+  // Edit modal UI
+  const editItemModal = document.getElementById("editItemModal");
+  const closeEditItemModal = document.getElementById("closeEditItemModal");
+  const cancelEditItem = document.getElementById("cancelEditItem");
+  const saveEditItem = document.getElementById("saveEditItem");
+  const editItemCode = document.getElementById("editItemCode");
+  const editItemDescription = document.getElementById("editItemDescription");
+  const editItemCost = document.getElementById("editItemCost");
+  const editItemStatus = document.getElementById("editItemStatus");
+  let pendingEditCode = null;
 
   // Active item tracking
   let activeItemCode = null;
@@ -1080,7 +1124,6 @@
   }
 
   function readDragPayload(dt){
-    // preferred: application/json payload {code,type}
     try {
       const raw = dt.getData("application/json");
       if (raw) return JSON.parse(raw);
@@ -1089,7 +1132,7 @@
     return code ? { code, type: "" } : null;
   }
 
-  // ---------- Drop into Contains Items (any item types allowed; stores qty) ----------
+  // ---------- Drop into Contains Items ----------
   async function addContainedItemToActiveItem(containedCode) {
     if (!activeItemCode) {
       alert("Select an item first (the one that will contain the part).");
@@ -1142,7 +1185,7 @@
     }
   });
 
-  // ---------- Drop into Contains Operations (ONLY operation-type items; stores iph) ----------
+  // ---------- Drop into Contains Operations ----------
   async function resolveItemType(code, fallbackType){
     const clean = String(code || "").trim().toUpperCase();
     const typeLower = String(fallbackType || "").toLowerCase();
@@ -1151,7 +1194,6 @@
     const cached = itemsByCode.get(clean);
     if (cached?.type) return String(cached.type).toLowerCase();
 
-    // last resort: fetch
     try {
       const snap = await getDoc(doc(db, "companies", companyId, "items", clean));
       if (!snap.exists()) return "";
@@ -1265,6 +1307,22 @@
 
         left.addEventListener("click", () => setActiveItem(normalized));
 
+        // ✅ EDIT + DELETE STACK
+        const btnWrap = document.createElement("div");
+        btnWrap.style.display = "flex";
+        btnWrap.style.flexDirection = "column";
+        btnWrap.style.gap = "6px";
+        btnWrap.style.flex = "0 0 auto";
+
+        const edit = document.createElement("button");
+        edit.className = "rowBtn";
+        edit.type = "button";
+        edit.textContent = "Edit";
+        edit.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openEditItemModal(normalized);
+        });
+
         const del = document.createElement("button");
         del.className = "del";
         del.type = "button";
@@ -1274,8 +1332,11 @@
           openDeleteModal(code);
         });
 
+        btnWrap.appendChild(edit);
+        btnWrap.appendChild(del);
+
         row.appendChild(left);
-        row.appendChild(del);
+        row.appendChild(btnWrap);
         treeListEl.appendChild(row);
       });
 
@@ -1349,6 +1410,63 @@
 
   backBtn.addEventListener("click", () => {
     window.location.assign(`./index.html?c=${encodeURIComponent(companyId)}`);
+  });
+
+  // ---------- Edit modal ----------
+  function openEditItemModal(item){
+    pendingEditCode = item.code;
+
+    editItemCode.value = item.code;
+    editItemDescription.value = item.description || "";
+    editItemCost.value = (item.baseCost ?? "");
+
+    editItemStatus.textContent = "";
+
+    editItemModal.classList.add("open");
+    editItemModal.setAttribute("aria-hidden", "false");
+    setTimeout(() => editItemDescription.focus(), 0);
+  }
+
+  function closeEditItemModalFn(){
+    editItemModal.classList.remove("open");
+    editItemModal.setAttribute("aria-hidden", "true");
+    pendingEditCode = null;
+  }
+
+  closeEditItemModal.addEventListener("click", closeEditItemModalFn);
+  cancelEditItem.addEventListener("click", closeEditItemModalFn);
+  editItemModal.addEventListener("click", (e)=>{
+    if(e.target === editItemModal) closeEditItemModalFn();
+  });
+
+  saveEditItem.addEventListener("click", async ()=>{
+    if(!pendingEditCode) return;
+
+    const description = editItemDescription.value.trim();
+    const baseCost = Number(editItemCost.value || 0);
+
+    saveEditItem.disabled = true;
+    editItemStatus.textContent = "Saving…";
+
+    try{
+      await setDoc(
+        doc(db, "companies", companyId, "items", pendingEditCode),
+        {
+          description,
+          baseCost: Number.isFinite(baseCost) ? baseCost : 0,
+          updatedAt: serverTimestamp()
+        },
+        { merge: true }
+      );
+
+      editItemStatus.textContent = "Saved!";
+      setTimeout(closeEditItemModalFn, 300);
+    } catch(err){
+      console.error(err);
+      editItemStatus.textContent = err?.message || "Save failed.";
+    } finally{
+      saveEditItem.disabled = false;
+    }
   });
 
   // ---------- New Item modal ----------
@@ -1522,6 +1640,7 @@
     if (e.key !== "Escape") return;
 
     if (deleteItemModal.classList.contains("open")) closeDeleteModal();
+    else if (editItemModal.classList.contains("open")) closeEditItemModalFn();
     else if (addMemberModal.classList.contains("open")) closeAddMemberModalFn();
     else if (newItemModal.classList.contains("open")) closeNewItemModalFn();
   });
