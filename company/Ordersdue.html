@@ -7,6 +7,28 @@
 
   <style>
 
+    /* ===== TODAY LINE ===== */
+
+.dateHead.today,
+.dueCell.today{
+  border-left: 3px solid #f57c00; /* Prodalign orange */
+}
+
+/* Make the header orange too (optional glow) */
+.dateHead.today{
+  box-shadow: inset 3px 0 0 #f57c00;
+}
+
+/* ===== Quantity coloring ===== */
+
+.dueCell.past{
+  color: #d32f2f !important;  /* red */
+}
+
+.dueCell.future{
+  color: #ffffff !important;  /* white */
+}
+
     /* Make date headers vertical */
 .dateHead{
   width: 36px;          /* controls column width */
@@ -377,7 +399,16 @@
       return { dateKeys, rows };
     }
 
+// ✅ REPLACE YOUR ENTIRE renderGrid(...) FUNCTION WITH THIS ONE
+
     function renderGrid({ dateKeys, rows }){
+      // Today in YYYY-MM-DD (LOCAL time)
+      const now = new Date();
+      const todayKey =
+        now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2,"0") + "-" +
+        String(now.getDate()).padStart(2,"0");
+    
       if (!dateKeys.length || !rows.length){
         gridWrap.innerHTML = `
           <div style="padding:12px;color:rgba(255,255,255,0.7);font-weight:900;">
@@ -385,129 +416,71 @@
           </div>`;
         return;
       }
-
+    
+      // If you are using the "fit evenly across screen" feature:
+      gridWrap.style.setProperty("--dateCols", String(dateKeys.length || 1));
+    
       const thead = `
         <thead>
           <tr>
             <th class="leftHead">Part (Order)</th>
-            ${dateKeys.map(dk => `
-  <th class="dateHead">
-    <div class="verticalDate">${formatHeaderDate(dk)}</div>
-  </th>
-`).join("")}
+            ${dateKeys.map(dk => {
+              const isToday = dk === todayKey;
+              return `
+                <th class="dateHead ${isToday ? "today" : ""}">
+                  <div class="verticalDate">${formatHeaderDate(dk)}</div>
+                </th>
+              `;
+            }).join("")}
           </tr>
         </thead>
       `;
-
+    
       const tbody = `
         <tbody>
           ${rows.map(r => {
             const tds = dateKeys.map(dk => {
               const v = r.cells.get(dk);
-              if (!v) return `<td class="dueCell empty"></td>`;
-              return `<td class="dueCell filled">${v}</td>`;
+              const isToday = dk === todayKey;
+              const isPast = dk < todayKey; // safe because YYYY-MM-DD string compares correctly
+    
+              if (!v){
+                return `<td class="dueCell empty ${isToday ? "today" : ""}"></td>`;
+              }
+    
+              const colorClass = isPast ? "past" : "future";
+    
+              return `
+                <td class="dueCell filled ${colorClass} ${isToday ? "today" : ""}">
+                  ${v}
+                </td>
+              `;
             }).join("");
-
-            return `<tr>
-              <th title="${r.label}">${r.label}</th>
-              ${tds}
-            </tr>`;
+    
+            return `
+              <tr>
+                <th title="${r.label}">${r.label}</th>
+                ${tds}
+              </tr>
+            `;
           }).join("")}
         </tbody>
       `;
-
+    
       gridWrap.innerHTML = `<table class="dueTable">${thead}${tbody}</table>`;
-    }
-
-    // ===== Branding + auth checks (same pattern as your other page) =====
-    async function loadCompanyBranding(companyId) {
-      const snap = await getDoc(doc(db, "companies", companyId));
-      if (!snap.exists()) {
-        companyNameEl.textContent = `Company '${companyId}' not found`;
-        return;
-      }
-
-      const company = snap.data() || {};
-      const name = company.displayname || "Company";
-      const logoUrl = company.Logourl || "";
-
-      companyNameEl.textContent = name;
-      if (logoUrl) {
-        companyLogoEl.src = logoUrl;
-        companyLogoEl.style.display = "block";
-      }
-
-      document.title = `${name} | Orders Due`;
-    }
-
-    async function enforceUserCompany(user, companyId) {
-      const userSnap = await getDoc(doc(db, "users", user.uid));
-      if (!userSnap.exists()) throw new Error("User profile missing (users/{uid}).");
-
-      const data = userSnap.data() || {};
-      const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
-
-      if (!userCompany) throw new Error("User profile missing companycode.");
-      if (userCompany !== companyId) throw new Error("Access denied for this company.");
-      return true;
-    }
-
-    function watchJobs(companyId){
-      const jobsRef = collection(db, "companies", companyId, "jobs");
-      const qy = query(jobsRef, orderBy("dueAt", "asc"));
-
-      onSnapshot(qy, (snap) => {
-        const jobs = [];
-        snap.forEach(docSnap => {
-          const data = docSnap.data() || {};
-          jobs.push({ id: docSnap.id, ...data });
-        });
-
-        // Optionally filter to only active statuses (uncomment if needed)
-        // const filtered = jobs.filter(j => ["ready","in_progress"].includes(String(j.status||"").toLowerCase()));
-
-        const model = buildGridModel(jobs);
-        renderGrid(model);
-
-        statusText.textContent = `Jobs: ${jobs.length}`;
-      }, (err) => {
-        console.error(err);
-        statusText.textContent = "Error";
-        gridWrap.innerHTML = `
-          <div style="padding:12px;color:#ffb4b4;font-weight:900;">
-            Error loading jobs: ${err.message}
-          </div>`;
+    
+      // If you are also using "fit evenly + snap left column":
+      requestAnimationFrame(() => {
+        const rowHeads = gridWrap.querySelectorAll(".dueTable tbody th");
+        let max = 0;
+        rowHeads.forEach(th => { max = Math.max(max, th.scrollWidth); });
+    
+        const minPx = 160;
+        const maxPx = Math.min(420, Math.floor(window.innerWidth * 0.45));
+        const leftPx = Math.max(minPx, Math.min(max, maxPx));
+        gridWrap.style.setProperty("--leftCol", `${leftPx}px`);
       });
     }
-
-    // ===== Buttons =====
-    logoutBtn.addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
-    });
-
-    backBtn.addEventListener("click", () => {
-      // Adjust if your back route differs
-      window.location.assign(`./index.html?c=${encodeURIComponent(companyId)}`);
-    });
-
-    // ===== Start =====
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
-        return;
-      }
-
-      try{
-        await enforceUserCompany(user, companyId);
-        await loadCompanyBranding(companyId);
-        watchJobs(companyId);
-      } catch (err){
-        console.error(err);
-        try { await signOut(auth); } catch {}
-        window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
-      }
-    });
   </script>
 </body>
 </html>
