@@ -326,8 +326,8 @@
       background: rgba(255,255,255,0.04);
       min-height: 96px;
       overflow: hidden;
-      display: grid;
-      grid-template-rows: auto 1fr;
+      display: flex;
+      flex-direction: column;
     }
     .miniPanel .miniHeader{
       padding: 10px 10px 8px;
@@ -342,6 +342,8 @@
       font-size: 0.9rem;
       line-height: 1.35;
       overflow:auto;
+      flex: 1;
+      align-items: flex-start;
     }
 
     .details {
@@ -960,7 +962,7 @@
         </thead>
         <tbody id="containsTbody">
           ${rows.map(r => `
-            <tr data-code="${r.code}" draggable="true" class="containsRowDraggable">
+            <tr data-code="${r.code}">
               <td class="containsCode">${r.code}</td>
               <td><input class="qtyInput" type="number" min="1" step="1" value="${r.qty}" /></td>
               <td style="text-align:right;"><button class="rowBtn" type="button" data-remove="1">Remove</button></td>
@@ -1089,63 +1091,7 @@
     renderContainsTable(containsItemsEl, next);
     saveContainsToActive(next).catch(console.error);
   });
-// ===== REORDER CONTAINED ITEMS =====
 
-let dragSourceCode = null;
-
-containsItemsEl.addEventListener("dragstart", (e) => {
-  const row = e.target.closest("tr");
-  if (!row) return;
-
-  dragSourceCode = row.dataset.code;
-  row.classList.add("dragging");
-});
-
-containsItemsEl.addEventListener("dragend", (e) => {
-  const row = e.target.closest("tr");
-  if (row) row.classList.remove("dragging");
-  dragSourceCode = null;
-});
-
-containsItemsEl.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  const row = e.target.closest("tr");
-  if (!row || !dragSourceCode) return;
-
-  row.classList.add("dragOver");
-});
-
-containsItemsEl.addEventListener("dragleave", (e) => {
-  const row = e.target.closest("tr");
-  if (row) row.classList.remove("dragOver");
-});
-
-containsItemsEl.addEventListener("drop", async (e) => {
-  e.preventDefault();
-
-  const targetRow = e.target.closest("tr");
-  if (!targetRow || !dragSourceCode || !activeItemData) return;
-
-  targetRow.classList.remove("dragOver");
-
-  const targetCode = targetRow.dataset.code;
-  if (targetCode === dragSourceCode) return;
-
-  const list = normalizeContains(activeItemData.contains);
-
-  const fromIndex = list.findIndex(i => i.code === dragSourceCode);
-  const toIndex = list.findIndex(i => i.code === targetCode);
-
-  const moved = list.splice(fromIndex, 1)[0];
-  list.splice(toIndex, 0, moved);
-
-  // Update UI instantly
-  activeItemData = { ...activeItemData, contains: list, code: activeItemCode };
-  renderContainsTable(containsItemsEl, list);
-
-  // Save new order to Firestore
-  await saveContainsToActive(list);
-});
   // ---------- Editable tables: items/hr + remove ----------
   containsOpsEl.addEventListener("input", (e) => {
     
