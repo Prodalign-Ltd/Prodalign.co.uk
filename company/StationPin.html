@@ -37,25 +37,35 @@
       pointer-events:none; /* brand should never block clicks */
     }
 
-    .logo{
-      max-width: 380px;
-      width: min(380px, 80vw);
-      max-height: 180px;
-      height: auto;
-      user-select:none;
-      -webkit-user-drag:none;
-      filter:drop-shadow(0 10px 30px rgba(0,0,0,0.45));
-      display:none;
-    }
+   /* Branding sits above the fixed card and never moves it */
+.brandTop{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 11;
+  pointer-events: none;
+}
 
-    .companyName{
-      font-weight:900;
-      font-size:1.2rem;
-      letter-spacing:.3px;
-      opacity:.9;
-      line-height:1.2;
-      display:none;
-    }
+/* Prevent logo squashing */
+.logo{
+  height: 140px;
+  width: auto;
+  max-width: 70vw;
+  display: none;
+  user-select:none;
+  -webkit-user-drag:none;
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.45));
+}
+
+.companyName{
+  margin-top: 8px;
+  font-weight: 900;
+  font-size: 1.1rem;
+  letter-spacing: .3px;
+  opacity: .9;
+  display: none;
+}
 
     /* ✅ CARD IS FIXED AND CANNOT MOVE */
     .card{
@@ -100,12 +110,12 @@
 
 <body>
   <!-- Logo + company name sit above, but never affect the card -->
-  <div class="brandTop">
-    <img id="companyLogo" class="logo" alt="Company Logo" />
-    <div id="companyName" class="companyName"></div>
-  </div>
+<div class="brandTop" id="brandTop">
+  <img id="companyLogo" class="logo" alt="Company Logo" />
+  <div id="companyName" class="companyName"></div>
+</div>
 
-  <div class="card">
+<div class="card" id="stationCard">
     <h2>Select Station</h2>
     <p>Enter the station PIN to open the correct workflow dashboard.</p>
 
@@ -225,6 +235,10 @@
       } catch (e) {
         console.error("Branding load failed:", e);
       }
+      // Position logo above the fixed card once visible
+requestAnimationFrame(() => {
+  positionBrandingAboveCard();
+});
     }
 
     async function tryAutoResume(uid, companyCode) {
@@ -252,7 +266,19 @@
         updatedAt: serverTimestamp(),
       }, { merge: true });
     }
+function positionBrandingAboveCard() {
+  const brandTop = document.getElementById("brandTop");
+  const card = document.getElementById("stationCard");
+  if (!brandTop || !card) return;
 
+  const gap = 18; // spacing between logo and card
+
+  const cardRect = card.getBoundingClientRect();
+  const brandHeight = brandTop.offsetHeight || 0;
+
+  const top = Math.max(12, cardRect.top - gap - brandHeight);
+  brandTop.style.top = `${top}px`;
+}
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         location.assign("/companylogin/");
@@ -336,6 +362,9 @@
       await signOut(auth);
       location.assign("/companylogin/");
     });
+    
+    window.addEventListener("resize", () => positionBrandingAboveCard());
+    
   </script>
 </body>
 </html>
