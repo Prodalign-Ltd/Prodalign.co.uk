@@ -689,8 +689,22 @@ header{
 
   // ✅ Logout button
   logoutBtn.addEventListener("click", async () => {
-    await hardKickToLogin();
-  });
+  try {
+    const user = auth.currentUser;
+    if (user) {
+      const kioskId = localStorage.getItem("kioskDeviceId");
+      if (kioskId) {
+        const sessionId = `${user.uid}_${kioskId}`;
+        await deleteDoc(doc(db, "kioskSessions", sessionId));
+      }
+    }
+  } catch (e) {
+    console.error("Failed to clear kiosk session:", e);
+  }
+
+  await signOut(auth);
+  window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+});
 </script>
 
 </body>
