@@ -347,21 +347,26 @@
     }
 
     .containsRow{
-      display: grid;
-      grid-template-columns: 110px 1fr 1fr;
-      gap: 10px;
-      padding: 10px;
-    }
+  display: grid;
+  grid-template-columns: 110px 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+
+  height: 240px;          
+  align-items: stretch;   
+}
     .idCard{
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(0,0,0,0.18);
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-height: 96px;
-    }
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.18);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  height: 100%;
+  min-height: 0;
+}
     .idCard .id{
       font-weight: 950;
       letter-spacing: 0.3px;
@@ -383,15 +388,16 @@
     }
 
     .miniPanel{
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.04);
-      min-height: 96px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-    }
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  height: 100%;
+  min-height: 0;
+}
     .miniPanel .miniHeader{
       padding: 10px 10px 8px;
       font-weight: 950;
@@ -454,7 +460,7 @@
       text-align: center;
     }
 /* ===== ITEM DATA CARD (cleaner) ===== */
-..itemCard{
+.itemCard{
   padding: 14px;
   width: 100%;          
   min-width: 420px;
