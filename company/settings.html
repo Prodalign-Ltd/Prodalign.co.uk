@@ -988,7 +988,11 @@ const deleteActiveItemBtn = document.getElementById("deleteActiveItemBtn");
   function formatDate(ts){
   if (!ts?.toDate) return "—";
   const d = ts.toDate();
-  return d.toLocaleString();
+  return d.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "2-digit"
+  });
 }
   function normalizeContains(contains){
     if (!Array.isArray(contains)) return [];
