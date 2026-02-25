@@ -31,9 +31,28 @@
     a{color:#fff;opacity:.9;text-decoration:none}
     a:hover{opacity:1;text-decoration:underline}
     .tiny{margin-top:16px;opacity:.6;font-size:.8rem;text-align:center}
+    .logo{
+  width: 320px;
+  max-width: 85%;
+  margin: 0 auto 14px auto;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 8px 25px rgba(0,0,0,0.4));
+}
+
+.companyName{
+  text-align:center;
+  font-weight: 900;
+  letter-spacing: .2px;
+  margin-bottom: 18px;
+  opacity: .9;
+}
   </style>
 </head>
 <body>
+  <img id="companyLogo" class="logo" alt="Company Logo" style="display:none" />
+<div id="companyName" class="companyName" style="display:none"></div>
   <div class="card">
     <h2>Select Station</h2>
     <p>Enter the station PIN to open the correct workflow dashboard.</p>
@@ -128,7 +147,36 @@
       const d = snap.data();
       return String(d.companycode ?? d.companyCode ?? "").trim().toLowerCase();
     }
+async function loadCompanyBranding(companyCode){
+  try{
+    const snap = await getDoc(doc(db, "companies", companyCode));
+    if(!snap.exists()) return;
 
+    const data = snap.data() || {};
+
+    // ✅ supports your Firestore fields: Logourl + displayname
+    const logoUrl =
+      String(data.Logourl ?? data.logoUrl ?? data.logoURL ?? "").trim();
+
+    const displayName =
+      String(data.displayname ?? data.displayName ?? data.name ?? "").trim();
+
+    const img = document.getElementById("companyLogo");
+    const nameEl = document.getElementById("companyName");
+
+    if (logoUrl) {
+      img.src = logoUrl;
+      img.style.display = "block";
+    }
+
+    if (displayName) {
+      nameEl.textContent = displayName;
+      nameEl.style.display = "block";
+    }
+  } catch (e) {
+    console.error("Branding load failed:", e);
+  }
+}
     async function tryAutoResume(uid, companyCode) {
       const sessionId = getSessionId(uid);
       const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
@@ -165,6 +213,7 @@
 
       let companyCode = companyCodeFromUrl;
       if (!companyCode) companyCode = await getUserCompany(user.uid);
+      await loadCompanyBranding(companyCode);
 
       if (!companyCode) {
         showMsg("No company code found for this account.");
