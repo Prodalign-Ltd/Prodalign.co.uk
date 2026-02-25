@@ -150,6 +150,100 @@ header{
 .availableSection .sectionHead{background:var(--amber2)}
 .naSection .sectionHead{background:var(--gray2)}
 
+  /* JOB CARDS */
+.sectionBody{
+  padding: 14px;
+  display: block;          /* override the old centered placeholder layout */
+  min-height: 180px;
+}
+
+.jobsGrid{
+  display: grid;
+  gap: 12px;
+}
+
+.jobCard{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.16);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.jobTop{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+}
+
+.jobTitle{
+  font-weight: 950;
+  letter-spacing: 0.2px;
+}
+
+.jobMeta{
+  color: rgba(255,255,255,0.75);
+  font-weight: 850;
+  margin-top: 6px;
+  line-height: 1.35;
+  font-size: 0.92rem;
+}
+
+.jobOps{
+  margin-top: 10px;
+  color: rgba(255,255,255,0.70);
+  font-weight: 850;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.jobBtns{
+  margin-top: 12px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.smallBtn{
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.smallBtn:hover{
+  background: rgba(255,255,255,0.12);
+  transform: translateY(-1px);
+}
+
+.smallBtn.primary{
+  border-color: rgba(46,125,50,0.45);
+  background: linear-gradient(180deg, rgba(46,125,50,0.22), rgba(255,255,255,0.08));
+}
+
+.smallBtn.warn{
+  border-color: rgba(249,168,37,0.55);
+  background: linear-gradient(180deg, rgba(249,168,37,0.18), rgba(255,255,255,0.08));
+}
+
+.smallBtn.danger{
+  border-color: rgba(211,47,47,0.45);
+  background: linear-gradient(180deg, rgba(211,47,47,0.18), rgba(255,255,255,0.08));
+}
+
+.emptyState{
+  color: rgba(255,255,255,0.70);
+  font-weight: 850;
+  text-align:center;
+  padding: 18px 10px;
+  border: 1px dashed rgba(255,255,255,0.14);
+  border-radius: 14px;
+  background: rgba(0,0,0,0.12);
+}
+
 @media (max-width: 520px){
   header{ grid-template-columns: 1fr; }
   .logoutWrap{ justify-content:center; }
@@ -182,23 +276,23 @@ header{
 
   <div class="section wipSection">
     <div class="sectionHead">Work In Progress</div>
-    <div class="sectionBody">
-      Jobs currently being worked will appear here
-    </div>
+    <div class="sectionBody" id="wipBody">
+  Loading…
+</div>
   </div>
 
   <div class="section availableSection">
     <div class="sectionHead">Available</div>
-    <div class="sectionBody">
-      Jobs ready to start will appear here
-    </div>
+    <div class="sectionBody" id="availableBody">
+  Loading…
+</div>
   </div>
 
   <div class="section naSection">
     <div class="sectionHead">Not Available</div>
-    <div class="sectionBody">
-      Waiting on previous operations
-    </div>
+    <div class="sectionBody" id="naBody">
+  Loading…
+</div>
   </div>
 
 </div>
@@ -206,7 +300,10 @@ header{
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import {
+  getFirestore, doc, getDoc, collection, onSnapshot,
+  runTransaction, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
@@ -220,6 +317,41 @@ header{
 
   const logoutBtn = document.getElementById("logoutBtn");
   const stationTitleEl = document.getElementById("stationTitle");
+  const wipBody = document.getElementById("wipBody");
+const availableBody = document.getElementById("availableBody");
+const naBody = document.getElementById("naBody");
+
+function getUserIdentifier(){
+  const u = auth.currentUser;
+  return u?.email || u?.displayName || u?.uid || "unknown";
+}
+
+function opsToString(ops, currentIndex){
+  if (!Array.isArray(ops) || ops.length === 0) return "Ops: —";
+  return ops
+    .map((o, i) => {
+      const code = String(o?.code || "").toUpperCase();
+      if (!code) return "";
+      return (i === currentIndex) ? `[${code}]` : code;
+    })
+    .filter(Boolean)
+    .join(" → ");
+}
+
+function renderEmpty(el, text){
+  el.innerHTML = `<div class="emptyState">${text}</div>`;
+}
+
+function normalizeOpsArray(ops){
+  if (!Array.isArray(ops)) return [];
+  return ops
+    .map(x => {
+      const code = String(x?.code || "").trim().toUpperCase();
+      const iph = Number(x?.iph);
+      return code ? { code, iph: Number.isFinite(iph) ? iph : 0 } : null;
+    })
+    .filter(Boolean);
+}
 
   // URL params
   const params = new URLSearchParams(window.location.search);
@@ -272,9 +404,244 @@ header{
       return false;
     }
 
-    return true;
+    return { station };
   }
 
+  function watchJobsForStation(stationLower){
+  const stationCode = String(stationLower || "").trim().toUpperCase();
+  if (!stationCode) return;
+
+  const jobsRef = collection(db, "companies", companyId, "jobs");
+
+  // Listen to ALL jobs for company, then bucket them for THIS station.
+  // This avoids complex queries/indexes for now.
+  return onSnapshot(jobsRef, (snap) => {
+    const available = [];
+    const wip = [];
+    const notAvailable = [];
+
+    snap.forEach((d) => {
+      const job = d.data() || {};
+      const id = d.id;
+
+      if (String(job.status || "").toLowerCase() === "complete") return;
+
+      const ops = normalizeOpsArray(job.ops);
+      const currentOpIndex = Number(job.currentOpIndex ?? 0);
+
+      // Find where THIS station appears in the ops list
+      const myIndex = ops.findIndex(o => o.code === stationCode);
+      if (myIndex === -1) return; // job doesn't involve this station
+
+      // If job already passed this station, ignore
+      if (currentOpIndex > myIndex) return;
+
+      const currentOpCode = String(job.currentOpCode || "").trim().toUpperCase();
+      const status = String(job.status || "").trim().toLowerCase();
+
+      const jobView = {
+        id,
+        itemCode: String(job.itemCode || "").toUpperCase(),
+        orderNo: String(job.orderNo || ""),
+        qty: Number(job.qty || 0),
+        ops,
+        currentOpIndex,
+        currentOpCode,
+        status,
+        assignedTo: String(job.assignedTo || ""),
+      };
+
+      // Bucket rules:
+      // - If it's our turn (currentOpIndex === myIndex)
+      //    - ready => Available
+      //    - in_progress => WIP (even if assigned to someone else, we can show "locked")
+      // - If we're later in the list (currentOpIndex < myIndex) => Not Available
+      if (currentOpIndex === myIndex) {
+        if (status === "ready") available.push(jobView);
+        else wip.push(jobView);
+      } else {
+        notAvailable.push(jobView);
+      }
+    });
+
+    // Render
+    renderJobLists({ stationCode, available, wip, notAvailable });
+  }, (err) => {
+    console.error("Jobs listener error:", err);
+    renderEmpty(availableBody, `Error loading jobs: ${err.message}`);
+    renderEmpty(wipBody, `Error loading jobs: ${err.message}`);
+    renderEmpty(naBody, `Error loading jobs: ${err.message}`);
+  });
+}
+  function renderJobLists({ stationCode, available, wip, notAvailable }){
+  // AVAILABLE
+  if (!available.length) renderEmpty(availableBody, "No jobs ready for this station.");
+  else {
+    availableBody.innerHTML = `<div class="jobsGrid">${
+      available.map(j => jobCardHtml(j, stationCode, "available")).join("")
+    }</div>`;
+    wireCardButtons(availableBody, stationCode);
+  }
+
+  // WIP
+  if (!wip.length) renderEmpty(wipBody, "No jobs in progress at this station.");
+  else {
+    wipBody.innerHTML = `<div class="jobsGrid">${
+      wip.map(j => jobCardHtml(j, stationCode, "wip")).join("")
+    }</div>`;
+    wireCardButtons(wipBody, stationCode);
+  }
+
+  // NOT AVAILABLE
+  if (!notAvailable.length) renderEmpty(naBody, "Nothing waiting on previous operations.");
+  else {
+    naBody.innerHTML = `<div class="jobsGrid">${
+      notAvailable.map(j => jobCardHtml(j, stationCode, "na")).join("")
+    }</div>`;
+    // no buttons here
+  }
+}
+
+function jobCardHtml(job, stationCode, bucket){
+  const title = `${job.itemCode || "—"} × ${job.qty || 0}`;
+  const meta = `
+    <div class="jobMeta">
+      <div><b>Order:</b> ${escapeHtml(job.orderNo || "—")}</div>
+      <div><b>Current:</b> ${escapeHtml(String(job.currentOpCode || "—"))}</div>
+      <div><b>Status:</b> ${escapeHtml(job.status)}</div>
+      ${job.assignedTo ? `<div><b>Assigned:</b> ${escapeHtml(job.assignedTo)}</div>` : ``}
+    </div>
+  `;
+
+  const opsLine = `<div class="jobOps"><b>Flow:</b> ${escapeHtml(opsToString(job.ops, job.currentOpIndex))}</div>`;
+
+  let btns = "";
+  if (bucket === "available") {
+    btns = `
+      <div class="jobBtns">
+        <button class="smallBtn primary" data-start="${job.id}">Start</button>
+      </div>
+    `;
+  } else if (bucket === "wip") {
+    // allow Complete. If you want to restrict to only the assigned user, we can enforce it.
+    btns = `
+      <div class="jobBtns">
+        <button class="smallBtn warn" data-complete="${job.id}">Complete / Move On</button>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="jobCard">
+      <div class="jobTop">
+        <div>
+          <div class="jobTitle">${escapeHtml(title)}</div>
+          ${meta}
+        </div>
+      </div>
+      ${opsLine}
+      ${btns}
+    </div>
+  `;
+}
+
+function escapeHtml(s){
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function wireCardButtons(container, stationCode){
+  container.querySelectorAll("button[data-start]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-start");
+      btn.disabled = true;
+      try{
+        await startJob(id, stationCode);
+      } catch(e){
+        console.error(e);
+        alert(e?.message || "Could not start job.");
+        btn.disabled = false;
+      }
+    });
+  });
+
+  container.querySelectorAll("button[data-complete]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-complete");
+      btn.disabled = true;
+      try{
+        await completeJobStep(id, stationCode);
+      } catch(e){
+        console.error(e);
+        alert(e?.message || "Could not complete job.");
+        btn.disabled = false;
+      }
+    });
+  });
+}
+  async function startJob(jobId, stationCode){
+  const jobRef = doc(db, "companies", companyId, "jobs", jobId);
+
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(jobRef);
+    if (!snap.exists()) throw new Error("Job not found.");
+
+    const job = snap.data() || {};
+    const status = String(job.status || "").toLowerCase();
+    const currentOpCode = String(job.currentOpCode || "").toUpperCase();
+
+    if (status !== "ready") throw new Error("This job is not available.");
+    if (currentOpCode !== stationCode) throw new Error("This job is not for your station.");
+
+    tx.update(jobRef, {
+      status: "in_progress",
+      assignedTo: getUserIdentifier(),
+      startedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+  });
+}
+
+async function completeJobStep(jobId, stationCode){
+  const jobRef = doc(db, "companies", companyId, "jobs", jobId);
+
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(jobRef);
+    if (!snap.exists()) throw new Error("Job not found.");
+
+    const job = snap.data() || {};
+    const ops = normalizeOpsArray(job.ops);
+    const idx = Number(job.currentOpIndex ?? 0);
+    const currentOpCode = String(job.currentOpCode || "").toUpperCase();
+    const status = String(job.status || "").toLowerCase();
+
+    if (!ops.length) throw new Error("Job has no operations.");
+    if (currentOpCode !== stationCode) throw new Error("This job is not at your station.");
+
+    // Optional: only allow complete if it's in_progress
+    // if (status !== "in_progress") throw new Error("Start the job before completing.");
+
+    const nextIndex = idx + 1;
+
+    if (nextIndex < ops.length) {
+      tx.update(jobRef, {
+        currentOpIndex: nextIndex,
+        currentOpCode: ops[nextIndex].code,
+        status: "ready",
+        assignedTo: null,
+        updatedAt: serverTimestamp()
+      });
+    } else {
+      tx.update(jobRef, {
+        status: "complete",
+        assignedTo: null,
+        completedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    }
+  });
+}
   // ✅ Auth gate
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -283,9 +650,13 @@ header{
     }
 
     try {
-      const ok = await enforceOperatorGate(user);
-      if (!ok) return;
+      const result = await enforceOperatorGate(user);
+if (!result) return;
 
+const { station } = result;
+
+// ✅ start live job feed for this operator station
+watchJobsForStation(station);
       // ✅ at this point: user is operator + correct company + correct station dashboard
       // later: load jobs for this station using station from Firestore (NOT the URL)
 
