@@ -395,7 +395,12 @@
       }
 
       const dateKeys = Array.from(dateKeysSet).sort();
-      const rows = Array.from(rowMap.values()).sort((a,b) => a.label.localeCompare(b.label));
+      const rows = Array.from(rowMap.values())
+  .map(r => {
+    const firstDate = Array.from(r.cells.keys()).sort()[0];
+    return { ...r, firstDate };
+  })
+  .sort((a, b) => a.firstDate.localeCompare(b.firstDate));
       return { dateKeys, rows };
     }
 
