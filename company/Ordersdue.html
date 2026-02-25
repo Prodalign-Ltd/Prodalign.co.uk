@@ -7,30 +7,24 @@
 
   <style>
     :root{
-      --bg:#071826;
-      --text:#fff;
-      --muted:rgba(255,255,255,.75);
-      --border:rgba(255,255,255,.10);
-      --panel:rgba(255,255,255,.05);
-      --panel2:rgba(255,255,255,.06);
-      --shadow:0 18px 55px rgba(0,0,0,.45);
-
-      /* highlight */
-      --accent:#f57c00;
-      --accentSoft:rgba(245,124,0,.20);
-      --accentBorder:rgba(245,124,0,.55);
+      --bg: #071826;
+      --panel: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.10);
+      --text: #ffffff;
+      --muted: rgba(255,255,255,0.75);
+      --orange: #f57c00;
+      --radius: 14px;
     }
-
-    *{box-sizing:border-box}
+    *{ box-sizing:border-box; }
 
     body{
       margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-      min-height:100vh;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 700px at 15% -10%, rgba(245,124,0,0.18), transparent 60%),
-        linear-gradient(180deg, var(--bg) 0%, #06131e 100%);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(245,124,0,0.18), transparent 60%),
+                  radial-gradient(900px 600px at 120% 0%, rgba(211,47,47,0.12), transparent 55%),
+                  linear-gradient(180deg, var(--bg) 0%, #06131e 100%);
+      color: var(--text);
+      min-height: 100vh;
       display:flex;
       flex-direction:column;
     }
@@ -39,410 +33,448 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
-      padding:14px 18px;
-      background: linear-gradient(90deg, rgba(16,44,68,.95), rgba(9,27,42,.92));
-      border-bottom:1px solid var(--border);
+      padding: 14px 18px;
+      background: linear-gradient(90deg, rgba(16,44,68,0.95), rgba(9,27,42,0.92));
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      gap: 12px;
     }
 
-    .title{
-      font-weight:900;
-      font-size:18px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width:70vw;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width:0;
+    }
+    .brand img{
+      height: 44px;
+      max-width: 220px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      padding: 6px;
+      display:none;
+      border: 1px solid rgba(245,124,0,0.20);
+    }
+    .brand .name{
+      font-weight: 900;
+      font-size: 1.05rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 56vw;
+      letter-spacing: 0.2px;
+    }
+
+    .actions{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex: 0 0 auto;
     }
 
     button{
-      border:1px solid rgba(255,255,255,0.12);
-      border-radius:12px;
-      padding:10px 14px;
-      background:rgba(255,255,255,0.08);
-      color:#fff;
-      cursor:pointer;
-      font-weight:800;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
     }
-    button:hover{ background:rgba(255,255,255,0.12); }
+    button:hover{
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(245,124,0,0.35);
+      transform: translateY(-1px);
+    }
+    .btn-danger{
+      border-color: rgba(211,47,47,0.40);
+      background: linear-gradient(180deg, rgba(211,47,47,0.18), rgba(255,255,255,0.08));
+    }
 
     .wrap{
-      flex:1;
+      padding: 14px;
+      flex: 1;
+      min-height: 0;
       display:flex;
       flex-direction:column;
-      padding:18px;
-      gap:12px;
-      min-height:0; /* allow inner scroll areas */
+      gap: 12px;
     }
 
-    .boardHeader{
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow:hidden;
+      min-height: 0;
       display:flex;
-      align-items:flex-end;
+      flex-direction:column;
+    }
+
+    .panel-header{
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display:flex;
+      align-items:center;
       justify-content:space-between;
-      gap:12px;
-      padding:10px 6px 0;
-    }
-    .boardHeader h1{
-      margin:0;
-      font-size:22px;
-      font-weight:900;
-      letter-spacing:.2px;
-    }
-    .boardHeader p{
-      margin:0;
-      color:var(--muted);
-      font-weight:700;
-      font-size:13px;
+      gap: 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), transparent);
     }
 
-    /* Horizontal waterfall */
-    .waterfall{
-      flex:1;
-      min-height:0;
+    .panel-title{
+      font-weight: 900;
+      font-size: 0.92rem;
+      letter-spacing: 0.2px;
+      opacity: 0.95;
       display:flex;
-      gap:14px;
-      padding:12px 6px 18px;
-      overflow-x:auto;
-      overflow-y:hidden;
-      scroll-snap-type:x mandatory;
-      -webkit-overflow-scrolling:touch;
+      align-items:center;
+      gap: 8px;
+    }
+    .panel-title .dot{
+      width: 8px; height: 8px; border-radius: 999px;
+      background: var(--orange);
+      box-shadow: 0 0 0 4px rgba(245,124,0,0.15);
+      display:inline-block;
     }
 
-    /* nicer scrollbar */
-    .waterfall::-webkit-scrollbar{ height:10px; }
-    .waterfall::-webkit-scrollbar-thumb{
-      background:rgba(255,255,255,0.15);
-      border-radius:999px;
-    }
-    .waterfall::-webkit-scrollbar-track{
-      background:rgba(255,255,255,0.06);
-      border-radius:999px;
+    .panel-body{
+      padding: 12px;
+      min-height: 0;
     }
 
-    .stage{
-      scroll-snap-align:start;
-      width:320px;
-      min-width:320px;
-      max-width:320px;
-      border-radius:18px;
-      border:1px solid var(--border);
-      background:var(--panel);
-      box-shadow:var(--shadow);
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-    }
-
-    .stageHeader{
-      padding:14px 14px 10px;
-      border-bottom:1px solid rgba(255,255,255,0.08);
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
-    }
-
-    .stageTitle{
-      margin:0;
-      font-size:14px;
-      font-weight:950;
-      letter-spacing:.2px;
-      line-height:1.2;
-    }
-
-    .stageMeta{
-      display:flex;
-      flex-direction:column;
-      align-items:flex-end;
-      gap:6px;
-      min-width:70px;
-    }
-
-    .badge{
-      font-size:12px;
-      font-weight:900;
-      padding:5px 10px;
-      border-radius:999px;
+    /* ===== Grid Table ===== */
+    #gridWrap{
+      overflow:auto;
       border:1px solid rgba(255,255,255,0.12);
-      background:rgba(255,255,255,0.06);
-      color:rgba(255,255,255,.92);
-      white-space:nowrap;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.18);
+      min-height: 0;
+      flex: 1;
+    }
+
+    .dueTable{
+      width:max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .dueTable th, .dueTable td{
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      border-right: 1px solid rgba(255,255,255,0.06);
+      padding: 6px 8px;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    .dueTable thead th{
+      position: sticky;
+      top: 0;
+      background: rgba(11,29,42,0.98);
+      z-index: 3;
+      font-weight: 950;
+      text-align: center;
+    }
+
+    .dueTable thead th.leftHead{
+      text-align: left;
+    }
+
+    .dueTable .leftHead{
+      position: sticky;
+      left: 0;
+      z-index: 4;
+      background: rgba(11,29,42,0.98);
+    }
+
+    .dueTable tbody th{
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: rgba(0,0,0,0.24);
+      font-weight: 950;
+      text-align: left;
+      max-width: 380px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dueCell{
+      text-align: center;
+      font-weight: 950;
+      min-width: 54px;
+      height: 26px;
+    }
+
+    .dueCell.empty{
+      color: rgba(255,255,255,0.18);
+      font-weight: 800;
+    }
+
+    .dueCell.filled{
+      color: #fff;
     }
 
     .hint{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:700;
-      text-align:right;
-      line-height:1.15;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 0.9rem;
+      line-height: 1.35;
     }
 
-    .cards{
-      padding:12px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      overflow-y:auto;
-      min-height:0;
-    }
-
-    .cards::-webkit-scrollbar{ width:10px; }
-    .cards::-webkit-scrollbar-thumb{
-      background:rgba(255,255,255,0.12);
-      border-radius:999px;
-    }
-    .cards::-webkit-scrollbar-track{
-      background:transparent;
-    }
-
-    .card{
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,0.10);
-      background:linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
-      padding:12px;
-      text-align:left;
-    }
-
-    .cardTop{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:8px;
-    }
-
-    .orderId{
-      font-weight:950;
-      font-size:14px;
-      letter-spacing:.2px;
-    }
-    .due{
-      font-size:12px;
-      font-weight:900;
-      color:rgba(255,255,255,.9);
-      padding:4px 8px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.10);
-      white-space:nowrap;
-    }
-
-    .cardBody{
-      display:grid;
-      gap:6px;
-      color:rgba(255,255,255,.92);
-      font-weight:750;
-      font-size:13px;
-    }
-
-    .row{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:center;
-      color:rgba(255,255,255,.9);
-    }
-
-    .pill{
-      font-size:12px;
-      font-weight:900;
-      padding:4px 8px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.10);
-      background:rgba(255,255,255,0.05);
-      color:rgba(255,255,255,.88);
-    }
-
-    .muted{ color:var(--muted); font-weight:750; }
-
-    /* Highlight stage */
-    .stage.highlight{
-      border:1px solid var(--accentBorder);
-      background:
-        radial-gradient(700px 420px at 30% 0%, var(--accentSoft), transparent 55%),
-        rgba(255,255,255,0.05);
-      box-shadow:
-        0 22px 70px rgba(0,0,0,.55),
-        0 0 0 1px rgba(245,124,0,.15) inset;
-      position:relative;
-    }
-
-    .stage.highlight .stageHeader{
-      border-bottom:1px solid rgba(245,124,0,.25);
-    }
-
-    .stage.highlight .badge{
-      border-color:rgba(245,124,0,.55);
-      background:rgba(245,124,0,.15);
-    }
-
-    .stage.highlight::before{
-      content:"";
-      position:absolute;
-      inset:10px;
-      border-radius:14px;
-      pointer-events:none;
-      box-shadow:0 0 0 1px rgba(245,124,0,.22) inset;
-    }
-
-    /* Empty state */
-    .empty{
-      border:1px dashed rgba(255,255,255,0.18);
-      background:rgba(255,255,255,0.04);
-      border-radius:14px;
-      padding:14px;
-      color:var(--muted);
-      font-weight:800;
-      text-align:center;
-    }
-
-    @media (max-width:520px){
-      .stage{ width:290px; min-width:290px; max-width:290px; }
-      .boardHeader{ align-items:flex-start; flex-direction:column; }
+    @media (max-width: 980px){
+      .brand .name{ max-width: 48vw; }
+      .dueTable tbody th{ max-width: 240px; }
     }
   </style>
 </head>
 
 <body>
-
-<header>
-  <div class="title" id="companyTitle">Orders Due</div>
-  <button id="backBtn">Back to Overview</button>
-</header>
-
-<div class="wrap">
-  <div class="boardHeader">
-    <div>
-      <h1>Orders Due</h1>
-      <p>Scroll sideways → stages • scroll inside a stage → items</p>
+  <header>
+    <div class="brand">
+      <img id="companyLogo" alt="Company Logo" />
+      <div class="name" id="companyName">Loading…</div>
     </div>
-    <div class="muted" id="subtitle"></div>
+
+    <div class="actions">
+      <button id="backBtn" type="button">Back</button>
+      <button id="logoutBtn" class="btn-danger" type="button">Log out</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="dot"></span> Orders Due</div>
+        <div class="hint" id="statusText">Reading jobs…</div>
+      </div>
+
+      <div class="panel-body" style="display:flex; flex-direction:column; gap:12px; min-height:0;">
+        <div id="gridWrap"></div>
+      </div>
+    </div>
   </div>
 
-  <div class="waterfall" id="waterfall"></div>
-</div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-<script>
-  // Read ?c=company from URL
-  const params = new URLSearchParams(window.location.search);
-  const companyId = params.get("c");
+    // ===== Firebase config (same as your other page) =====
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
+      authDomain: "prodalign-ltd.firebaseapp.com",
+      projectId: "prodalign-ltd"
+    };
 
-  if (companyId) {
-    document.getElementById("companyTitle").textContent = "Orders Due – " + companyId;
-    document.getElementById("subtitle").textContent = "Company: " + companyId;
-  } else {
-    document.getElementById("subtitle").textContent = "Company: (not set)";
-  }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  document.getElementById("backBtn").addEventListener("click", () => {
-    window.location.href = companyId ? ("index.html?c=" + companyId) : "index.html";
-  });
+    // ===== Company id from URL (?c=...) =====
+    const params = new URLSearchParams(window.location.search);
+    const companyId = (params.get("c") || "").trim().toLowerCase();
 
-  /**
-   * Dummy data (swap this array for Firestore results later)
-   * Each item has a stage that determines which column it appears in.
-   */
-  const STAGES = [
-    { key: "new",        title: "New Orders" },
-    { key: "in_build",   title: "In Build" },
-    { key: "qc",         title: "Quality Check" },
-    { key: "ready_drop", title: "Order Ready Drop Zone", highlight: true },
-    { key: "shipped",    title: "Shipped" }
-  ];
+    // ===== UI refs =====
+    const companyLogoEl = document.getElementById("companyLogo");
+    const companyNameEl = document.getElementById("companyName");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const backBtn = document.getElementById("backBtn");
+    const gridWrap = document.getElementById("gridWrap");
+    const statusText = document.getElementById("statusText");
 
-  const dummyOrders = [
-    { id: "ORD-10021", customer: "Acme Ltd",     due: "Today",       priority: "High",  items: 6,  stage: "new",        note: "Awaiting parts confirmation" },
-    { id: "ORD-10022", customer: "Blue Finch",   due: "Tomorrow",    priority: "Med",   items: 2,  stage: "in_build",   note: "Build in progress" },
-    { id: "ORD-10023", customer: "Kite & Co",    due: "Fri",         priority: "Low",   items: 10, stage: "qc",         note: "Final inspection pending" },
-    { id: "ORD-10024", customer: "Northwind",    due: "Fri",         priority: "High",  items: 4,  stage: "ready_drop", note: "Ready for pickup / dispatch" },
-    { id: "ORD-10025", customer: "Pineapple BV", due: "Next week",   priority: "Med",   items: 1,  stage: "ready_drop", note: "Label printed" },
-    { id: "ORD-10026", customer: "Sunset Inc",   due: "Next week",   priority: "Low",   items: 3,  stage: "shipped",    note: "Tracking sent" },
-    { id: "ORD-10027", customer: "Acme Ltd",     due: "Mon",         priority: "High",  items: 8,  stage: "in_build",   note: "Waiting on QA slot" }
-  ];
-
-  function el(tag, attrs = {}, children = []) {
-    const node = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs)) {
-      if (k === "class") node.className = v;
-      else if (k === "text") node.textContent = v;
-      else node.setAttribute(k, v);
+    if (!companyId) {
+      companyNameEl.textContent = "Missing company id (?c=...)";
+      statusText.textContent = "Cannot load without ?c=";
+      throw new Error("Missing ?c=");
     }
-    for (const child of children) node.appendChild(child);
-    return node;
-  }
 
-  function renderBoard(items) {
-    const root = document.getElementById("waterfall");
-    root.innerHTML = "";
+    // ===== helpers =====
+    function dateKeyFromDue(dueAt){
+      // Firestore Timestamp -> JS Date
+      const d = dueAt?.toDate ? dueAt.toDate() : (dueAt instanceof Date ? dueAt : new Date(dueAt));
+      if (!d || Number.isNaN(d.getTime())) return null;
 
-    for (const stage of STAGES) {
-      const stageItems = items.filter(o => o.stage === stage.key);
+      // LOCAL date-only key YYYY-MM-DD
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
 
-      const stageCol = el("section", {
-        class: "stage" + (stage.highlight ? " highlight" : ""),
-        "data-stage": stage.key
-      });
+    function formatHeaderDate(yyyyMmDd){
+      // You can change this format any time
+      return yyyyMmDd;
+    }
 
-      const header = el("div", { class: "stageHeader" }, [
-        el("div", {}, [
-          el("h2", { class: "stageTitle", text: stage.title })
-        ]),
-        el("div", { class: "stageMeta" }, [
-          el("div", { class: "badge", text: stageItems.length + " item" + (stageItems.length === 1 ? "" : "s") }),
-          el("div", { class: "hint", text: stage.highlight ? "Highlighted stage" : " " })
-        ])
-      ]);
+    function rowLabel(job){
+      const part = String(job.itemCode || "").trim().toUpperCase();
+      const order = String(job.orderNo || "").trim();
+      return `${part} (${order})`;
+    }
 
-      const cardsWrap = el("div", { class: "cards" });
+    function buildGridModel(jobs){
+      const dateKeysSet = new Set();
+      const rowMap = new Map(); // label -> { label, cells: Map(dateKey->qtySum) }
 
-      if (stageItems.length === 0) {
-        cardsWrap.appendChild(
-          el("div", { class: "empty", text: "No orders in this stage." })
-        );
-      } else {
-        for (const o of stageItems) {
-          const card = el("div", { class: "card" }, [
-            el("div", { class: "cardTop" }, [
-              el("div", { class: "orderId", text: o.id }),
-              el("div", { class: "due", text: "Due: " + o.due })
-            ]),
-            el("div", { class: "cardBody" }, [
-              el("div", { class: "row" }, [
-                el("span", { class: "muted", text: o.customer })
-              ]),
-              el("div", { class: "row" }, [
-                el("span", { class: "pill", text: "Priority: " + o.priority }),
-                el("span", { class: "pill", text: "Items: " + o.items })
-              ]),
-              el("div", { class: "row" }, [
-                el("span", { class: "muted", text: o.note })
-              ])
-            ])
-          ]);
+      for (const j of jobs){
+        const dk = dateKeyFromDue(j.dueAt);
+        if (!dk) continue;
 
-          // later: click -> open order details
-          card.addEventListener("click", () => {
-            console.log("Clicked", o.id);
-          });
+        const label = rowLabel(j);
+        if (!label || label.startsWith("(") || label.startsWith(" (")) continue;
 
-          cardsWrap.appendChild(card);
-        }
+        const qty = Math.max(1, Math.floor(Number(j.qty || 0)));
+        if (!Number.isFinite(qty) || qty <= 0) continue;
+
+        dateKeysSet.add(dk);
+
+        if (!rowMap.has(label)) rowMap.set(label, { label, cells: new Map() });
+
+        // If multiple docs land in same cell, SUM quantities
+        const prev = rowMap.get(label).cells.get(dk) || 0;
+        rowMap.get(label).cells.set(dk, prev + qty);
       }
 
-      stageCol.appendChild(header);
-      stageCol.appendChild(cardsWrap);
-      root.appendChild(stageCol);
+      const dateKeys = Array.from(dateKeysSet).sort();
+      const rows = Array.from(rowMap.values()).sort((a,b) => a.label.localeCompare(b.label));
+
+      return { dateKeys, rows };
     }
-  }
 
-  // Initial render with dummy data
-  renderBoard(dummyOrders);
+    function renderGrid({ dateKeys, rows }){
+      if (!dateKeys.length || !rows.length){
+        gridWrap.innerHTML = `
+          <div style="padding:12px;color:rgba(255,255,255,0.7);font-weight:900;">
+            No jobs with due dates found.
+          </div>`;
+        return;
+      }
 
-  /**
-   * Later (Firestore):
-   * - Fetch docs, map into the same shape as dummyOrders
-   * - Call renderBoard(firestoreOrders)
-   */
-</script>
+      const thead = `
+        <thead>
+          <tr>
+            <th class="leftHead">Part (Order)</th>
+            ${dateKeys.map(dk => `<th>${formatHeaderDate(dk)}</th>`).join("")}
+          </tr>
+        </thead>
+      `;
 
+      const tbody = `
+        <tbody>
+          ${rows.map(r => {
+            const tds = dateKeys.map(dk => {
+              const v = r.cells.get(dk);
+              if (!v) return `<td class="dueCell empty"></td>`;
+              return `<td class="dueCell filled">${v}</td>`;
+            }).join("");
+
+            return `<tr>
+              <th title="${r.label}">${r.label}</th>
+              ${tds}
+            </tr>`;
+          }).join("")}
+        </tbody>
+      `;
+
+      gridWrap.innerHTML = `<table class="dueTable">${thead}${tbody}</table>`;
+    }
+
+    // ===== Branding + auth checks (same pattern as your other page) =====
+    async function loadCompanyBranding(companyId) {
+      const snap = await getDoc(doc(db, "companies", companyId));
+      if (!snap.exists()) {
+        companyNameEl.textContent = `Company '${companyId}' not found`;
+        return;
+      }
+
+      const company = snap.data() || {};
+      const name = company.displayname || "Company";
+      const logoUrl = company.Logourl || "";
+
+      companyNameEl.textContent = name;
+      if (logoUrl) {
+        companyLogoEl.src = logoUrl;
+        companyLogoEl.style.display = "block";
+      }
+
+      document.title = `${name} | Orders Due`;
+    }
+
+    async function enforceUserCompany(user, companyId) {
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      if (!userSnap.exists()) throw new Error("User profile missing (users/{uid}).");
+
+      const data = userSnap.data() || {};
+      const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
+
+      if (!userCompany) throw new Error("User profile missing companycode.");
+      if (userCompany !== companyId) throw new Error("Access denied for this company.");
+      return true;
+    }
+
+    function watchJobs(companyId){
+      const jobsRef = collection(db, "companies", companyId, "jobs");
+      const qy = query(jobsRef, orderBy("dueAt", "asc"));
+
+      onSnapshot(qy, (snap) => {
+        const jobs = [];
+        snap.forEach(docSnap => {
+          const data = docSnap.data() || {};
+          jobs.push({ id: docSnap.id, ...data });
+        });
+
+        // Optionally filter to only active statuses (uncomment if needed)
+        // const filtered = jobs.filter(j => ["ready","in_progress"].includes(String(j.status||"").toLowerCase()));
+
+        const model = buildGridModel(jobs);
+        renderGrid(model);
+
+        statusText.textContent = `Jobs: ${jobs.length}`;
+      }, (err) => {
+        console.error(err);
+        statusText.textContent = "Error";
+        gridWrap.innerHTML = `
+          <div style="padding:12px;color:#ffb4b4;font-weight:900;">
+            Error loading jobs: ${err.message}
+          </div>`;
+      });
+    }
+
+    // ===== Buttons =====
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+    });
+
+    backBtn.addEventListener("click", () => {
+      // Adjust if your back route differs
+      window.location.assign(`./index.html?c=${encodeURIComponent(companyId)}`);
+    });
+
+    // ===== Start =====
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+        return;
+      }
+
+      try{
+        await enforceUserCompany(user, companyId);
+        await loadCompanyBranding(companyId);
+        watchJobs(companyId);
+      } catch (err){
+        console.error(err);
+        try { await signOut(auth); } catch {}
+        window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+      }
+    });
+  </script>
 </body>
 </html>
