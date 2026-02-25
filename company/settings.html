@@ -401,8 +401,8 @@
 .containsRowDraggable.dragging { opacity: 0.35; }
 .containsRowDraggable.dragOver { outline: 2px dashed rgba(245,124,0,0.7); }
     
-    .containsTable th,
-    .containsTable td{
+.containsTable th,
+.containsTable td{
       padding: 8px 8px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       vertical-align: middle;
@@ -620,7 +620,7 @@
         </div>
 
         <div class="miniPanel">
-          <<div class="miniHeader">
+          <div class="miniHeader">
   Contains Operations:
   <div style="font-weight:700;font-size:.75rem;opacity:.7;margin-top:2px;">
     Drag operations into the order required (top = first operation)
@@ -1445,84 +1445,7 @@ function renderTree(items, queryText = "") {
     Error loading items: ${err.message}
   </div>`;
 });
-      
-      }
-
-      treeListEl.style.color = "";
-
-      let first = null;
-
-      snap.forEach((d) => {
-        const item = d.data();
-        const code = (item.code || d.id || "").toUpperCase();
-        const normalized = { ...item, code };
-        itemsByCode.set(code, normalized);
-
-        if (!first) first = normalized;
-
-        const row = document.createElement("div");
-        row.className = "tree-item";
-        row.draggable = true;
-
-        row.addEventListener("dragstart", (e) => {
-          e.dataTransfer.setData("application/json", JSON.stringify({ code, type: item.type || "" }));
-          e.dataTransfer.setData("text/plain", code);
-          e.dataTransfer.effectAllowed = "copy";
-        });
-
-        const left = document.createElement("div");
-        left.className = "left";
-        left.innerHTML = `
-          <strong>${code}</strong>
-          <div class="muted">${item.description || "—"}</div>
-        `;
-
-        left.addEventListener("click", () => setActiveItem(normalized));
-
-        // ✅ EDIT + DELETE STACK
-        const btnWrap = document.createElement("div");
-        btnWrap.style.display = "flex";
-        btnWrap.style.flexDirection = "column";
-        btnWrap.style.gap = "6px";
-        btnWrap.style.flex = "0 0 auto";
-
-        const edit = document.createElement("button");
-        edit.className = "rowBtn";
-        edit.type = "button";
-        edit.textContent = "Edit";
-        edit.addEventListener("click", (e) => {
-          e.stopPropagation();
-          openEditItemModal(normalized);
-        });
-
-        const del = document.createElement("button");
-        del.className = "del";
-        del.type = "button";
-        del.textContent = "Delete";
-        del.addEventListener("click", (e) => {
-          e.stopPropagation();
-          openDeleteModal(code);
-        });
-
-        btnWrap.appendChild(edit);
-        btnWrap.appendChild(del);
-
-        row.appendChild(left);
-        row.appendChild(btnWrap);
-        treeListEl.appendChild(row);
-      });
-
-      // ✅ Keep the right-side panels truly realtime
-      if (!activeItemCode && first) setActiveItem(first);
-      else if (activeItemCode && itemsByCode.has(activeItemCode)) setActiveItem(itemsByCode.get(activeItemCode));
-      else if (first) setActiveItem(first);
-    }, (err) => {
-      console.error("Tree listener error:", err);
-      treeListEl.innerHTML = `<div style="color:#ffb4b4;font-weight:900;">
-        Error loading items: ${err.message}
-      </div>`;
-    });
-  }
+}
 
   // ---------- Branding + auth ----------
   async function loadCompanyBranding(companyId) {
