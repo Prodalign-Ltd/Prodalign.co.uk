@@ -124,7 +124,7 @@
       border-radius: var(--radius);
       overflow: hidden;
     }
-    
+
     .panel-header{
       padding: 10px 12px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -146,59 +146,55 @@
     }
 
     .panel-title .dot{
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--orange);
-  box-shadow: 0 0 0 4px rgba(245,124,0,0.15);
-  display: inline-block;
-}
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--orange);
+      box-shadow: 0 0 0 4px rgba(245,124,0,0.15);
+      display: inline-block;
+    }
 
-/* ✅ Tree toggle styles */
-    /* ===== TREE HEADER GRID (locks toggle right) ===== */
-.treeHeader{
-  display: grid;
-  grid-template-columns: auto 1fr auto; /* dot | title | toggle */
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
+    .treeHeader{
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
 
-.treeHeaderTitle{
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.treeToggle{
-  display: inline-flex;
-  gap: 6px;
-  padding: 4px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.18);
-}
+    .treeHeaderTitle{
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .treeToggle{
+      display: inline-flex;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.18);
+    }
 
-.treeTab{
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.06);
-  font-weight: 900;
-  cursor: pointer;
-  transform: none !important;
-}
+    .treeTab{
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      font-weight: 900;
+      cursor: pointer;
+      transform: none !important;
+    }
+    .treeTab:hover{
+      border-color: rgba(245,124,0,0.35);
+      background: rgba(255,255,255,0.10);
+    }
+    .treeTab.active{
+      border-color: rgba(245,124,0,0.55);
+      background: linear-gradient(180deg, rgba(245,124,0,0.20), rgba(245,124,0,0.08));
+    }
 
-.treeTab:hover{
-  border-color: rgba(245,124,0,0.35);
-  background: rgba(255,255,255,0.10);
-}
-
-.treeTab.active{
-  border-color: rgba(245,124,0,0.55);
-  background: linear-gradient(180deg, rgba(245,124,0,0.20), rgba(245,124,0,0.08));
-}
-    
     .panel-body{ padding: 12px; }
 
     .sidebar {
@@ -237,23 +233,21 @@
       grid-template-rows: auto 1fr;
     }
     .tree .panel-body{
-  padding: 10px 10px 12px;
-  overflow: auto;
-  overflow-x: hidden;
-}
-    
+      padding: 10px 10px 12px;
+      overflow: auto;
+      overflow-x: hidden;
+    }
+
     .tree-item{
       padding: 10px 10px;
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.08);
       background: rgba(255,255,255,0.04);
       margin-bottom: 10px;
-
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
       gap:10px;
-
       user-select:none;
     }
     .tree-item:hover{
@@ -261,39 +255,19 @@
       background: rgba(255,255,255,0.06);
     }
     .tree-item .left{
-  min-width: 0;   /* ✅ required for ellipsis */
-  cursor: pointer;
-  flex: 1;
-}
+      min-width: 0;
+      cursor: pointer;
+      flex: 1;
+    }
     .tree-item strong{ display:block; font-size: 0.92rem; }
     .tree-item .muted{
-  opacity: 0.75;
-  font-size: 0.86rem;
-  margin-top: 6px;
-
-  /* ✅ one-line ellipsis */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  /* ✅ important inside flex layouts */
-  min-width: 0;
-}
-
-    .tree-item .del{
-      border: 1px solid rgba(211,47,47,0.45);
-      background: rgba(211,47,47,0.12);
-      padding: 8px 10px;
-      border-radius: 10px;
-      font-weight: 950;
-      cursor: pointer;
-      line-height: 1;
-      flex: 0 0 auto;
-    }
-    .tree-item .del:hover{
-      background: rgba(211,47,47,0.20);
-      border-color: rgba(211,47,47,0.65);
-      transform:none;
+      opacity: 0.75;
+      font-size: 0.86rem;
+      margin-top: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
 
     .order-ready {
@@ -340,38 +314,36 @@
     }
 
     .mainTop{
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.mainTop > .containsRow{
-  flex: 1;
-  min-height: 0;
-}
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .mainTop > .containsRow{
+      flex: 1;
+      min-height: 0;
+    }
 
     .containsRow{
-  display: grid;
-  grid-template-columns: 110px 1fr 1fr;
-  gap: 10px;
-  padding: 10px;
+      display: grid;
+      grid-template-columns: 110px 1fr 1fr;
+      gap: 10px;
+      padding: 10px;
+      height: 100%;
+      min-height: 0;
+      align-items: stretch;
+    }
 
-  height: 100%;
-  min-height: 0;
-  align-items: stretch;
-}
     .idCard{
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.18);
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  height: 100%;
-  min-height: 0;
-}
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.18);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      height: 100%;
+      min-height: 0;
+    }
     .idCard .id{
       font-weight: 950;
       letter-spacing: 0.3px;
@@ -393,16 +365,15 @@
     }
 
     .miniPanel{
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.04);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-
-  height: 100%;
-  min-height: 0;
-}
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
     .miniPanel .miniHeader{
       padding: 10px 10px 8px;
       font-weight: 950;
@@ -411,16 +382,16 @@
       background: linear-gradient(180deg, rgba(245,124,0,0.10), transparent);
     }
     .miniPanel .miniBody{
-  padding: 10px;
-  color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.35;
-  overflow-y: auto;   
-  overflow-x: hidden; 
-  flex: 1;
-  min-height: 0;      
-  align-items: flex-start;
-}
+      padding: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.35;
+      overflow-y: auto;
+      overflow-x: hidden;
+      flex: 1;
+      min-height: 0;
+      align-items: flex-start;
+    }
 
     .details {
       min-height: 0;
@@ -432,25 +403,18 @@
       overflow: auto;
     }
     .detailsGrid{
-  display: grid;
-  grid-template-columns: minmax(420px, 720px) 1fr; 
-  gap: 14px;
-  align-items: start;
-}
+      display: grid;
+      grid-template-columns: minmax(420px, 720px) 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
     .card {
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.10);
       background: rgba(255,255,255,0.04);
       padding: 12px;
     }
-    .kv{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-    .kv b{ color: #fff; }
 
     .emptyHint{
       height: 100%;
@@ -464,115 +428,90 @@
       font-weight: 800;
       text-align: center;
     }
-/* ===== ITEM DATA CARD (cleaner) ===== */
-.itemCard{
-  padding: 14px;
-  width: 100%;          
-  min-width: 420px;
-  max-width: 720px;    
-  overflow: hidden;     
-}
-.itemMetaGrid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px 14px;
-}
 
-.metaRow{
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
+    .itemCard{
+      padding: 14px;
+      width: 100%;
+      min-width: 420px;
+      max-width: 720px;
+      overflow: hidden;
+    }
+    .itemMetaGrid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 14px;
+    }
+    .metaRow{ display: grid; gap: 4px; min-width: 0; }
+    .metaRowFull{ grid-column: 1 / -1; }
 
-.metaRowFull{
-  grid-column: 1 / -1;
-}
+    .itemCard .k{
+      font-size: 0.75rem;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.62);
+      font-weight: 900;
+    }
+    .itemCard .v{
+      font-weight: 900;
+      color: rgba(255,255,255,0.92);
+      white-space: normal;
+      word-break: break-word;
+    }
 
-.itemCard .k{
-  font-size: 0.75rem;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.62);
-  font-weight: 900;
-}
+    .itemDivider{
+      height: 1px;
+      margin: 14px 0 12px;
+      background: rgba(255,255,255,0.08);
+    }
 
-.itemCard .v{
-  font-weight: 900;
-  color: rgba(255,255,255,0.92);
+    .auditGrid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
 
-  /* allow wrapping when card hits max width */
-  white-space: normal;
-  word-break: break-word;
-}
-    
-.itemCard #detailEtc{
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: unset !important;
-  word-break: break-word;
-  line-height: 1.35;
-  color: rgba(255,255,255,0.80);
-  font-weight: 800;
-}
+    .auditCard{
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.16);
+      border-radius: 12px;
+      padding: 10px 10px;
+    }
 
-.itemDivider{
-  height: 1px;
-  margin: 14px 0 12px;
-  background: rgba(255,255,255,0.08);
-}
+    .auditLabel{
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: rgba(255,255,255,0.60);
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+    .auditValue{
+      font-weight: 950;
+      color: rgba(255,255,255,0.92);
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+      word-break: break-word;
+    }
+    .auditSub{
+      margin-top: 4px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.68);
+      font-size: 0.88rem;
+    }
 
-.auditGrid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
+    .containsTable{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
 
-.auditCard{
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.16);
-  border-radius: 12px;
-  padding: 10px 10px;
-}
+    .containsRowDraggable { cursor: grab; }
+    .containsRowDraggable.dragging { opacity: 0.35; }
+    .containsRowDraggable.dragOver { outline: 2px dashed rgba(245,124,0,0.7); }
 
-.auditLabel{
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  color: rgba(255,255,255,0.60);
-  font-weight: 900;
-  margin-bottom: 6px;
-}
-
-.auditValue{
-  font-weight: 950;
-  color: rgba(255,255,255,0.92);
-
-  /* allow long emails/ids to wrap and grow the card */
-  white-space: normal;
-  overflow: visible;
-  text-overflow: unset;
-  word-break: break-word;
-}
-.auditSub{
-  margin-top: 4px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.68);
-  font-size: 0.88rem;
-}
-   /* ===== TABLES (contains items / ops) ===== */
-.containsTable{
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-/* Drag reorder rows */
-.containsRowDraggable { cursor: grab; }
-.containsRowDraggable.dragging { opacity: 0.35; }
-.containsRowDraggable.dragOver { outline: 2px dashed rgba(245,124,0,0.7); }
-    
-.containsTable th,
-.containsTable td{
+    .containsTable th,
+    .containsTable td{
       padding: 8px 8px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       vertical-align: middle;
@@ -614,13 +553,12 @@
       background: rgba(211,47,47,0.12);
       transform:none;
     }
-    
-/* ===== ORDER READY DROPZONE ACTIVE ===== */
-#dropzone.drop-active{
-  border-color: rgba(245,124,0,0.75) !important;
-  box-shadow: 0 0 0 4px rgba(245,124,0,0.14);
-}
-    /* ===== MODAL SYSTEM ===== */
+
+    #dropzone.drop-active{
+      border-color: rgba(245,124,0,0.75) !important;
+      box-shadow: 0 0 0 4px rgba(245,124,0,0.14);
+    }
+
     .modal {
       position: fixed;
       inset: 0;
@@ -751,23 +689,21 @@
     </div>
 
     <div class="panel tree">
-  <div class="panel-header">
-    <div class="treeHeader">
-      <span class="dot"></span>
+      <div class="panel-header">
+        <div class="treeHeader">
+          <span class="dot"></span>
+          <span id="treeTitle" class="treeHeaderTitle">Tree of Items</span>
+          <div class="treeToggle" role="tablist" aria-label="Tree toggle">
+            <button id="toggleTreeItems" type="button" class="treeTab active" role="tab" aria-selected="true">Items</button>
+            <button id="toggleTreeOps" type="button" class="treeTab" role="tab" aria-selected="false">Operations</button>
+          </div>
+        </div>
+      </div>
 
-      <span id="treeTitle" class="treeHeaderTitle">Tree of Items</span>
-
-      <div class="treeToggle" role="tablist" aria-label="Tree toggle">
-        <button id="toggleTreeItems" type="button" class="treeTab active" role="tab" aria-selected="true">Items</button>
-        <button id="toggleTreeOps" type="button" class="treeTab" role="tab" aria-selected="false">Operations</button>
+      <div class="panel-body">
+        <div id="treeList"></div>
       </div>
     </div>
-  </div>
-
-  <div class="panel-body">
-    <div id="treeList"></div>
-  </div>
-</div>
 
     <div class="panel order-ready" id="dropzone">
       <div class="panel-body">
@@ -776,7 +712,7 @@
           Order Ready?
         </div>
         <div class="hint">
-          (Drag &amp; drop items; opens pop-up to fill quantity, order number, etc.)
+          (Drag &amp; drop items; opens pop-up to fill quantity, order number, due date)
         </div>
       </div>
     </div>
@@ -806,11 +742,11 @@
 
         <div class="miniPanel">
           <div class="miniHeader">
-  Contains Operations:
-  <div style="font-weight:700;font-size:.75rem;opacity:.7;margin-top:2px;">
-    Drag operations into the order required (top = first operation)
-  </div>
-</div>
+            Contains Operations:
+            <div style="font-weight:700;font-size:.75rem;opacity:.7;margin-top:2px;">
+              Drag operations into the order required (top = first operation)
+            </div>
+          </div>
           <div class="miniBody" id="containsOps"></div>
         </div>
       </div>
@@ -818,75 +754,71 @@
 
     <div class="panel details" id="mainArea">
       <div class="panel-header">
-  <div class="panel-title"><span class="dot"></span> Item Data</div>
+        <div class="panel-title"><span class="dot"></span> Item Data</div>
+        <div style="display:flex; gap:10px;">
+          <button id="editActiveItemBtn" type="button">Edit</button>
+          <button id="deleteActiveItemBtn" class="btn-danger" type="button">Delete</button>
+        </div>
+      </div>
 
-  <!-- NEW ACTION BUTTONS -->
-  <div style="display:flex; gap:10px;">
-    <button id="editActiveItemBtn" type="button">Edit</button>
-    <button id="deleteActiveItemBtn" class="btn-danger" type="button">Delete</button>
-  </div>
-</div>
       <div class="panel-body">
-       <div class="detailsGrid">
+        <div class="detailsGrid">
+          <div class="card itemCard" id="leftItemCard">
+            <div class="itemMetaGrid">
+              <div class="metaRow">
+                <div class="k">Item</div>
+                <div class="v" id="detailItem">—</div>
+              </div>
 
-  <div class="card itemCard" id="leftItemCard">
-    <div class="itemMetaGrid">
-      <div class="metaRow">
-        <div class="k">Item</div>
-        <div class="v" id="detailItem">—</div>
-      </div>
+              <div class="metaRow">
+                <div class="k">Type</div>
+                <div class="v" id="detailType">—</div>
+              </div>
 
-      <div class="metaRow">
-        <div class="k">Type</div>
-        <div class="v" id="detailType">—</div>
-      </div>
+              <div class="metaRow">
+                <div class="k">Item Cost</div>
+                <div class="v" id="detailCost">—</div>
+              </div>
 
-      <div class="metaRow">
-        <div class="k">Item Cost</div>
-        <div class="v" id="detailCost">—</div>
-      </div>
+              <div class="metaRow">
+                <div class="k">Operation Time</div>
+                <div class="v" id="detailTime">—</div>
+              </div>
 
-      <div class="metaRow">
-        <div class="k">Operation Time</div>
-        <div class="v" id="detailTime">—</div>
-      </div>
+              <div class="metaRow metaRowFull">
+                <div class="k">Description</div>
+                <div class="v" id="detailEtc">—</div>
+              </div>
+            </div>
 
-      <div class="metaRow metaRowFull">
-        <div class="k">Description</div>
-        <div class="v" id="detailEtc">—</div>
-      </div>
-    </div>
+            <div class="itemDivider"></div>
 
-    <div class="itemDivider"></div>
+            <div class="auditGrid">
+              <div class="auditCard">
+                <div class="auditLabel">Created</div>
+                <div class="auditValue" id="detailCreatedBy">—</div>
+                <div class="auditSub" id="detailCreatedDate">—</div>
+              </div>
 
-    <div class="auditGrid">
-      <div class="auditCard">
-        <div class="auditLabel">Created</div>
-        <div class="auditValue" id="detailCreatedBy">—</div>
-        <div class="auditSub" id="detailCreatedDate">—</div>
-      </div>
+              <div class="auditCard">
+                <div class="auditLabel">Last edited</div>
+                <div class="auditValue" id="detailUpdatedBy">—</div>
+                <div class="auditSub" id="detailUpdatedDate">—</div>
+              </div>
+            </div>
+          </div>
 
-      <div class="auditCard">
-        <div class="auditLabel">Last edited</div>
-        <div class="auditValue" id="detailUpdatedBy">—</div>
-        <div class="auditSub" id="detailUpdatedDate">—</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="emptyHint" id="detailPanel">
-  Click an item in the Tree to view it here.<br/>
-  Use “New Item” to create an item.
-</div>
-
-</div>
+          <div class="emptyHint" id="detailPanel">
+            Click an item in the Tree to view it here.<br/>
+            Use “New Item” to create an item.
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ✅ Add Member Modal -->
+<!-- Add Member Modal -->
 <div id="addMemberModal" class="modal" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="addMemberTitle">
     <div class="modal-header">
@@ -896,8 +828,8 @@
 
     <div class="modal-body">
       <div class="form-group">
-        <label for="orderReadyDueDate">Due date</label>
-        <input id="orderReadyDueDate" type="date" />
+        <label for="memberEmail">Email</label>
+        <input id="memberEmail" type="email" placeholder="name@company.com" autocomplete="email" />
       </div>
 
       <div class="form-group">
@@ -921,7 +853,7 @@
   </div>
 </div>
 
-<!-- ✅ New Item Modal -->
+<!-- New Item Modal -->
 <div id="newItemModal" class="modal" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="newItemTitle">
     <div class="modal-header">
@@ -964,7 +896,7 @@
   </div>
 </div>
 
-<!-- ✅ Delete Confirm Modal -->
+<!-- Delete Confirm Modal -->
 <div id="deleteItemModal" class="modal" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="deleteItemTitle">
     <div class="modal-header">
@@ -996,7 +928,7 @@
   </div>
 </div>
 
-<!-- ✅ Edit Item Modal -->
+<!-- Edit Item Modal -->
 <div id="editItemModal" class="modal" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="editItemTitle">
     <div class="modal-header">
@@ -1028,7 +960,8 @@
     </div>
   </div>
 </div>
-  <!-- ✅ Order Ready Modal -->
+
+<!-- Order Ready Modal -->
 <div id="orderReadyModal" class="modal" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="orderReadyTitle">
     <div class="modal-header">
@@ -1051,6 +984,11 @@
         <input id="orderReadyQty" type="number" min="1" step="1" value="1" />
       </div>
 
+      <div class="form-group">
+        <label for="orderReadyDueDate">Due date</label>
+        <input id="orderReadyDueDate" type="date" />
+      </div>
+
       <div style="color: rgba(255,255,255,0.72); font-weight: 800; font-size: 0.9rem; line-height: 1.35;">
         Confirming will send this job to the operator dashboard.
       </div>
@@ -1063,8 +1001,7 @@
     </div>
   </div>
 </div>
-  
+
 <script type="module" src="./js/dashboard.js"></script>
-  
 </body>
 </html>
