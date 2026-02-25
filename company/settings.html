@@ -146,14 +146,45 @@
     }
 
     .panel-title .dot{
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--orange);
-      box-shadow: 0 0 0 4px rgba(245,124,0,0.15);
-      display: inline-block;
-    }
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--orange);
+  box-shadow: 0 0 0 4px rgba(245,124,0,0.15);
+  display: inline-block;
+}
 
+/* ✅ Tree toggle styles */
+.treeToggle{
+  margin-left: auto;
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.18);
+}
+
+.treeTab{
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  font-weight: 900;
+  cursor: pointer;
+  transform: none !important;
+}
+
+.treeTab:hover{
+  border-color: rgba(245,124,0,0.35);
+  background: rgba(255,255,255,0.10);
+}
+
+.treeTab.active{
+  border-color: rgba(245,124,0,0.55);
+  background: linear-gradient(180deg, rgba(245,124,0,0.20), rgba(245,124,0,0.08));
+}
+    
     .panel-body{ padding: 12px; }
 
     .sidebar {
@@ -577,7 +608,15 @@
 
     <div class="panel tree">
       <div class="panel-header">
-        <div class="panel-title"><span class="dot"></span> Tree of Items</div>
+        <div class="panel-title" style="gap:10px;">
+  <span class="dot"></span>
+  <span id="treeTitle">Tree of Items</span>
+
+  <div class="treeToggle" role="tablist" aria-label="Tree toggle">
+    <button id="toggleTreeItems" type="button" class="treeTab active" role="tab" aria-selected="true">Items</button>
+    <button id="toggleTreeOps" type="button" class="treeTab" role="tab" aria-selected="false">Operations</button>
+  </div>
+</div>
       </div>
       <div class="panel-body">
         <div id="treeList"></div>
@@ -843,6 +882,13 @@
 
   // Tree + active UI
   const treeListEl = document.getElementById("treeList");
+  const treeTitleEl = document.getElementById("treeTitle");
+const toggleTreeItemsBtn = document.getElementById("toggleTreeItems");
+const toggleTreeOpsBtn = document.getElementById("toggleTreeOps");
+
+let treeMode = "items"; // "items" | "ops"
+let allOps = [];
+let allNonOps = [];
   const activeItemIdEl = document.getElementById("activeItemId");
   const containsItemsEl = document.getElementById("containsItems");
   const containsOpsEl = document.getElementById("containsOps");
@@ -1413,12 +1459,25 @@ function renderTree(items, queryText = "") {
     treeListEl.appendChild(row);
   });
 }
+
+function renderCurrentTree() {
+  const list = (treeMode === "ops") ? allOps : allNonOps;
+
+  if (treeTitleEl) {
+    treeTitleEl.textContent = (treeMode === "ops") ? "Tree of Operations" : "Tree of Items";
+  }
+
+  renderTree(list, findInput.value);
+}
   function watchItems(companyId){
     const itemsRef = collection(db, "companies", companyId, "items");
 
     onSnapshot(itemsRef, (snap) => {
   itemsByCode.clear();
-  allItems = [];
+allItems = [];
+
+allOps = [];
+allNonOps = [];
 
   if (snap.empty) {
     treeListEl.style.color = "rgba(255,255,255,0.65)";
@@ -1436,6 +1495,9 @@ function renderTree(items, queryText = "") {
 
     itemsByCode.set(code, normalized);
     allItems.push(normalized);
+    const type = String(normalized.type || "").toLowerCase();
+if (type === "operation") allOps.push(normalized);
+else allNonOps.push(normalized);
 
     if (!first) first = normalized;
   });
@@ -1444,7 +1506,7 @@ function renderTree(items, queryText = "") {
   else if (activeItemCode && itemsByCode.has(activeItemCode)) setActiveItem(itemsByCode.get(activeItemCode));
   else if (first) setActiveItem(first);
 
-  renderTree(allItems, findInput.value);
+  renderCurrentTree();
 }, (err) => {
   console.error("Tree listener error:", err);
   treeListEl.innerHTML = `<div style="color:#ffb4b4;font-weight:900;">
@@ -1748,8 +1810,26 @@ function renderTree(items, queryText = "") {
 
   // Find (still placeholder)
   // ===== LIVE SEARCH FILTER =====
+  function setTreeMode(nextMode){
+  treeMode = (nextMode === "ops") ? "ops" : "items";
+
+  if (toggleTreeItemsBtn && toggleTreeOpsBtn) {
+    const isItems = treeMode === "items";
+
+    toggleTreeItemsBtn.classList.toggle("active", isItems);
+    toggleTreeOpsBtn.classList.toggle("active", !isItems);
+
+    toggleTreeItemsBtn.setAttribute("aria-selected", isItems ? "true" : "false");
+    toggleTreeOpsBtn.setAttribute("aria-selected", !isItems ? "true" : "false");
+  }
+
+  renderCurrentTree();
+}
+
+toggleTreeItemsBtn?.addEventListener("click", () => setTreeMode("items"));
+toggleTreeOpsBtn?.addEventListener("click", () => setTreeMode("ops"));
 findInput.addEventListener("input", () => {
-  renderTree(allItems, findInput.value);
+  renderCurrentTree();
 });
   
 </script>
