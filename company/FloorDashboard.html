@@ -7,279 +7,413 @@
 
   <style>
     :root{
-      /* Screenshot vibe */
-      --bg:#d7d7d7;
-      --header:#cfcfcf;
-      --text:#111;
-      --muted:#2c2c2c;
+      /* Modern “techy” palette */
+      --bg0:#06121b;
+      --bg1:#071a28;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.08);
+      --border: rgba(255,255,255,.10);
 
-      --wip:#1f6f2a;          /* green */
-      --available:#f2b317;     /* yellow/orange */
-      --overdue:#f08a00;       /* orange */
-      --na:#d23a2f;            /* red */
-      --pre:#0b7a86;           /* teal */
+      --text:#eaf2ff;
+      --muted: rgba(234,242,255,.72);
 
-      --cardRadius:10px;
-      --shadow:0 3px 10px rgba(0,0,0,.18);
-      --border:rgba(0,0,0,.18);
+      /* Status colors (kept close to your original meaning) */
+      --wip:#2e7d32;
+      --available:#f9a825;
+      --overdue:#ef6c00;
+      --na:#d32f2f;
+      --pre:#0aa6b4;
+
+      --radius: 16px;
+      --radius2: 22px;
+      --shadow: 0 20px 50px rgba(0,0,0,.45);
+      --shadow2: 0 10px 24px rgba(0,0,0,.35);
+      --glow: 0 0 0 1px rgba(255,255,255,.08) inset;
     }
 
     *{ box-sizing:border-box; }
+    html,body{ height:100%; }
     body{
       margin:0;
-      font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:var(--bg);
-      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 650px at 12% -10%, rgba(249,168,37,.22), transparent 55%),
+        radial-gradient(900px 550px at 105% 0%, rgba(211,47,47,.18), transparent 55%),
+        radial-gradient(1000px 700px at 80% 120%, rgba(10,166,180,.12), transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg0));
+      overflow-x:hidden;
     }
 
-    /* Header */
+    /* Subtle grid overlay */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 54px 54px;
+      mask-image: radial-gradient(closest-side at 50% 20%, rgba(0,0,0,.9), transparent 70%);
+      opacity:.22;
+      z-index:0;
+    }
+
+    /* Top header */
     header{
-      background:var(--header);
-      border-bottom:1px solid var(--border);
-      padding:22px 16px 14px;
+      position:sticky;
+      top:0;
+      z-index:10;
+      padding: 16px 16px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(6,18,27,.55);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar{
+      max-width: 1520px;
+      margin: 0 auto;
       display:grid;
       grid-template-columns: 1fr auto 1fr;
-      align-items:start;
-      gap:10px;
+      gap: 14px;
+      align-items:center;
     }
 
-    .headerLeft{ display:flex; align-items:flex-start; justify-content:flex-start; }
-    .headerCenter{
+    .leftActions, .rightActions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .leftActions{ justify-content:flex-start; }
+    .rightActions{ justify-content:flex-end; }
+
+    .titleWrap{
       display:flex;
       flex-direction:column;
       align-items:center;
-      text-align:center;
       gap:10px;
-      padding-top:2px;
+      min-width: 0;
     }
-    .headerRight{ display:flex; align-items:flex-start; justify-content:flex-end; gap:10px; }
 
     .title{
-      font-weight:900;
-      font-size: clamp(30px, 4vw, 52px);
-      letter-spacing:.3px;
       margin:0;
-      line-height:1;
-    }
-
-    .btn{
-      border:1px solid rgba(0,0,0,.18);
-      background:rgba(255,255,255,.55);
-      color:#111;
-      border-radius:10px;
-      padding:10px 12px;
-      font-weight:800;
-      cursor:pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,.10);
-      transition: transform 120ms ease, background 120ms ease;
-      user-select:none;
-    }
-    .btn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.75); }
-    .btn.danger{ border-color: rgba(210,58,47,.45); }
-
-    /* Legend like screenshot */
-    .legend{
-      display:flex;
-      gap:16px;
-      flex-wrap:wrap;
-      justify-content:center;
-      font-weight:800;
-      color:#1a1a1a;
-      margin-top:4px;
-    }
-    .legendItem{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-size:13px;
-    }
-    .swatch{
-      width:10px;
-      height:10px;
-      border-radius:2px;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.18);
-    }
-    .sw-wip{ background:var(--wip); }
-    .sw-av{ background:var(--available); }
-    .sw-od{ background:var(--overdue); }
-    .sw-na{ background:var(--na); }
-    .sw-pre{ background:var(--pre); }
-
-    /* Page */
-    .page{
-      max-width: 1500px;
-      margin: 0 auto;
-      padding: 18px 14px 28px;
-      display:flex;
-      flex-direction:column;
-      gap:26px;
-    }
-
-    /* Section headings centered */
-    .sectionTitle{
-      text-align:center;
-      font-weight:900;
-      font-size: clamp(20px, 2.3vw, 34px);
-      margin: 6px 0 10px;
-      color:#222;
-      text-shadow: 0 1px 0 rgba(255,255,255,.45);
-    }
-
-    /* Tile grid like screenshot */
-    .tiles{
-      display:grid;
-      grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
-      gap:12px;
-      align-items:stretch;
-    }
-
-    /* Tile card */
-    .tile{
-      border-radius: var(--cardRadius);
-      box-shadow: var(--shadow);
-      border:1px solid rgba(0,0,0,.18);
-      position:relative;
-      overflow:hidden;
-      min-height: 86px;
-      padding: 12px 12px 10px;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-start;
-      gap:6px;
-      color:#0d0d0d;
-    }
-
-    .tile.wip{ background:var(--wip); color:#fff; }
-    .tile.available{ background:var(--available); color:#111; }
-    .tile.overdue{ background:var(--overdue); color:#111; }
-    .tile.na{ background:var(--na); color:#fff; }
-    .tile.pre{ background:var(--pre); color:#fff; }
-
-    /* Top-right badge (small number square) */
-    .badge{
-      position:absolute;
-      top:6px;
-      right:6px;
-      min-width:18px;
-      height:18px;
-      padding:0 5px;
-      border-radius:4px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:11px;
-      font-weight:900;
-      box-shadow: 0 2px 6px rgba(0,0,0,.25);
-      border:1px solid rgba(0,0,0,.18);
-      background: rgba(255,255,255,.85);
-      color:#111;
-    }
-    .tile.wip .badge,
-    .tile.na .badge,
-    .tile.pre .badge { background: rgba(255,255,255,.92); color:#111; }
-
-    .itemCode{
-      font-weight:950;
-      font-size: 18px;
-      letter-spacing:.2px;
-      line-height:1.05;
+      font-weight: 950;
+      letter-spacing: .2px;
+      font-size: clamp(22px, 2.6vw, 40px);
+      line-height: 1.05;
+      text-shadow: 0 12px 40px rgba(0,0,0,.55);
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
-    .meta{
-      font-size:12px;
-      font-weight:800;
-      line-height:1.25;
-      opacity:.95;
-    }
-    .meta b{ font-weight:950; }
 
-    /* Small actions row (optional) */
+    /* Buttons */
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 10px 12px;
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: 0 10px 18px rgba(0,0,0,.22), var(--glow);
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+      user-select:none;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.09);
+      border-color: rgba(249,168,37,.35);
+    }
+    .btn.danger{
+      border-color: rgba(211,47,47,.35);
+    }
+    .btn.danger:hover{
+      border-color: rgba(211,47,47,.55);
+    }
+
+    /* Legend pills */
+    .legend{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    .pill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+      box-shadow: 0 8px 14px rgba(0,0,0,.18), var(--glow);
+      color: var(--muted);
+      font-weight: 850;
+      font-size: 12px;
+    }
+    .dot{
+      width: 10px;
+      height: 10px;
+      border-radius: 4px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+    }
+    .d-wip{ background: var(--wip); }
+    .d-av{ background: var(--available); }
+    .d-od{ background: var(--overdue); }
+    .d-na{ background: var(--na); }
+    .d-pre{ background: var(--pre); }
+
+    /* Layout */
+    main{
+      position:relative;
+      z-index:1;
+      max-width: 1520px;
+      margin: 0 auto;
+      padding: 18px 16px 34px;
+      display:flex;
+      flex-direction:column;
+      gap: 18px;
+    }
+
+    /* Section panels */
+    .section{
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .sectionHead{
+      padding: 16px 16px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background:
+        radial-gradient(900px 120px at 0% 0%, rgba(255,255,255,.08), transparent 65%),
+        rgba(0,0,0,.15);
+    }
+    .sectionTitle{
+      margin:0;
+      font-weight: 950;
+      font-size: 18px;
+      letter-spacing: .2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .sectionSub{
+      color: var(--muted);
+      font-weight: 850;
+      font-size: 12px;
+      white-space:nowrap;
+    }
+
+    .sectionBody{
+      padding: 14px;
+    }
+
+    /* Tiles grid */
+    .tiles{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 12px;
+      align-items:stretch;
+    }
+
+    /* Tile */
+    .tile{
+      position:relative;
+      border-radius: var(--radius);
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      box-shadow: var(--shadow2), var(--glow);
+      padding: 12px 12px 11px;
+      min-height: 98px;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+      transition: transform 130ms ease, border-color 130ms ease, background 130ms ease;
+      isolation:isolate;
+    }
+    .tile:hover{
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+    }
+
+    /* Status accent bar */
+    .tile::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      width: 6px;
+      background: rgba(255,255,255,.18);
+      z-index:-1;
+    }
+    .tile.wip::before{ background: linear-gradient(180deg, rgba(46,125,50,1), rgba(46,125,50,.45)); }
+    .tile.available::before{ background: linear-gradient(180deg, rgba(249,168,37,1), rgba(249,168,37,.45)); }
+    .tile.overdue::before{ background: linear-gradient(180deg, rgba(239,108,0,1), rgba(239,108,0,.45)); }
+    .tile.na::before{ background: linear-gradient(180deg, rgba(211,47,47,1), rgba(211,47,47,.45)); }
+    .tile.pre::before{ background: linear-gradient(180deg, rgba(10,166,180,1), rgba(10,166,180,.45)); }
+
+    /* Badge */
+    .badge{
+      position:absolute;
+      top:10px;
+      right:10px;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 11px;
+      font-weight: 950;
+      color: rgba(0,0,0,.9);
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(0,0,0,.15);
+      box-shadow: 0 10px 16px rgba(0,0,0,.25);
+    }
+
+    .tileTop{
+      padding-left: 10px; /* because accent bar */
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
+    }
+    .itemCode{
+      font-weight: 950;
+      letter-spacing: .25px;
+      font-size: 16px;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .meta{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      color: var(--muted);
+      font-weight: 850;
+      font-size: 12px;
+      line-height: 1.25;
+    }
+    .meta b{ color: rgba(234,242,255,.92); font-weight: 950; }
+
+    /* Actions */
     .actions{
-      margin-top:6px;
+      padding-left: 10px;
       display:flex;
       gap:8px;
       flex-wrap:wrap;
+      margin-top: 2px;
     }
     .smallBtn{
-      border:1px solid rgba(0,0,0,.22);
-      background: rgba(255,255,255,.78);
-      color:#111;
-      border-radius:10px;
-      padding:8px 10px;
-      font-weight:900;
-      cursor:pointer;
-      font-size:12px;
-      transition: transform 120ms ease, background 120ms ease;
-    }
-    .smallBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.92); }
-    .tile.wip .smallBtn,
-    .tile.na .smallBtn,
-    .tile.pre .smallBtn{
-      border-color: rgba(255,255,255,.35);
-      background: rgba(255,255,255,.92);
-    }
-
-    .empty{
-      text-align:center;
-      font-weight:850;
-      color:#222;
-      background: rgba(255,255,255,.5);
-      border:1px dashed rgba(0,0,0,.25);
       border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 8px 10px;
+      font-weight: 900;
+      font-size: 12px;
+      cursor:pointer;
+      box-shadow: 0 10px 16px rgba(0,0,0,.20), var(--glow);
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+    .smallBtn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.11);
+      border-color: rgba(249,168,37,.25);
+    }
+    .smallBtn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
     }
 
-    /* Responsive header layout */
-    @media (max-width: 760px){
-      header{
+    /* Empty */
+    .empty{
+      border-radius: var(--radius);
+      border: 1px dashed rgba(255,255,255,.18);
+      background: rgba(0,0,0,.20);
+      padding: 18px;
+      text-align:center;
+      color: var(--muted);
+      font-weight: 850;
+      box-shadow: 0 10px 16px rgba(0,0,0,.20);
+    }
+
+    /* Mobile */
+    @media (max-width: 820px){
+      .topbar{
         grid-template-columns: 1fr;
-        align-items:center;
       }
-      .headerLeft, .headerRight{ justify-content:center; }
+      .leftActions, .rightActions{ justify-content:center; }
+      .title{ white-space:normal; }
     }
   </style>
 </head>
 
 <body>
   <header>
-    <div class="headerLeft">
-      <button id="backBtn" class="btn" type="button" style="display:none;">← Back</button>
-    </div>
-
-    <div class="headerCenter">
-      <h1 class="title" id="stationTitle">Loading…</h1>
-
-      <div class="legend">
-        <div class="legendItem"><span class="swatch sw-wip"></span> Work in Progress</div>
-        <div class="legendItem"><span class="swatch sw-av"></span> Available to Bend</div>
-        <div class="legendItem"><span class="swatch sw-od"></span> Overdue</div>
-        <div class="legendItem"><span class="swatch sw-na"></span> Not Available To Bend</div>
-        <div class="legendItem"><span class="swatch sw-pre"></span> Pre-Production Run</div>
+    <div class="topbar">
+      <div class="leftActions">
+        <button id="backBtn" class="btn" type="button" style="display:none;">← Back</button>
       </div>
-    </div>
 
-    <div class="headerRight">
-      <button id="logoutBtn" class="btn danger" type="button">Log out</button>
+      <div class="titleWrap">
+        <h1 class="title" id="stationTitle">Loading…</h1>
+        <div class="legend" aria-label="Legend">
+          <div class="pill"><span class="dot d-wip"></span> Work in Progress</div>
+          <div class="pill"><span class="dot d-av"></span> Available to Bend</div>
+          <div class="pill"><span class="dot d-od"></span> Overdue</div>
+          <div class="pill"><span class="dot d-na"></span> Not Available</div>
+          <div class="pill"><span class="dot d-pre"></span> Pre-Production</div>
+        </div>
+      </div>
+
+      <div class="rightActions">
+        <button id="logoutBtn" class="btn danger" type="button">Log out</button>
+      </div>
     </div>
   </header>
 
-  <main class="page">
-    <section>
-      <div class="sectionTitle">Work in Progress</div>
-      <div id="wipBody">Loading…</div>
+  <main>
+    <section class="section">
+      <div class="sectionHead">
+        <h2 class="sectionTitle">Work in Progress</h2>
+        <div class="sectionSub" id="wipCount">—</div>
+      </div>
+      <div class="sectionBody" id="wipBody">Loading…</div>
     </section>
 
-    <section>
-      <div class="sectionTitle">Available to Bend</div>
-      <div id="availableBody">Loading…</div>
+    <section class="section">
+      <div class="sectionHead">
+        <h2 class="sectionTitle">Available to Bend</h2>
+        <div class="sectionSub" id="availableCount">—</div>
+      </div>
+      <div class="sectionBody" id="availableBody">Loading…</div>
     </section>
 
-    <section>
-      <div class="sectionTitle">Not Available To Bend</div>
-      <div id="naBody">Loading…</div>
+    <section class="section">
+      <div class="sectionHead">
+        <h2 class="sectionTitle">Not Available</h2>
+        <div class="sectionSub" id="naCount">—</div>
+      </div>
+      <div class="sectionBody" id="naBody">Loading…</div>
     </section>
   </main>
 
@@ -291,7 +425,7 @@
       runTransaction, serverTimestamp, deleteDoc
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    // ✅ YOUR CONFIG
+    // ✅ Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
       authDomain: "prodalign-ltd.firebaseapp.com",
@@ -302,6 +436,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // DOM
     const backBtn = document.getElementById("backBtn");
     const logoutBtn = document.getElementById("logoutBtn");
     const stationTitleEl = document.getElementById("stationTitle");
@@ -309,6 +444,10 @@
     const wipBody = document.getElementById("wipBody");
     const availableBody = document.getElementById("availableBody");
     const naBody = document.getElementById("naBody");
+
+    const wipCount = document.getElementById("wipCount");
+    const availableCount = document.getElementById("availableCount");
+    const naCount = document.getElementById("naCount");
 
     // URL params
     const params = new URLSearchParams(window.location.search);
@@ -389,14 +528,11 @@
 
       if (!userCompany || userCompany !== companyId) throw new Error("Wrong company.");
 
-      // Admin back button only for admins
       backBtn.style.display = isAdmin ? "inline-flex" : "none";
 
-      // Only operators OR admins can view
       const allowed = (role === "operator") || isAdmin;
       if (!allowed) throw new Error("Not allowed for this dashboard.");
 
-      // Get kiosk session (if exists)
       const sessionId = getKioskSessionId(user.uid);
       const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
 
@@ -409,7 +545,6 @@
         sessCompany = String(sess.companyId || "").trim().toLowerCase();
       }
 
-      // Decide station
       let station = "";
       if (isAdmin) {
         station = stationFromSession && (sessCompany === companyId) ? stationFromSession : "";
@@ -423,7 +558,6 @@
         return null;
       }
 
-      // For admins: persist session if needed
       if (isAdmin && station && (!stationFromSession || sessCompany !== companyId)) {
         try {
           await setDoc(doc(db, "kioskSessions", sessionId), {
@@ -440,7 +574,6 @@
         }
       }
 
-      // Keep URL tidy
       const desiredUrl = `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`;
       const currentUrl = location.pathname + location.search;
       if (currentUrl !== desiredUrl) {
@@ -452,14 +585,12 @@
       return { station, isAdmin };
     }
 
-    // ---------- Business logic: buckets ----------
+    // ---------- Optional flags ----------
     function isOverdue(job){
-      // Optional: supports a few common fields if you have them.
-      // If none exist, it just returns false and nothing will show in "overdue" styling.
       const flag = Boolean(job.isOverdue || job.overdue);
       if (flag) return true;
 
-      const due = job.dueAt || job.dueDate || job.due; // could be Firestore Timestamp, ISO, millis
+      const due = job.dueAt || job.dueDate || job.due;
       if (!due) return false;
 
       let dueMs = 0;
@@ -469,8 +600,7 @@
         const parsed = Date.parse(String(due));
         dueMs = Number.isFinite(parsed) ? parsed : 0;
       }
-      if (!dueMs) return false;
-      return Date.now() > dueMs;
+      return Boolean(dueMs && Date.now() > dueMs);
     }
 
     function isPreProduction(job){
@@ -478,14 +608,13 @@
     }
 
     function badgeValue(job){
-      // Screenshot shows a small number badge. Use something meaningful:
-      // priority > route position > qty (fallback).
       if (Number.isFinite(Number(job.priority))) return Number(job.priority);
       if (Number.isFinite(Number(job.sequence))) return Number(job.sequence);
       if (Number.isFinite(Number(job.currentOpIndex))) return Number(job.currentOpIndex) + 1;
       return "";
     }
 
+    // ---------- Live jobs ----------
     function watchJobsForStation(stationId){
       const stationCode = String(stationId || "").trim().toUpperCase();
       if (!stationCode) return;
@@ -501,7 +630,6 @@
           const job = d.data() || {};
           const id = d.id;
 
-          // your existing exclusions
           const st = String(job.status || "").toLowerCase();
           if (st === "complete" || st === "booked" || st === "to_book") return;
 
@@ -509,8 +637,8 @@
           const currentOpIndex = Number(job.currentOpIndex ?? 0);
 
           const myIndex = ops.findIndex(o => o.code === stationCode);
-          if (myIndex === -1) return;      // this station not in flow
-          if (currentOpIndex > myIndex) return; // already passed
+          if (myIndex === -1) return;
+          if (currentOpIndex > myIndex) return;
 
           const status = String(job.status || "").trim().toLowerCase();
 
@@ -519,7 +647,6 @@
             itemCode: String(job.itemCode || "").toUpperCase(),
             orderNo: String(job.orderNo || job.productionOrder || ""),
             qty: Number(job.qty || job.orderQty || 0),
-            ops,
             currentOpIndex,
             currentOpCode: String(job.currentOpCode || "").trim().toUpperCase(),
             status,
@@ -527,7 +654,6 @@
             _raw: job
           };
 
-          // Buckets:
           if (currentOpIndex === myIndex) {
             if (status === "ready") available.push(jobView);
             else wip.push(jobView);
@@ -545,32 +671,35 @@
       });
     }
 
-    // ---------- Rendering ----------
+    // ---------- Render ----------
+    function setCounts(wip, available, na){
+      wipCount.textContent = `${wip} job${wip===1?"":"s"}`;
+      availableCount.textContent = `${available} job${available===1?"":"s"}`;
+      naCount.textContent = `${na} job${na===1?"":"s"}`;
+    }
+
     function renderAll({ stationCode, available, wip, notAvailable }){
-      // WIP
+      setCounts(wip.length, available.length, notAvailable.length);
+
       if (!wip.length) renderEmpty(wipBody, "No jobs in progress at this station.");
       else {
         wipBody.innerHTML = `<div class="tiles">${wip.map(j => tileHtml(j, stationCode, "wip")).join("")}</div>`;
         wireTileButtons(wipBody, stationCode);
       }
 
-      // Available
       if (!available.length) renderEmpty(availableBody, "No jobs ready for this station.");
       else {
         availableBody.innerHTML = `<div class="tiles">${available.map(j => tileHtml(j, stationCode, "available")).join("")}</div>`;
         wireTileButtons(availableBody, stationCode);
       }
 
-      // Not available
       if (!notAvailable.length) renderEmpty(naBody, "Nothing waiting on previous operations.");
       else {
         naBody.innerHTML = `<div class="tiles">${notAvailable.map(j => tileHtml(j, stationCode, "na")).join("")}</div>`;
-        // no buttons
       }
     }
 
     function tileHtml(job, stationCode, bucket){
-      // Extra styling if you have overdue / pre-production flags (optional)
       const raw = job._raw || {};
       const overdue = isOverdue(raw);
       const pre = isPreProduction(raw);
@@ -580,34 +709,35 @@
       if (pre) cls = "pre";
 
       const badge = badgeValue(raw);
-      const title = job.itemCode || "—";
+
+      const item = job.itemCode || "—";
       const po = job.orderNo || "—";
       const qty = Number.isFinite(job.qty) ? job.qty : 0;
 
       let actions = "";
       if (bucket === "available") {
-        actions = `
-          <div class="actions">
-            <button class="smallBtn" data-start="${escapeHtml(job.id)}">Start</button>
-          </div>
-        `;
+        actions = `<div class="actions">
+          <button class="smallBtn" data-start="${escapeHtml(job.id)}">Start</button>
+        </div>`;
       } else if (bucket === "wip") {
-        actions = `
-          <div class="actions">
-            <button class="smallBtn" data-complete="${escapeHtml(job.id)}">Complete</button>
-          </div>
-        `;
+        actions = `<div class="actions">
+          <button class="smallBtn" data-complete="${escapeHtml(job.id)}">Complete</button>
+        </div>`;
       }
 
       return `
         <div class="tile ${cls}">
           ${badge !== "" ? `<div class="badge">${escapeHtml(String(badge))}</div>` : ``}
-          <div class="itemCode">${escapeHtml(title)}</div>
-          <div class="meta">
-            <div><b>Production Order:</b> ${escapeHtml(po)}</div>
-            <div><b>Order QTY:</b> ${escapeHtml(String(qty))}</div>
-            ${job.assignedTo ? `<div><b>Assigned:</b> ${escapeHtml(job.assignedTo)}</div>` : ``}
+
+          <div class="tileTop">
+            <div class="itemCode">${escapeHtml(item)} × ${escapeHtml(String(qty))}</div>
+            <div class="meta">
+              <div><b>Production Order:</b> ${escapeHtml(po)}</div>
+              <div><b>Current:</b> ${escapeHtml(job.currentOpCode || "—")}</div>
+              ${job.assignedTo ? `<div><b>Assigned:</b> ${escapeHtml(job.assignedTo)}</div>` : ``}
+            </div>
           </div>
+
           ${actions}
         </div>
       `;
@@ -618,13 +748,8 @@
         btn.addEventListener("click", async () => {
           const id = btn.getAttribute("data-start");
           btn.disabled = true;
-          try{
-            await startJob(id, stationCode);
-          } catch(e){
-            console.error(e);
-            alert(e?.message || "Could not start job.");
-            btn.disabled = false;
-          }
+          try{ await startJob(id, stationCode); }
+          catch(e){ console.error(e); alert(e?.message || "Could not start job."); btn.disabled=false; }
         });
       });
 
@@ -632,13 +757,8 @@
         btn.addEventListener("click", async () => {
           const id = btn.getAttribute("data-complete");
           btn.disabled = true;
-          try{
-            await completeJobStep(id, stationCode);
-          } catch(e){
-            console.error(e);
-            alert(e?.message || "Could not complete job.");
-            btn.disabled = false;
-          }
+          try{ await completeJobStep(id, stationCode); }
+          catch(e){ console.error(e); alert(e?.message || "Could not complete job."); btn.disabled=false; }
         });
       });
     }
@@ -710,32 +830,32 @@
         return;
       }
 
-      try {
+      try{
         const result = await enforceGate(user);
         if (!result) return;
         watchJobsForStation(result.station);
-      } catch (e) {
+      }catch(e){
         console.error(e);
         await hardKickToLogin();
       }
     });
 
-    // Admin back button
+    // Admin back
     backBtn.addEventListener("click", () => {
       window.location.assign(`/company/?c=${encodeURIComponent(companyId)}`);
     });
 
-    // Logout (clears kiosk session if possible)
+    // Logout
     logoutBtn.addEventListener("click", async () => {
-      try {
+      try{
         const user = auth.currentUser;
-        if (user) {
+        if (user){
           const sessionId = getKioskSessionId(user.uid);
-          try { await deleteDoc(doc(db, "kioskSessions", sessionId)); } catch {}
+          try{ await deleteDoc(doc(db, "kioskSessions", sessionId)); }catch{}
         }
-      } catch {}
+      }catch{}
 
-      try { await signOut(auth); } catch {}
+      try{ await signOut(auth); }catch{}
       window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
     });
   </script>
