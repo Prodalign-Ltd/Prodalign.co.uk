@@ -535,7 +535,7 @@
       // Admin-only tile visibility
       const license = String(profile.license ?? "").trim().toLowerCase();
       const isAdmin = Boolean(profile.isAdmin) || role === "admin" || license === "admin";
-      if (workspaceTile) workspaceTile.hidden = !isAdmin;
+      if (workspaceTile) workspaceTile.hidden = false;
 
       // UI
       buildOpsGrid();
