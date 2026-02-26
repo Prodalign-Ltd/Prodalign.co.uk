@@ -50,6 +50,12 @@ header{
   gap:10px;
 }
 
+.header-left{
+  display:flex;
+  justify-content:flex-start;
+  align-items:flex-start;
+}
+
 .header-center{
   display:flex;
   flex-direction:column;
@@ -65,14 +71,16 @@ header{
   margin:0;
 }
 
-/* Logout button (top-right) */
+/* Buttons */
 .logoutWrap{
   display:flex;
   justify-content:flex-end;
+  align-items:flex-start;
+  gap:10px;
 }
 
-.logoutBtn{
-  border:1px solid rgba(211,47,47,0.40);
+.btn{
+  border:1px solid rgba(255,255,255,0.14);
   border-radius:12px;
   padding:10px 12px;
   background:rgba(255,255,255,0.08);
@@ -81,10 +89,17 @@ header{
   font-weight:900;
   transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
 }
-.logoutBtn:hover{
+.btn:hover{
   background: rgba(255,255,255,0.12);
-  border-color: rgba(211,47,47,0.55);
+  border-color: rgba(245,124,0,0.35);
   transform: translateY(-1px);
+}
+
+.logoutBtn{
+  border-color: rgba(211,47,47,0.40);
+}
+.logoutBtn:hover{
+  border-color: rgba(211,47,47,0.55);
 }
 
 /* LEGEND */
@@ -229,6 +244,7 @@ header{
 
 @media (max-width: 520px){
   header{ grid-template-columns: 1fr; }
+  .header-left{ justify-content:center; }
   .logoutWrap{ justify-content:center; }
   .stationTitle{ font-size:1.55rem; }
 }
@@ -238,7 +254,10 @@ header{
 <body>
 
 <header>
-  <div></div>
+  <!-- ✅ Admin back button lives here -->
+  <div class="header-left">
+    <button id="backBtn" class="btn" type="button" style="display:none;">← Back</button>
+  </div>
 
   <div class="header-center">
     <div class="stationTitle" id="stationTitle">Loading…</div>
@@ -251,7 +270,7 @@ header{
   </div>
 
   <div class="logoutWrap">
-    <button id="logoutBtn" class="logoutBtn" type="button">Log out</button>
+    <button id="logoutBtn" class="btn logoutBtn" type="button">Log out</button>
   </div>
 </header>
 
@@ -290,6 +309,7 @@ header{
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  const backBtn = document.getElementById("backBtn");
   const logoutBtn = document.getElementById("logoutBtn");
   const stationTitleEl = document.getElementById("stationTitle");
   const wipBody = document.getElementById("wipBody");
@@ -355,7 +375,7 @@ header{
       .filter(Boolean);
   }
 
-  // ✅ Per-device kiosk session id
+  // Per-device kiosk session id
   function getKioskDeviceId() {
     let id = localStorage.getItem("kioskDeviceId");
     if (!id) {
@@ -374,9 +394,9 @@ header{
     window.location.assign("/companylogin/");
   }
 
-  // ✅ NEW: allow ADMIN to access station dashboards
+  let adminBackEnabled = false;
+
   async function enforceGate(user) {
-    // 1) Basic user profile check (company + role)
     const snap = await getDoc(doc(db, "users", user.uid));
     if (!snap.exists()) throw new Error("User profile missing.");
 
@@ -388,13 +408,13 @@ header{
 
     if (!userCompany || userCompany !== companyId) throw new Error("Wrong company.");
 
-    // ✅ operators + admins can view
+    // ✅ Show back button ONLY for admins
+    adminBackEnabled = isAdmin;
+    backBtn.style.display = isAdmin ? "inline-flex" : "none";
+
     const allowed = (role === "operator") || isAdmin;
     if (!allowed) throw new Error("Not allowed for this dashboard.");
 
-    // 2) Determine station:
-    // - Operators MUST use kiosk session
-    // - Admins can use kiosk session OR ?station= fallback
     const sessionId = getKioskSessionId(user.uid);
     const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
 
@@ -407,13 +427,12 @@ header{
       sessCompany = String(sess.companyId || "").trim().toLowerCase();
     }
 
-    // Admin fallback to URL param if session missing/invalid
+    // Admin fallback to URL param
     if (isAdmin) {
       if ((!station || sessCompany !== companyId) && stationParam) {
         station = stationParam;
         sessCompany = companyId;
 
-        // best-effort session write (so future loads remember)
         try {
           await setDoc(doc(db, "kioskSessions", sessionId), {
             uid: user.uid,
@@ -430,13 +449,11 @@ header{
       }
     }
 
-    // If still no station -> send to pin
     if (!station || sessCompany !== companyId) {
       window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
       return null;
     }
 
-    // Keep URL tidy (do NOT return false / do not break page)
     const desiredUrl = `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`;
     const currentUrl = location.pathname + location.search;
     if (currentUrl !== desiredUrl) {
@@ -671,13 +688,16 @@ header{
     try {
       const result = await enforceGate(user);
       if (!result) return;
-
       watchJobsForStation(result.station);
-
     } catch (e) {
       console.error(e);
       await hardKickToLogin();
     }
+  });
+
+  // ✅ Admin back button
+  backBtn.addEventListener("click", () => {
+    window.location.assign(`/company/ProductionOverview.html?c=${encodeURIComponent(companyId)}`);
   });
 
   // Logout button (clears kiosk session if possible)
