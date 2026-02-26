@@ -254,7 +254,6 @@ header{
 <body>
 
 <header>
-  <!-- ✅ Admin back button lives here -->
   <div class="header-left">
     <button id="backBtn" class="btn" type="button" style="display:none;">← Back</button>
   </div>
@@ -394,9 +393,8 @@ header{
     window.location.assign("/companylogin/");
   }
 
-  let adminBackEnabled = false;
-
   async function enforceGate(user) {
+    // 1) Read user profile
     const snap = await getDoc(doc(db, "users", user.uid));
     if (!snap.exists()) throw new Error("User profile missing.");
 
@@ -408,52 +406,64 @@ header{
 
     if (!userCompany || userCompany !== companyId) throw new Error("Wrong company.");
 
-    // ✅ Show back button ONLY for admins
-    adminBackEnabled = isAdmin;
+    // ✅ Admin back button only for admins
     backBtn.style.display = isAdmin ? "inline-flex" : "none";
 
+    // ✅ Only operators OR admins can view this page
     const allowed = (role === "operator") || isAdmin;
     if (!allowed) throw new Error("Not allowed for this dashboard.");
 
+    // 2) Get kiosk session (if exists)
     const sessionId = getKioskSessionId(user.uid);
     const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
 
-    let station = "";
+    let stationFromSession = "";
     let sessCompany = "";
 
     if (sessSnap.exists()) {
       const sess = sessSnap.data() || {};
-      station = String(sess.stationId || "").trim();
+      stationFromSession = String(sess.stationId || "").trim();
       sessCompany = String(sess.companyId || "").trim().toLowerCase();
     }
 
-    // Admin fallback to URL param
-    if (isAdmin) {
-      if ((!station || sessCompany !== companyId) && stationParam) {
-        station = stationParam;
-        sessCompany = companyId;
+    // 3) Decide station:
+    // - Operators MUST have a kiosk session station
+    // - Admins can use kiosk session OR URL ?station=
+    let station = "";
 
-        try {
-          await setDoc(doc(db, "kioskSessions", sessionId), {
-            uid: user.uid,
-            companyId: companyId,
-            stationId: station,
-            stationName: station,
-            stationCode: station,
-            updatedAt: serverTimestamp(),
-            createdAt: serverTimestamp()
-          }, { merge: true });
-        } catch (e) {
-          console.warn("Admin session write blocked (rules):", e);
-        }
-      }
+    if (isAdmin) {
+      station = stationFromSession && (sessCompany === companyId) ? stationFromSession : "";
+      if (!station && stationParam) station = stationParam;
+    } else {
+      // operator
+      station = stationFromSession && (sessCompany === companyId) ? stationFromSession : "";
     }
 
-    if (!station || sessCompany !== companyId) {
+    // 4) If still no station, send to pin page
+    if (!station) {
       window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
       return null;
     }
 
+    // 5) For admins: if we came from URL station but session missing, create/merge session so refresh works
+    if (isAdmin && station && (!stationFromSession || sessCompany !== companyId)) {
+      try {
+        await setDoc(doc(db, "kioskSessions", sessionId), {
+          uid: user.uid,
+          companyId: companyId,
+          stationId: station,
+          stationName: station,
+          stationCode: station,
+          updatedAt: serverTimestamp(),
+          createdAt: serverTimestamp()
+        }, { merge: true });
+      } catch (e) {
+        console.warn("Admin kiosk session write blocked (rules):", e);
+        // Even if rules block it, admin can still operate via URL station
+      }
+    }
+
+    // 6) Keep URL tidy (but don’t bounce endlessly)
     const desiredUrl = `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`;
     const currentUrl = location.pathname + location.search;
     if (currentUrl !== desiredUrl) {
@@ -462,7 +472,7 @@ header{
     }
 
     stationTitleEl.textContent = `${prettyStationName(station)} Dashboard`;
-    return { station };
+    return { station, isAdmin };
   }
 
   function watchJobsForStation(stationId){
@@ -490,7 +500,6 @@ header{
         if (myIndex === -1) return;
         if (currentOpIndex > myIndex) return;
 
-        const currentOpCode = String(job.currentOpCode || "").trim().toUpperCase();
         const status = String(job.status || "").trim().toLowerCase();
 
         const jobView = {
@@ -500,9 +509,9 @@ header{
           qty: Number(job.qty || 0),
           ops,
           currentOpIndex,
-          currentOpCode,
+          currentOpCode: String(job.currentOpCode || "").trim().toUpperCase(),
           status,
-          assignedTo: String(job.assignedTo || ""),
+          assignedTo: String(job.assignedTo || "")
         };
 
         if (currentOpIndex === myIndex) {
@@ -679,6 +688,7 @@ header{
     });
   }
 
+  // ✅ Auth gate
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.assign("/companylogin/");
@@ -688,7 +698,9 @@ header{
     try {
       const result = await enforceGate(user);
       if (!result) return;
+
       watchJobsForStation(result.station);
+
     } catch (e) {
       console.error(e);
       await hardKickToLogin();
@@ -700,7 +712,7 @@ header{
     window.location.assign(`/company/ProductionOverview.html?c=${encodeURIComponent(companyId)}`);
   });
 
-  // Logout button (clears kiosk session if possible)
+  // ✅ Logout (clears kiosk session if possible)
   logoutBtn.addEventListener("click", async () => {
     try {
       const user = auth.currentUser;
