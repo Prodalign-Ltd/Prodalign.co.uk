@@ -1,731 +1,743 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Station Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Station Dashboard</title>
 
-<style>
-:root{
-  --bg:#071826;
-  --panel:rgba(255,255,255,0.06);
-  --border:rgba(255,255,255,0.10);
-  --text:#ffffff;
-  --muted:rgba(255,255,255,0.78);
+  <style>
+    :root{
+      /* Screenshot vibe */
+      --bg:#d7d7d7;
+      --header:#cfcfcf;
+      --text:#111;
+      --muted:#2c2c2c;
 
-  --green:#2e7d32;
-  --green2:rgba(46,125,50,0.18);
+      --wip:#1f6f2a;          /* green */
+      --available:#f2b317;     /* yellow/orange */
+      --overdue:#f08a00;       /* orange */
+      --na:#d23a2f;            /* red */
+      --pre:#0b7a86;           /* teal */
 
-  --amber:#f9a825;
-  --amber2:rgba(249,168,37,0.18);
+      --cardRadius:10px;
+      --shadow:0 3px 10px rgba(0,0,0,.18);
+      --border:rgba(0,0,0,.18);
+    }
 
-  --gray:#90a4ae;
-  --gray2:rgba(144,164,174,0.14);
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
 
-  --radius:14px;
-  --danger:#d32f2f;
-}
+    /* Header */
+    header{
+      background:var(--header);
+      border-bottom:1px solid var(--border);
+      padding:22px 16px 14px;
+      display:grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items:start;
+      gap:10px;
+    }
 
-*{box-sizing:border-box}
+    .headerLeft{ display:flex; align-items:flex-start; justify-content:flex-start; }
+    .headerCenter{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+      gap:10px;
+      padding-top:2px;
+    }
+    .headerRight{ display:flex; align-items:flex-start; justify-content:flex-end; gap:10px; }
 
-body{
-  margin:0;
-  font-family:system-ui;
-  background:
-    radial-gradient(1200px 700px at 20% -10%, rgba(245,124,0,0.18), transparent 60%),
-    radial-gradient(900px 600px at 120% 0%, rgba(211,47,47,0.12), transparent 55%),
-    linear-gradient(180deg,#071826,#06131e);
-  color:var(--text);
-}
+    .title{
+      font-weight:900;
+      font-size: clamp(30px, 4vw, 52px);
+      letter-spacing:.3px;
+      margin:0;
+      line-height:1;
+    }
 
-/* HEADER */
-header{
-  border-bottom:1px solid var(--border);
-  background:#0b2235;
-  padding:14px 14px 16px;
+    .btn{
+      border:1px solid rgba(0,0,0,.18);
+      background:rgba(255,255,255,.55);
+      color:#111;
+      border-radius:10px;
+      padding:10px 12px;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,.10);
+      transition: transform 120ms ease, background 120ms ease;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.75); }
+    .btn.danger{ border-color: rgba(210,58,47,.45); }
 
-  display:grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items:start;
-  gap:10px;
-}
+    /* Legend like screenshot */
+    .legend{
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+      justify-content:center;
+      font-weight:800;
+      color:#1a1a1a;
+      margin-top:4px;
+    }
+    .legendItem{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:13px;
+    }
+    .swatch{
+      width:10px;
+      height:10px;
+      border-radius:2px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.18);
+    }
+    .sw-wip{ background:var(--wip); }
+    .sw-av{ background:var(--available); }
+    .sw-od{ background:var(--overdue); }
+    .sw-na{ background:var(--na); }
+    .sw-pre{ background:var(--pre); }
 
-.header-left{
-  display:flex;
-  justify-content:flex-start;
-  align-items:flex-start;
-}
+    /* Page */
+    .page{
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 18px 14px 28px;
+      display:flex;
+      flex-direction:column;
+      gap:26px;
+    }
 
-.header-center{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  text-align:center;
-  gap:10px;
-  padding-top:4px;
-}
+    /* Section headings centered */
+    .sectionTitle{
+      text-align:center;
+      font-weight:900;
+      font-size: clamp(20px, 2.3vw, 34px);
+      margin: 6px 0 10px;
+      color:#222;
+      text-shadow: 0 1px 0 rgba(255,255,255,.45);
+    }
 
-.stationTitle{
-  font-weight:950;
-  font-size:1.8rem;
-  margin:0;
-}
+    /* Tile grid like screenshot */
+    .tiles{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+      gap:12px;
+      align-items:stretch;
+    }
 
-/* Buttons */
-.logoutWrap{
-  display:flex;
-  justify-content:flex-end;
-  align-items:flex-start;
-  gap:10px;
-}
+    /* Tile card */
+    .tile{
+      border-radius: var(--cardRadius);
+      box-shadow: var(--shadow);
+      border:1px solid rgba(0,0,0,.18);
+      position:relative;
+      overflow:hidden;
+      min-height: 86px;
+      padding: 12px 12px 10px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      gap:6px;
+      color:#0d0d0d;
+    }
 
-.btn{
-  border:1px solid rgba(255,255,255,0.14);
-  border-radius:12px;
-  padding:10px 12px;
-  background:rgba(255,255,255,0.08);
-  color:#fff;
-  cursor:pointer;
-  font-weight:900;
-  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
-}
-.btn:hover{
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(245,124,0,0.35);
-  transform: translateY(-1px);
-}
+    .tile.wip{ background:var(--wip); color:#fff; }
+    .tile.available{ background:var(--available); color:#111; }
+    .tile.overdue{ background:var(--overdue); color:#111; }
+    .tile.na{ background:var(--na); color:#fff; }
+    .tile.pre{ background:var(--pre); color:#fff; }
 
-.logoutBtn{
-  border-color: rgba(211,47,47,0.40);
-}
-.logoutBtn:hover{
-  border-color: rgba(211,47,47,0.55);
-}
+    /* Top-right badge (small number square) */
+    .badge{
+      position:absolute;
+      top:6px;
+      right:6px;
+      min-width:18px;
+      height:18px;
+      padding:0 5px;
+      border-radius:4px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:11px;
+      font-weight:900;
+      box-shadow: 0 2px 6px rgba(0,0,0,.25);
+      border:1px solid rgba(0,0,0,.18);
+      background: rgba(255,255,255,.85);
+      color:#111;
+    }
+    .tile.wip .badge,
+    .tile.na .badge,
+    .tile.pre .badge { background: rgba(255,255,255,.92); color:#111; }
 
-/* LEGEND */
-.legend{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:10px;
-  color:var(--muted);
-  font-weight:850;
-}
+    .itemCode{
+      font-weight:950;
+      font-size: 18px;
+      letter-spacing:.2px;
+      line-height:1.05;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .meta{
+      font-size:12px;
+      font-weight:800;
+      line-height:1.25;
+      opacity:.95;
+    }
+    .meta b{ font-weight:950; }
 
-.legendItem{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 12px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,0.10);
-  background:rgba(0,0,0,0.18);
-}
+    /* Small actions row (optional) */
+    .actions{
+      margin-top:6px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .smallBtn{
+      border:1px solid rgba(0,0,0,.22);
+      background: rgba(255,255,255,.78);
+      color:#111;
+      border-radius:10px;
+      padding:8px 10px;
+      font-weight:900;
+      cursor:pointer;
+      font-size:12px;
+      transition: transform 120ms ease, background 120ms ease;
+    }
+    .smallBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.92); }
+    .tile.wip .smallBtn,
+    .tile.na .smallBtn,
+    .tile.pre .smallBtn{
+      border-color: rgba(255,255,255,.35);
+      background: rgba(255,255,255,.92);
+    }
 
-.swatch{ width:10px;height:10px;border-radius:999px; }
-.wip{background:var(--green)}
-.available{background:var(--amber)}
-.na{background:var(--gray)}
+    .empty{
+      text-align:center;
+      font-weight:850;
+      color:#222;
+      background: rgba(255,255,255,.5);
+      border:1px dashed rgba(0,0,0,.25);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
 
-/* PAGE */
-.page{
-  padding:18px;
-  max-width:1300px;
-  margin:auto;
-  display:grid;
-  gap:18px;
-}
-
-/* SECTIONS */
-.section{
-  border-radius:var(--radius);
-  border:1px solid var(--border);
-  background:var(--panel);
-  overflow:hidden;
-}
-
-.sectionHead{
-  padding:14px;
-  font-weight:900;
-  text-align:center;
-  border-bottom:1px solid rgba(255,255,255,0.08);
-}
-
-.wipSection .sectionHead{background:var(--green2)}
-.availableSection .sectionHead{background:var(--amber2)}
-.naSection .sectionHead{background:var(--gray2)}
-
-/* JOB CARDS */
-.sectionBody{
-  padding: 14px;
-  display:block;
-  min-height: 180px;
-}
-
-.jobsGrid{
-  display:grid;
-  gap:12px;
-}
-
-.jobCard{
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.16);
-  border-radius: 14px;
-  padding: 12px;
-}
-
-.jobTop{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:flex-start;
-}
-
-.jobTitle{
-  font-weight: 950;
-  letter-spacing: 0.2px;
-}
-
-.jobMeta{
-  color: rgba(255,255,255,0.75);
-  font-weight: 850;
-  margin-top: 6px;
-  line-height: 1.35;
-  font-size: 0.92rem;
-}
-
-.jobOps{
-  margin-top: 10px;
-  color: rgba(255,255,255,0.70);
-  font-weight: 850;
-  font-size: 0.9rem;
-  line-height: 1.35;
-}
-
-.jobBtns{
-  margin-top: 12px;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.smallBtn{
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
-  padding: 10px 12px;
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-  cursor: pointer;
-  font-weight: 900;
-}
-.smallBtn:hover{
-  background: rgba(255,255,255,0.12);
-  transform: translateY(-1px);
-}
-
-.smallBtn.primary{
-  border-color: rgba(46,125,50,0.45);
-  background: linear-gradient(180deg, rgba(46,125,50,0.22), rgba(255,255,255,0.08));
-}
-.smallBtn.warn{
-  border-color: rgba(249,168,37,0.55);
-  background: linear-gradient(180deg, rgba(249,168,37,0.18), rgba(255,255,255,0.08));
-}
-
-.emptyState{
-  color: rgba(255,255,255,0.70);
-  font-weight: 850;
-  text-align:center;
-  padding: 18px 10px;
-  border: 1px dashed rgba(255,255,255,0.14);
-  border-radius: 14px;
-  background: rgba(0,0,0,0.12);
-}
-
-@media (max-width: 520px){
-  header{ grid-template-columns: 1fr; }
-  .header-left{ justify-content:center; }
-  .logoutWrap{ justify-content:center; }
-  .stationTitle{ font-size:1.55rem; }
-}
-</style>
+    /* Responsive header layout */
+    @media (max-width: 760px){
+      header{
+        grid-template-columns: 1fr;
+        align-items:center;
+      }
+      .headerLeft, .headerRight{ justify-content:center; }
+    }
+  </style>
 </head>
 
 <body>
-
-<header>
-  <div class="header-left">
-    <button id="backBtn" class="btn" type="button" style="display:none;">← Back</button>
-  </div>
-
-  <div class="header-center">
-    <div class="stationTitle" id="stationTitle">Loading…</div>
-
-    <div class="legend">
-      <div class="legendItem"><div class="swatch wip"></div> Work in Progress</div>
-      <div class="legendItem"><div class="swatch available"></div> Available</div>
-      <div class="legendItem"><div class="swatch na"></div> Not Available</div>
+  <header>
+    <div class="headerLeft">
+      <button id="backBtn" class="btn" type="button" style="display:none;">← Back</button>
     </div>
-  </div>
 
-  <div class="logoutWrap">
-    <button id="logoutBtn" class="btn logoutBtn" type="button">Log out</button>
-  </div>
-</header>
+    <div class="headerCenter">
+      <h1 class="title" id="stationTitle">Loading…</h1>
 
-<div class="page">
-  <div class="section wipSection">
-    <div class="sectionHead">Work In Progress</div>
-    <div class="sectionBody" id="wipBody">Loading…</div>
-  </div>
-
-  <div class="section availableSection">
-    <div class="sectionHead">Available</div>
-    <div class="sectionBody" id="availableBody">Loading…</div>
-  </div>
-
-  <div class="section naSection">
-    <div class="sectionHead">Not Available</div>
-    <div class="sectionBody" id="naBody">Loading…</div>
-  </div>
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import {
-    getFirestore, doc, getDoc, setDoc, collection, onSnapshot,
-    runTransaction, serverTimestamp, deleteDoc
-  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
-    authDomain: "prodalign-ltd.firebaseapp.com",
-    projectId: "prodalign-ltd"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  const backBtn = document.getElementById("backBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const stationTitleEl = document.getElementById("stationTitle");
-  const wipBody = document.getElementById("wipBody");
-  const availableBody = document.getElementById("availableBody");
-  const naBody = document.getElementById("naBody");
-
-  // URL params
-  const params = new URLSearchParams(window.location.search);
-  const companyId = (params.get("c") || "").trim().toLowerCase();
-  const stationParam = (params.get("station") || "").trim();
-
-  if (!companyId) {
-    window.location.assign("/companylogin/");
-    throw new Error("Missing ?c=");
-  }
-
-  function escapeHtml(s){
-    return String(s ?? "").replace(/[&<>"']/g, (c) => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[c]));
-  }
-
-  function prettyStationName(s) {
-    return String(s || "")
-      .trim()
-      .toLowerCase()
-      .replace(/[_-]+/g, " ")
-      .split(" ")
-      .filter(Boolean)
-      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ");
-  }
-
-  function getUserIdentifier(){
-    const u = auth.currentUser;
-    return u?.email || u?.displayName || u?.uid || "unknown";
-  }
-
-  function opsToString(ops, currentIndex){
-    if (!Array.isArray(ops) || ops.length === 0) return "Ops: —";
-    return ops
-      .map((o, i) => {
-        const code = String(o?.code || "").toUpperCase();
-        if (!code) return "";
-        return (i === currentIndex) ? `[${code}]` : code;
-      })
-      .filter(Boolean)
-      .join(" → ");
-  }
-
-  function renderEmpty(el, text){
-    el.innerHTML = `<div class="emptyState">${escapeHtml(text)}</div>`;
-  }
-
-  function normalizeOpsArray(ops){
-    if (!Array.isArray(ops)) return [];
-    return ops
-      .map(x => {
-        const code = String(x?.code || "").trim().toUpperCase();
-        const iph = Number(x?.iph);
-        return code ? { code, iph: Number.isFinite(iph) ? iph : 0 } : null;
-      })
-      .filter(Boolean);
-  }
-
-  // Per-device kiosk session id
-  function getKioskDeviceId() {
-    let id = localStorage.getItem("kioskDeviceId");
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem("kioskDeviceId", id);
-    }
-    return id;
-  }
-
-  function getKioskSessionId(uid) {
-    return `${uid}_${getKioskDeviceId()}`;
-  }
-
-  async function hardKickToLogin() {
-    try { await signOut(auth); } catch {}
-    window.location.assign("/companylogin/");
-  }
-
-  async function enforceGate(user) {
-    // 1) Read user profile
-    const snap = await getDoc(doc(db, "users", user.uid));
-    if (!snap.exists()) throw new Error("User profile missing.");
-
-    const data = snap.data() || {};
-    const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
-    const role = String(data.role ?? "").trim().toLowerCase();
-    const license = String(data.license ?? "").trim().toLowerCase();
-    const isAdmin = Boolean(data.isAdmin) || role === "admin" || license === "admin";
-
-    if (!userCompany || userCompany !== companyId) throw new Error("Wrong company.");
-
-    // ✅ Admin back button only for admins
-    backBtn.style.display = isAdmin ? "inline-flex" : "none";
-
-    // ✅ Only operators OR admins can view this page
-    const allowed = (role === "operator") || isAdmin;
-    if (!allowed) throw new Error("Not allowed for this dashboard.");
-
-    // 2) Get kiosk session (if exists)
-    const sessionId = getKioskSessionId(user.uid);
-    const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
-
-    let stationFromSession = "";
-    let sessCompany = "";
-
-    if (sessSnap.exists()) {
-      const sess = sessSnap.data() || {};
-      stationFromSession = String(sess.stationId || "").trim();
-      sessCompany = String(sess.companyId || "").trim().toLowerCase();
-    }
-
-    // 3) Decide station:
-    // - Operators MUST have a kiosk session station
-    // - Admins can use kiosk session OR URL ?station=
-    let station = "";
-
-    if (isAdmin) {
-      station = stationFromSession && (sessCompany === companyId) ? stationFromSession : "";
-      if (!station && stationParam) station = stationParam;
-    } else {
-      // operator
-      station = stationFromSession && (sessCompany === companyId) ? stationFromSession : "";
-    }
-
-    // 4) If still no station, send to pin page
-    if (!station) {
-      window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
-      return null;
-    }
-
-    // 5) For admins: if we came from URL station but session missing, create/merge session so refresh works
-    if (isAdmin && station && (!stationFromSession || sessCompany !== companyId)) {
-      try {
-        await setDoc(doc(db, "kioskSessions", sessionId), {
-          uid: user.uid,
-          companyId: companyId,
-          stationId: station,
-          stationName: station,
-          stationCode: station,
-          updatedAt: serverTimestamp(),
-          createdAt: serverTimestamp()
-        }, { merge: true });
-      } catch (e) {
-        console.warn("Admin kiosk session write blocked (rules):", e);
-        // Even if rules block it, admin can still operate via URL station
-      }
-    }
-
-    // 6) Keep URL tidy (but don’t bounce endlessly)
-    const desiredUrl = `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`;
-    const currentUrl = location.pathname + location.search;
-    if (currentUrl !== desiredUrl) {
-      window.location.replace(desiredUrl);
-      return null;
-    }
-
-    stationTitleEl.textContent = `${prettyStationName(station)} Dashboard`;
-    return { station, isAdmin };
-  }
-
-  function watchJobsForStation(stationId){
-    const stationCode = String(stationId || "").trim().toUpperCase();
-    if (!stationCode) return;
-
-    const jobsRef = collection(db, "companies", companyId, "jobs");
-
-    return onSnapshot(jobsRef, (snap) => {
-      const available = [];
-      const wip = [];
-      const notAvailable = [];
-
-      snap.forEach((d) => {
-        const job = d.data() || {};
-        const id = d.id;
-
-        const st = String(job.status || "").toLowerCase();
-        if (st === "complete" || st === "booked" || st === "to_book") return;
-
-        const ops = normalizeOpsArray(job.ops);
-        const currentOpIndex = Number(job.currentOpIndex ?? 0);
-
-        const myIndex = ops.findIndex(o => o.code === stationCode);
-        if (myIndex === -1) return;
-        if (currentOpIndex > myIndex) return;
-
-        const status = String(job.status || "").trim().toLowerCase();
-
-        const jobView = {
-          id,
-          itemCode: String(job.itemCode || "").toUpperCase(),
-          orderNo: String(job.orderNo || ""),
-          qty: Number(job.qty || 0),
-          ops,
-          currentOpIndex,
-          currentOpCode: String(job.currentOpCode || "").trim().toUpperCase(),
-          status,
-          assignedTo: String(job.assignedTo || "")
-        };
-
-        if (currentOpIndex === myIndex) {
-          if (status === "ready") available.push(jobView);
-          else wip.push(jobView);
-        } else {
-          notAvailable.push(jobView);
-        }
-      });
-
-      renderJobLists({ stationCode, available, wip, notAvailable });
-    }, (err) => {
-      console.error("Jobs listener error:", err);
-      renderEmpty(availableBody, `Error loading jobs: ${err.message}`);
-      renderEmpty(wipBody, `Error loading jobs: ${err.message}`);
-      renderEmpty(naBody, `Error loading jobs: ${err.message}`);
-    });
-  }
-
-  function renderJobLists({ stationCode, available, wip, notAvailable }){
-    if (!available.length) renderEmpty(availableBody, "No jobs ready for this station.");
-    else {
-      availableBody.innerHTML = `<div class="jobsGrid">${
-        available.map(j => jobCardHtml(j, stationCode, "available")).join("")
-      }</div>`;
-      wireCardButtons(availableBody, stationCode);
-    }
-
-    if (!wip.length) renderEmpty(wipBody, "No jobs in progress at this station.");
-    else {
-      wipBody.innerHTML = `<div class="jobsGrid">${
-        wip.map(j => jobCardHtml(j, stationCode, "wip")).join("")
-      }</div>`;
-      wireCardButtons(wipBody, stationCode);
-    }
-
-    if (!notAvailable.length) renderEmpty(naBody, "Nothing waiting on previous operations.");
-    else {
-      naBody.innerHTML = `<div class="jobsGrid">${
-        notAvailable.map(j => jobCardHtml(j, stationCode, "na")).join("")
-      }</div>`;
-    }
-  }
-
-  function jobCardHtml(job, stationCode, bucket){
-    const title = `${job.itemCode || "—"} × ${job.qty || 0}`;
-
-    const meta = `
-      <div class="jobMeta">
-        <div><b>Order:</b> ${escapeHtml(job.orderNo || "—")}</div>
-        <div><b>Current:</b> ${escapeHtml(String(job.currentOpCode || "—"))}</div>
-        <div><b>Status:</b> ${escapeHtml(job.status)}</div>
-        ${job.assignedTo ? `<div><b>Assigned:</b> ${escapeHtml(job.assignedTo)}</div>` : ``}
+      <div class="legend">
+        <div class="legendItem"><span class="swatch sw-wip"></span> Work in Progress</div>
+        <div class="legendItem"><span class="swatch sw-av"></span> Available to Bend</div>
+        <div class="legendItem"><span class="swatch sw-od"></span> Overdue</div>
+        <div class="legendItem"><span class="swatch sw-na"></span> Not Available To Bend</div>
+        <div class="legendItem"><span class="swatch sw-pre"></span> Pre-Production Run</div>
       </div>
-    `;
+    </div>
 
-    const opsLine = `<div class="jobOps"><b>Flow:</b> ${escapeHtml(opsToString(job.ops, job.currentOpIndex))}</div>`;
+    <div class="headerRight">
+      <button id="logoutBtn" class="btn danger" type="button">Log out</button>
+    </div>
+  </header>
 
-    let btns = "";
-    if (bucket === "available") {
-      btns = `
-        <div class="jobBtns">
-          <button class="smallBtn primary" data-start="${job.id}">Start</button>
-        </div>
-      `;
-    } else if (bucket === "wip") {
-      btns = `
-        <div class="jobBtns">
-          <button class="smallBtn warn" data-complete="${job.id}">Complete / Move On</button>
-        </div>
-      `;
-    }
+  <main class="page">
+    <section>
+      <div class="sectionTitle">Work in Progress</div>
+      <div id="wipBody">Loading…</div>
+    </section>
 
-    return `
-      <div class="jobCard">
-        <div class="jobTop">
-          <div>
-            <div class="jobTitle">${escapeHtml(title)}</div>
-            ${meta}
-          </div>
-        </div>
-        ${opsLine}
-        ${btns}
-      </div>
-    `;
-  }
+    <section>
+      <div class="sectionTitle">Available to Bend</div>
+      <div id="availableBody">Loading…</div>
+    </section>
 
-  function wireCardButtons(container, stationCode){
-    container.querySelectorAll("button[data-start]").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        const id = btn.getAttribute("data-start");
-        btn.disabled = true;
-        try{
-          await startJob(id, stationCode);
-        } catch(e){
-          console.error(e);
-          alert(e?.message || "Could not start job.");
-          btn.disabled = false;
-        }
-      });
-    });
+    <section>
+      <div class="sectionTitle">Not Available To Bend</div>
+      <div id="naBody">Loading…</div>
+    </section>
+  </main>
 
-    container.querySelectorAll("button[data-complete]").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        const id = btn.getAttribute("data-complete");
-        btn.disabled = true;
-        try{
-          await completeJobStep(id, stationCode);
-        } catch(e){
-          console.error(e);
-          alert(e?.message || "Could not complete job.");
-          btn.disabled = false;
-        }
-      });
-    });
-  }
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, collection, onSnapshot,
+      runTransaction, serverTimestamp, deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-  async function startJob(jobId, stationCode){
-    const jobRef = doc(db, "companies", companyId, "jobs", jobId);
+    // ✅ YOUR CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
+      authDomain: "prodalign-ltd.firebaseapp.com",
+      projectId: "prodalign-ltd"
+    };
 
-    await runTransaction(db, async (tx) => {
-      const snap = await tx.get(jobRef);
-      if (!snap.exists()) throw new Error("Job not found.");
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-      const job = snap.data() || {};
-      const status = String(job.status || "").toLowerCase();
-      const currentOpCode = String(job.currentOpCode || "").toUpperCase();
+    const backBtn = document.getElementById("backBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const stationTitleEl = document.getElementById("stationTitle");
 
-      if (status !== "ready") throw new Error("This job is not available.");
-      if (currentOpCode !== stationCode) throw new Error("This job is not for your station.");
+    const wipBody = document.getElementById("wipBody");
+    const availableBody = document.getElementById("availableBody");
+    const naBody = document.getElementById("naBody");
 
-      tx.update(jobRef, {
-        status: "in_progress",
-        assignedTo: getUserIdentifier(),
-        startedAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
-    });
-  }
+    // URL params
+    const params = new URLSearchParams(window.location.search);
+    const companyId = (params.get("c") || "").trim().toLowerCase();
+    const stationParam = (params.get("station") || "").trim();
 
-  async function completeJobStep(jobId, stationCode){
-    const jobRef = doc(db, "companies", companyId, "jobs", jobId);
-
-    await runTransaction(db, async (tx) => {
-      const snap = await tx.get(jobRef);
-      if (!snap.exists()) throw new Error("Job not found.");
-
-      const job = snap.data() || {};
-      const ops = normalizeOpsArray(job.ops);
-      const idx = Number(job.currentOpIndex ?? 0);
-      const currentOpCode = String(job.currentOpCode || "").toUpperCase();
-
-      if (!ops.length) throw new Error("Job has no operations.");
-      if (currentOpCode !== stationCode) throw new Error("This job is not at your station.");
-
-      const nextIndex = idx + 1;
-
-      if (nextIndex < ops.length) {
-        tx.update(jobRef, {
-          currentOpIndex: nextIndex,
-          currentOpCode: ops[nextIndex].code,
-          status: "ready",
-          assignedTo: null,
-          updatedAt: serverTimestamp()
-        });
-      } else {
-        tx.update(jobRef, {
-          status: "to_book",
-          assignedTo: null,
-          completedAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
-      }
-    });
-  }
-
-  // ✅ Auth gate
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
+    if (!companyId) {
       window.location.assign("/companylogin/");
-      return;
+      throw new Error("Missing ?c=");
     }
 
-    try {
-      const result = await enforceGate(user);
-      if (!result) return;
-
-      watchJobsForStation(result.station);
-
-    } catch (e) {
-      console.error(e);
-      await hardKickToLogin();
+    // ---------- Helpers ----------
+    function escapeHtml(s){
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[c]));
     }
-  });
 
-  // ✅ Admin back button
-  backBtn.addEventListener("click", () => {
-  window.location.assign(`/company/?c=${encodeURIComponent(companyId)}`);
-});
+    function prettyStationName(s) {
+      return String(s || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[_-]+/g, " ")
+        .split(" ")
+        .filter(Boolean)
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+    }
 
-  // ✅ Logout (clears kiosk session if possible)
-  logoutBtn.addEventListener("click", async () => {
-    try {
-      const user = auth.currentUser;
-      if (user) {
-        const sessionId = getKioskSessionId(user.uid);
-        try { await deleteDoc(doc(db, "kioskSessions", sessionId)); } catch {}
+    function normalizeOpsArray(ops){
+      if (!Array.isArray(ops)) return [];
+      return ops
+        .map(x => {
+          const code = String(x?.code || "").trim().toUpperCase();
+          const iph = Number(x?.iph);
+          return code ? { code, iph: Number.isFinite(iph) ? iph : 0 } : null;
+        })
+        .filter(Boolean);
+    }
+
+    function getUserIdentifier(){
+      const u = auth.currentUser;
+      return u?.email || u?.displayName || u?.uid || "unknown";
+    }
+
+    function renderEmpty(el, text){
+      el.innerHTML = `<div class="empty">${escapeHtml(text)}</div>`;
+    }
+
+    // Per-device kiosk session id
+    function getKioskDeviceId() {
+      let id = localStorage.getItem("kioskDeviceId");
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem("kioskDeviceId", id);
       }
-    } catch {}
+      return id;
+    }
+    function getKioskSessionId(uid) {
+      return `${uid}_${getKioskDeviceId()}`;
+    }
 
-    try { await signOut(auth); } catch {}
-    window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
-  });
-</script>
+    async function hardKickToLogin() {
+      try { await signOut(auth); } catch {}
+      window.location.assign("/companylogin/");
+    }
 
+    // ---------- Gate / Station selection ----------
+    async function enforceGate(user) {
+      const snap = await getDoc(doc(db, "users", user.uid));
+      if (!snap.exists()) throw new Error("User profile missing.");
+
+      const data = snap.data() || {};
+      const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
+      const role = String(data.role ?? "").trim().toLowerCase();
+      const license = String(data.license ?? "").trim().toLowerCase();
+      const isAdmin = Boolean(data.isAdmin) || role === "admin" || license === "admin";
+
+      if (!userCompany || userCompany !== companyId) throw new Error("Wrong company.");
+
+      // Admin back button only for admins
+      backBtn.style.display = isAdmin ? "inline-flex" : "none";
+
+      // Only operators OR admins can view
+      const allowed = (role === "operator") || isAdmin;
+      if (!allowed) throw new Error("Not allowed for this dashboard.");
+
+      // Get kiosk session (if exists)
+      const sessionId = getKioskSessionId(user.uid);
+      const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
+
+      let stationFromSession = "";
+      let sessCompany = "";
+
+      if (sessSnap.exists()) {
+        const sess = sessSnap.data() || {};
+        stationFromSession = String(sess.stationId || "").trim();
+        sessCompany = String(sess.companyId || "").trim().toLowerCase();
+      }
+
+      // Decide station
+      let station = "";
+      if (isAdmin) {
+        station = stationFromSession && (sessCompany === companyId) ? stationFromSession : "";
+        if (!station && stationParam) station = stationParam;
+      } else {
+        station = stationFromSession && (sessCompany === companyId) ? stationFromSession : "";
+      }
+
+      if (!station) {
+        window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
+        return null;
+      }
+
+      // For admins: persist session if needed
+      if (isAdmin && station && (!stationFromSession || sessCompany !== companyId)) {
+        try {
+          await setDoc(doc(db, "kioskSessions", sessionId), {
+            uid: user.uid,
+            companyId: companyId,
+            stationId: station,
+            stationName: station,
+            stationCode: station,
+            updatedAt: serverTimestamp(),
+            createdAt: serverTimestamp()
+          }, { merge: true });
+        } catch (e) {
+          console.warn("Admin kiosk session write blocked (rules):", e);
+        }
+      }
+
+      // Keep URL tidy
+      const desiredUrl = `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`;
+      const currentUrl = location.pathname + location.search;
+      if (currentUrl !== desiredUrl) {
+        window.location.replace(desiredUrl);
+        return null;
+      }
+
+      stationTitleEl.textContent = `${prettyStationName(station)} Dashboard`;
+      return { station, isAdmin };
+    }
+
+    // ---------- Business logic: buckets ----------
+    function isOverdue(job){
+      // Optional: supports a few common fields if you have them.
+      // If none exist, it just returns false and nothing will show in "overdue" styling.
+      const flag = Boolean(job.isOverdue || job.overdue);
+      if (flag) return true;
+
+      const due = job.dueAt || job.dueDate || job.due; // could be Firestore Timestamp, ISO, millis
+      if (!due) return false;
+
+      let dueMs = 0;
+      if (typeof due === "number") dueMs = due;
+      else if (typeof due?.toMillis === "function") dueMs = due.toMillis();
+      else {
+        const parsed = Date.parse(String(due));
+        dueMs = Number.isFinite(parsed) ? parsed : 0;
+      }
+      if (!dueMs) return false;
+      return Date.now() > dueMs;
+    }
+
+    function isPreProduction(job){
+      return Boolean(job.preProduction || job.preProductionRun || job.isPreProduction);
+    }
+
+    function badgeValue(job){
+      // Screenshot shows a small number badge. Use something meaningful:
+      // priority > route position > qty (fallback).
+      if (Number.isFinite(Number(job.priority))) return Number(job.priority);
+      if (Number.isFinite(Number(job.sequence))) return Number(job.sequence);
+      if (Number.isFinite(Number(job.currentOpIndex))) return Number(job.currentOpIndex) + 1;
+      return "";
+    }
+
+    function watchJobsForStation(stationId){
+      const stationCode = String(stationId || "").trim().toUpperCase();
+      if (!stationCode) return;
+
+      const jobsRef = collection(db, "companies", companyId, "jobs");
+
+      return onSnapshot(jobsRef, (snap) => {
+        const available = [];
+        const wip = [];
+        const notAvailable = [];
+
+        snap.forEach((d) => {
+          const job = d.data() || {};
+          const id = d.id;
+
+          // your existing exclusions
+          const st = String(job.status || "").toLowerCase();
+          if (st === "complete" || st === "booked" || st === "to_book") return;
+
+          const ops = normalizeOpsArray(job.ops);
+          const currentOpIndex = Number(job.currentOpIndex ?? 0);
+
+          const myIndex = ops.findIndex(o => o.code === stationCode);
+          if (myIndex === -1) return;      // this station not in flow
+          if (currentOpIndex > myIndex) return; // already passed
+
+          const status = String(job.status || "").trim().toLowerCase();
+
+          const jobView = {
+            id,
+            itemCode: String(job.itemCode || "").toUpperCase(),
+            orderNo: String(job.orderNo || job.productionOrder || ""),
+            qty: Number(job.qty || job.orderQty || 0),
+            ops,
+            currentOpIndex,
+            currentOpCode: String(job.currentOpCode || "").trim().toUpperCase(),
+            status,
+            assignedTo: String(job.assignedTo || ""),
+            _raw: job
+          };
+
+          // Buckets:
+          if (currentOpIndex === myIndex) {
+            if (status === "ready") available.push(jobView);
+            else wip.push(jobView);
+          } else {
+            notAvailable.push(jobView);
+          }
+        });
+
+        renderAll({ stationCode, available, wip, notAvailable });
+      }, (err) => {
+        console.error("Jobs listener error:", err);
+        renderEmpty(availableBody, `Error loading jobs: ${err.message}`);
+        renderEmpty(wipBody, `Error loading jobs: ${err.message}`);
+        renderEmpty(naBody, `Error loading jobs: ${err.message}`);
+      });
+    }
+
+    // ---------- Rendering ----------
+    function renderAll({ stationCode, available, wip, notAvailable }){
+      // WIP
+      if (!wip.length) renderEmpty(wipBody, "No jobs in progress at this station.");
+      else {
+        wipBody.innerHTML = `<div class="tiles">${wip.map(j => tileHtml(j, stationCode, "wip")).join("")}</div>`;
+        wireTileButtons(wipBody, stationCode);
+      }
+
+      // Available
+      if (!available.length) renderEmpty(availableBody, "No jobs ready for this station.");
+      else {
+        availableBody.innerHTML = `<div class="tiles">${available.map(j => tileHtml(j, stationCode, "available")).join("")}</div>`;
+        wireTileButtons(availableBody, stationCode);
+      }
+
+      // Not available
+      if (!notAvailable.length) renderEmpty(naBody, "Nothing waiting on previous operations.");
+      else {
+        naBody.innerHTML = `<div class="tiles">${notAvailable.map(j => tileHtml(j, stationCode, "na")).join("")}</div>`;
+        // no buttons
+      }
+    }
+
+    function tileHtml(job, stationCode, bucket){
+      // Extra styling if you have overdue / pre-production flags (optional)
+      const raw = job._raw || {};
+      const overdue = isOverdue(raw);
+      const pre = isPreProduction(raw);
+
+      let cls = bucket;
+      if (bucket === "available" && overdue) cls = "overdue";
+      if (pre) cls = "pre";
+
+      const badge = badgeValue(raw);
+      const title = job.itemCode || "—";
+      const po = job.orderNo || "—";
+      const qty = Number.isFinite(job.qty) ? job.qty : 0;
+
+      let actions = "";
+      if (bucket === "available") {
+        actions = `
+          <div class="actions">
+            <button class="smallBtn" data-start="${escapeHtml(job.id)}">Start</button>
+          </div>
+        `;
+      } else if (bucket === "wip") {
+        actions = `
+          <div class="actions">
+            <button class="smallBtn" data-complete="${escapeHtml(job.id)}">Complete</button>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="tile ${cls}">
+          ${badge !== "" ? `<div class="badge">${escapeHtml(String(badge))}</div>` : ``}
+          <div class="itemCode">${escapeHtml(title)}</div>
+          <div class="meta">
+            <div><b>Production Order:</b> ${escapeHtml(po)}</div>
+            <div><b>Order QTY:</b> ${escapeHtml(String(qty))}</div>
+            ${job.assignedTo ? `<div><b>Assigned:</b> ${escapeHtml(job.assignedTo)}</div>` : ``}
+          </div>
+          ${actions}
+        </div>
+      `;
+    }
+
+    function wireTileButtons(container, stationCode){
+      container.querySelectorAll("button[data-start]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-start");
+          btn.disabled = true;
+          try{
+            await startJob(id, stationCode);
+          } catch(e){
+            console.error(e);
+            alert(e?.message || "Could not start job.");
+            btn.disabled = false;
+          }
+        });
+      });
+
+      container.querySelectorAll("button[data-complete]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-complete");
+          btn.disabled = true;
+          try{
+            await completeJobStep(id, stationCode);
+          } catch(e){
+            console.error(e);
+            alert(e?.message || "Could not complete job.");
+            btn.disabled = false;
+          }
+        });
+      });
+    }
+
+    // ---------- Actions ----------
+    async function startJob(jobId, stationCode){
+      const jobRef = doc(db, "companies", companyId, "jobs", jobId);
+
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(jobRef);
+        if (!snap.exists()) throw new Error("Job not found.");
+
+        const job = snap.data() || {};
+        const status = String(job.status || "").toLowerCase();
+        const currentOpCode = String(job.currentOpCode || "").toUpperCase();
+
+        if (status !== "ready") throw new Error("This job is not available.");
+        if (currentOpCode !== stationCode) throw new Error("This job is not for your station.");
+
+        tx.update(jobRef, {
+          status: "in_progress",
+          assignedTo: getUserIdentifier(),
+          startedAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      });
+    }
+
+    async function completeJobStep(jobId, stationCode){
+      const jobRef = doc(db, "companies", companyId, "jobs", jobId);
+
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(jobRef);
+        if (!snap.exists()) throw new Error("Job not found.");
+
+        const job = snap.data() || {};
+        const ops = normalizeOpsArray(job.ops);
+        const idx = Number(job.currentOpIndex ?? 0);
+        const currentOpCode = String(job.currentOpCode || "").toUpperCase();
+
+        if (!ops.length) throw new Error("Job has no operations.");
+        if (currentOpCode !== stationCode) throw new Error("This job is not at your station.");
+
+        const nextIndex = idx + 1;
+
+        if (nextIndex < ops.length) {
+          tx.update(jobRef, {
+            currentOpIndex: nextIndex,
+            currentOpCode: ops[nextIndex].code,
+            status: "ready",
+            assignedTo: null,
+            updatedAt: serverTimestamp()
+          });
+        } else {
+          tx.update(jobRef, {
+            status: "to_book",
+            assignedTo: null,
+            completedAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+        }
+      });
+    }
+
+    // ---------- Auth gate ----------
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.assign("/companylogin/");
+        return;
+      }
+
+      try {
+        const result = await enforceGate(user);
+        if (!result) return;
+        watchJobsForStation(result.station);
+      } catch (e) {
+        console.error(e);
+        await hardKickToLogin();
+      }
+    });
+
+    // Admin back button
+    backBtn.addEventListener("click", () => {
+      window.location.assign(`/company/?c=${encodeURIComponent(companyId)}`);
+    });
+
+    // Logout (clears kiosk session if possible)
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const sessionId = getKioskSessionId(user.uid);
+          try { await deleteDoc(doc(db, "kioskSessions", sessionId)); } catch {}
+        }
+      } catch {}
+
+      try { await signOut(auth); } catch {}
+      window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+    });
+  </script>
 </body>
 </html>
