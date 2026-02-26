@@ -709,8 +709,8 @@ header{
 
   // ✅ Admin back button
   backBtn.addEventListener("click", () => {
-    window.location.assign(`/company/ProductionOverview.html?c=${encodeURIComponent(companyId)}`);
-  });
+  window.location.assign(`/company/?c=${encodeURIComponent(companyId)}`);
+});
 
   // ✅ Logout (clears kiosk session if possible)
   logoutBtn.addEventListener("click", async () => {
