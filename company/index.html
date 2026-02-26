@@ -662,7 +662,9 @@
   });
 
   // Tile clicks
-  deliveryTile.addEventListener("click", () => alert("Delivery Performance (template)"));
+  deliveryTile.addEventListener("click", () => {
+  window.location.assign(`/company/DeliveryPerformance.html?c=${encodeURIComponent(companyId)}`);
+});
   scrapTile.addEventListener("click", () => alert("Scrap Reasons (template)"));
 
   workspaceTile.addEventListener("click", () => {
