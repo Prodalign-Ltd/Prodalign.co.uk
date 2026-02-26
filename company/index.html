@@ -327,7 +327,7 @@
           <div class="label">Company Workspace</div>
           <div class="sub">Settings & admin tools</div>
         </div>
-        
+
         <div class="tile" id="deliveryTile">
           <div class="icon">📦</div>
           <div class="label">Delivery Performance</div>
@@ -438,24 +438,84 @@
     return String(data.station ?? "").trim().toLowerCase();
   }
 
-  function buildOpsGrid() {
-    const total = 40;
+  // ✅ REPLACED: Ops grid now comes from admin-created stations in Firestore
+  function renderOpsButtons(stations, role){
+    opsGrid.innerHTML = "";
+
+    if (!stations.length){
+      opsGrid.innerHTML = `<div class="jobSub" style="padding:8px 6px;">No operations found.</div>`;
+      return;
+    }
+
     const frag = document.createDocumentFragment();
 
-    for (let i = 1; i <= total; i++) {
+    stations.forEach(st => {
+      const stationId = String(st.id || "").trim();
+      const displayName = String(st.displayName || st.displayname || st.name || stationId).trim();
+      const opCode = String(st.opCode || st.code || "").trim().toUpperCase();
+
       const btn = document.createElement("div");
       btn.className = "opsBtn";
       btn.innerHTML = `
         <div class="icon">⚙️</div>
-        <div class="label">Op ${i}</div>
-        <div class="sub">Template button</div>
+        <div class="label">${escapeHtml(displayName)}</div>
+        <div class="sub">${opCode ? "Code: " + escapeHtml(opCode) : "Open station"}</div>
       `;
-      btn.addEventListener("click", () => alert(`Operations Overview: Op ${i} (template)`));
-      frag.appendChild(btn);
-    }
 
-    opsGrid.innerHTML = "";
+      // overview users: view only
+      const isOverview = (role === "overview");
+      if (isOverview){
+        btn.style.pointerEvents = "none";
+        btn.style.opacity = "0.90";
+      } else {
+        btn.addEventListener("click", () => {
+          // Route through StationPin (consistent with kiosk flow)
+          window.location.assign(
+            `/company/StationPin.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(stationId)}`
+          );
+        });
+      }
+
+      frag.appendChild(btn);
+    });
+
     opsGrid.appendChild(frag);
+  }
+
+  function watchOperations(role){
+    const stationsRef = collection(db, "companies", companyId, "stations");
+
+    return onSnapshot(stationsRef, (snap) => {
+      const stations = [];
+
+      snap.forEach(d => {
+        const data = d.data() || {};
+
+        // hide inactive stations if you use active:false
+        if (data.active === false) return;
+
+        stations.push({ id: d.id, ...data });
+      });
+
+      // sort by order/sort/position/index if present, otherwise name
+      stations.sort((a,b) => {
+        const aNum = Number(a.order ?? a.sort ?? a.position ?? a.index);
+        const bNum = Number(b.order ?? b.sort ?? b.position ?? b.index);
+
+        if (Number.isFinite(aNum) && Number.isFinite(bNum) && aNum !== bNum) return aNum - bNum;
+
+        const an = String(a.displayName ?? a.displayname ?? a.name ?? a.id ?? "").toLowerCase();
+        const bn = String(b.displayName ?? b.displayname ?? b.name ?? b.id ?? "").toLowerCase();
+        return an.localeCompare(bn);
+      });
+
+      renderOpsButtons(stations, role);
+    }, (err) => {
+      console.error("Stations listener error:", err);
+      opsGrid.innerHTML = `<div class="jobSub" style="padding:8px 6px;">
+        Error loading operations: ${escapeHtml(err.message)}
+      </div>`;
+    });
   }
 
   function renderOrdersToBook(jobs){
@@ -542,7 +602,7 @@
       workspaceTile.hidden = !isAdmin;
 
       // UI
-      buildOpsGrid();
+      watchOperations(role);
       watchOrdersToBook();
 
       // Overview view-only mode
@@ -562,7 +622,7 @@
     window.location.assign(`/companylogin/`);
   });
 
-  // Tile clicks (kept same as original, just updated workspace + relative URLs)
+  // Tile clicks (kept same as original)
   deliveryTile.addEventListener("click", () => alert("Delivery Performance (template)"));
   scrapTile.addEventListener("click", () => alert("Scrap Reasons (template)"));
 
