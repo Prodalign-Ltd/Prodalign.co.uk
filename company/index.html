@@ -535,7 +535,7 @@
       // Admin-only tile visibility
       const license = String(profile.license ?? "").trim().toLowerCase();
       const isAdmin = Boolean(profile.isAdmin) || role === "admin" || license === "admin";
-      workspaceTile.hidden = !isAdmin;
+      if (workspaceTile) workspaceTile.hidden = !isAdmin;
 
       // UI
       buildOpsGrid();
@@ -558,17 +558,26 @@
     window.location.assign(`/companylogin/`);
   });
 
-  // ✅ Company Workspace tile click (same destination as old settings)
-  workspaceTile.addEventListener("click", () => {
-    window.location.assign(`/company/settings.html?c=${encodeURIComponent(companyId)}`);
-  });
+  // ✅ Crash-proof click handlers
+  if (workspaceTile) {
+    workspaceTile.addEventListener("click", () => {
+      window.location.assign(`/company/settings.html?c=${encodeURIComponent(companyId)}`);
+    });
+  }
 
-  deliveryTile.addEventListener("click", () => alert("Delivery Performance (template)"));
-  scrapTile.addEventListener("click", () => alert("Scrap Reasons (template)"));
+  if (deliveryTile) {
+    deliveryTile.addEventListener("click", () => alert("Delivery Performance (template)"));
+  }
 
-  ordersDueTile.addEventListener("click", () => {
-    window.location.assign(`/company/Ordersdue.html?c=${encodeURIComponent(companyId)}`);
-  });
+  if (scrapTile) {
+    scrapTile.addEventListener("click", () => alert("Scrap Reasons (template)"));
+  }
+
+  if (ordersDueTile) {
+    ordersDueTile.addEventListener("click", () => {
+      window.location.assign(`/company/Ordersdue.html?c=${encodeURIComponent(companyId)}`);
+    });
+  }
 </script>
 </body>
 </html>
