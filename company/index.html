@@ -322,7 +322,7 @@
       <h2>Production Overview (Past 30 Days)</h2>
 
       <div class="tiles">
-         <div class="tile" id="workspaceTile" hidden>
+        <div class="tile" id="workspaceTile" hidden>
           <div class="icon" style="color:#ffd08a;">🏢</div>
           <div class="label">Company Workspace</div>
           <div class="sub">Settings & admin tools</div>
@@ -362,7 +362,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc,
+    getFirestore, doc, getDoc, setDoc, serverTimestamp,
     collection, query, where, onSnapshot, limit
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -398,6 +398,9 @@
     companyNameEl.textContent = "Missing company id (?c=...)";
     throw new Error("Missing ?c=");
   }
+
+  // Track auth/role state
+  let IS_ADMIN = false;
 
   function escapeHtml(s){
     return String(s ?? "").replace(/[&<>"']/g, (c) => ({
@@ -438,83 +441,50 @@
     return String(data.station ?? "").trim().toLowerCase();
   }
 
-  // ✅ REPLACED: Ops grid now comes from admin-created stations in Firestore
-  function renderOpsButtons(stations, role){
-    opsGrid.innerHTML = "";
-
-    if (!stations.length){
-      opsGrid.innerHTML = `<div class="jobSub" style="padding:8px 6px;">No operations found.</div>`;
-      return;
+  // ✅ Per-device kiosk session id (matches your StationPin/FloorDashboard logic)
+  function getKioskDeviceId() {
+    let id = localStorage.getItem("kioskDeviceId");
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("kioskDeviceId", id);
     }
-
-    const frag = document.createDocumentFragment();
-
-    stations.forEach(st => {
-      const stationId = String(st.id || "").trim();
-      const displayName = String(st.displayName || st.displayname || st.name || stationId).trim();
-      const opCode = String(st.opCode || st.code || "").trim().toUpperCase();
-
-      const btn = document.createElement("div");
-      btn.className = "opsBtn";
-      btn.innerHTML = `
-        <div class="icon">⚙️</div>
-        <div class="label">${escapeHtml(displayName)}</div>
-        <div class="sub">${opCode ? "Code: " + escapeHtml(opCode) : "Open station"}</div>
-      `;
-
-      // overview users: view only
-      const isOverview = (role === "overview");
-      if (isOverview){
-        btn.style.pointerEvents = "none";
-        btn.style.opacity = "0.90";
-      } else {
-        btn.addEventListener("click", () => {
-          // Route through StationPin (consistent with kiosk flow)
-          window.location.assign(
-            `/company/StationPin.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(stationId)}`
-          );
-        });
-      }
-
-      frag.appendChild(btn);
-    });
-
-    opsGrid.appendChild(frag);
+    return id;
+  }
+  function getKioskSessionId(uid) {
+    return `${uid}_${getKioskDeviceId()}`;
   }
 
-  function watchOperations(role){
-    const stationsRef = collection(db, "companies", companyId, "stations");
+  // ✅ Admin fast-open station: write kioskSession then go straight to FloorDashboard
+  async function adminOpenStation(stationId, stationName, stationCode){
+    const user = auth.currentUser;
+    if (!user) throw new Error("Not signed in.");
 
-    return onSnapshot(stationsRef, (snap) => {
-      const stations = [];
+    const sessionId = getKioskSessionId(user.uid);
 
-      snap.forEach(d => {
-        const data = d.data() || {};
+    await setDoc(doc(db, "kioskSessions", sessionId), {
+      uid: user.uid,
+      companyId: companyId,
 
-        // hide inactive stations if you use active:false
-        if (data.active === false) return;
+      stationId: String(stationId || "").trim(),
+      stationName: String(stationName || stationId || "").trim(),
+      stationCode: String(stationCode || stationId || "").trim().toUpperCase(),
 
-        stations.push({ id: d.id, ...data });
-      });
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
 
-      // sort by order/sort/position/index if present, otherwise name
-      stations.sort((a,b) => {
-        const aNum = Number(a.order ?? a.sort ?? a.position ?? a.index);
-        const bNum = Number(b.order ?? b.sort ?? b.position ?? b.index);
+    window.location.assign(
+      `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(stationId)}`
+    );
+  }
 
-        if (Number.isFinite(aNum) && Number.isFinite(bNum) && aNum !== bNum) return aNum - bNum;
-
-        const an = String(a.displayName ?? a.displayname ?? a.name ?? a.id ?? "").toLowerCase();
-        const bn = String(b.displayName ?? b.displayname ?? b.name ?? b.id ?? "").toLowerCase();
-        return an.localeCompare(bn);
-      });
-
-      renderOpsButtons(stations, role);
-    }, (err) => {
-      console.error("Stations listener error:", err);
-      opsGrid.innerHTML = `<div class="jobSub" style="padding:8px 6px;">
-        Error loading operations: ${escapeHtml(err.message)}
-      </div>`;
+  // ✅ IMPORTANT FIX:
+  // Overview users should still be able to click the MAIN tiles (Orders Due etc).
+  // So we only disable ops + job cards.
+  function applyOverviewLockdown() {
+    document.querySelectorAll(".opsBtn, .jobCard").forEach((el) => {
+      el.style.pointerEvents = "none";
+      el.style.opacity = "0.90";
     });
   }
 
@@ -560,13 +530,82 @@
     });
   }
 
-  // ✅ IMPORTANT FIX:
-  // Overview users should still be able to click the MAIN tiles (Orders Due etc).
-  // So we only disable ops + job cards.
-  function applyOverviewLockdown() {
-    document.querySelectorAll(".opsBtn, .jobCard").forEach((el) => {
-      el.style.pointerEvents = "none";
-      el.style.opacity = "0.90";
+  // ✅ Build Operations Overview from admin-created stations
+  function stationSortKey(s){
+    // Try the common fields; if none exist, fall back to name
+    const order =
+      Number(s.order ?? s.orderIndex ?? s.displayOrder ?? s.sort ?? s.position);
+    if (Number.isFinite(order)) return order;
+
+    const name = String(s.displayName || s.displayname || s.name || s.opCode || s.code || s.id || "").toLowerCase();
+    return 999999 + (name ? name.charCodeAt(0) : 0);
+  }
+
+  function buildOpsGridFromStations(stations){
+    if (!stations.length){
+      opsGrid.innerHTML = `<div class="jobSub" style="padding:8px 6px;">No operations configured yet.</div>`;
+      return;
+    }
+
+    const frag = document.createDocumentFragment();
+
+    stations.forEach((s) => {
+      const stationId = s.id;
+      const displayName = String(s.displayName || s.displayname || s.name || stationId).trim();
+      const opCode = String(s.opCode || s.code || stationId).trim().toUpperCase();
+
+      const btn = document.createElement("div");
+      btn.className = "opsBtn";
+      btn.innerHTML = `
+        <div class="icon">⚙️</div>
+        <div class="label">${escapeHtml(opCode)}</div>
+        <div class="sub">${escapeHtml(displayName)}</div>
+      `;
+
+      btn.addEventListener("click", async () => {
+        try{
+          if (IS_ADMIN) {
+            // Admin skip PIN entirely
+            await adminOpenStation(stationId, displayName, opCode);
+          } else {
+            // Everyone else uses the PIN flow
+            window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
+          }
+        } catch(e){
+          console.error(e);
+          alert(e?.message || "Could not open station.");
+        }
+      });
+
+      frag.appendChild(btn);
+    });
+
+    opsGrid.innerHTML = "";
+    opsGrid.appendChild(frag);
+  }
+
+  function watchStationsAndBuildOps(){
+    // Stations live here based on your existing StationPin logic
+    const stationsRef = collection(db, "companies", companyId, "stations");
+
+    return onSnapshot(stationsRef, (snap) => {
+      const stations = [];
+      snap.forEach((d) => {
+        const data = d.data() || {};
+        // Default active=true if missing, but if active is explicitly false, hide it
+        const active = (data.active === undefined) ? true : Boolean(data.active);
+        if (!active) return;
+
+        stations.push({ id: d.id, ...data });
+      });
+
+      stations.sort((a, b) => stationSortKey(a) - stationSortKey(b));
+      buildOpsGridFromStations(stations);
+    }, (err) => {
+      console.error("Stations listener error:", err);
+      opsGrid.innerHTML = `<div class="jobSub" style="padding:8px 6px;">
+        Error loading operations: ${escapeHtml(err.message)}
+      </div>`;
     });
   }
 
@@ -598,12 +637,12 @@
 
       // Admin-only: show workspace tile
       const license = String(profile.license ?? "").trim().toLowerCase();
-      const isAdmin = Boolean(profile.isAdmin) || role === "admin" || license === "admin";
-      workspaceTile.hidden = !isAdmin;
+      IS_ADMIN = Boolean(profile.isAdmin) || role === "admin" || license === "admin";
+      workspaceTile.hidden = !IS_ADMIN;
 
       // UI
-      watchOperations(role);
       watchOrdersToBook();
+      watchStationsAndBuildOps();
 
       // Overview view-only mode
       if (role === "overview") {
@@ -622,7 +661,7 @@
     window.location.assign(`/companylogin/`);
   });
 
-  // Tile clicks (kept same as original)
+  // Tile clicks
   deliveryTile.addEventListener("click", () => alert("Delivery Performance (template)"));
   scrapTile.addEventListener("click", () => alert("Scrap Reasons (template)"));
 
