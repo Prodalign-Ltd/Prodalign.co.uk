@@ -14,6 +14,9 @@
       --muted:rgba(255,255,255,0.75);
       --orange:#f57c00;
       --radius:14px;
+
+      --good:#2ecc71;
+      --bad:#d32f2f;
     }
     *{ box-sizing:border-box; }
 
@@ -44,38 +47,20 @@
       gap: 12px;
     }
 
-    .brand{
-      display:flex;
-      align-items:center;
-      gap: 12px;
-      min-width:0;
-    }
+    .brand{ display:flex; align-items:center; gap:12px; min-width:0; }
     .brand img{
-      height: 44px;
-      max-width: 220px;
-      object-fit: contain;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.06);
-      padding: 6px;
-      display:none;
+      height: 44px; max-width: 220px; object-fit: contain;
+      border-radius: 10px; background: rgba(255,255,255,0.06);
+      padding: 6px; display:none;
       border: 1px solid rgba(245,124,0,0.20);
     }
     .brand .name{
-      font-weight: 900;
-      font-size: 1.05rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 56vw;
-      letter-spacing: 0.2px;
+      font-weight: 900; font-size: 1.05rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 56vw; letter-spacing: 0.2px;
     }
 
-    .actions{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      flex: 0 0 auto;
-    }
+    .actions{ display:flex; align-items:center; gap: 10px; flex:0 0 auto; }
 
     button{
       border: 1px solid rgba(255,255,255,0.10);
@@ -156,16 +141,76 @@
       min-height: 0;
       display:flex;
       flex-direction:column;
-      gap: 12px;
+      gap: 14px;
     }
 
-    .blank{
-      border: 1px dashed rgba(255,255,255,0.18);
-      border-radius: 12px;
+    .chartWrap{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      align-items:center;
+      justify-items:center;
+    }
+
+    .donutCard{
+      width: min(520px, 92vw);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
       background: rgba(0,0,0,0.16);
-      padding: 18px;
+      padding: 14px;
+      box-shadow: 0 18px 55px rgba(0,0,0,.35);
+      display:grid;
+      place-items:center;
+    }
+
+    /* Big donut */
+    #donutSvg{
+      width: min(420px, 80vw);
+      height: auto;
+      display:block;
+    }
+
+    .legend{
+      width: min(520px, 92vw);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.16);
+      padding: 14px 14px 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
       font-weight: 900;
-      color: rgba(255,255,255,0.85);
+    }
+    .left{
+      display:flex; align-items:center; gap: 10px;
+      min-width:0;
+    }
+    .swatch{
+      width: 14px; height: 14px; border-radius: 5px;
+      border: 1px solid rgba(255,255,255,0.18);
+      flex: 0 0 auto;
+    }
+    .label{
+      color: rgba(255,255,255,0.92);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .val{
+      color: rgba(255,255,255,0.92);
+      font-variant-numeric: tabular-nums;
+      white-space:nowrap;
+    }
+    .mutedLine{
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 12px;
+      line-height: 1.35;
     }
 
     @media (max-width: 980px){
@@ -195,8 +240,33 @@
       </div>
 
       <div class="panel-body">
-        <div class="blank">
-          Blank page ready. Build your Delivery Performance view here.
+        <div class="chartWrap">
+          <div class="donutCard">
+            <!-- SVG donut gets rendered by JS -->
+            <svg id="donutSvg" viewBox="0 0 220 220" role="img" aria-label="Delivery performance chart"></svg>
+          </div>
+
+          <div class="legend">
+            <div class="row">
+              <div class="left">
+                <span class="swatch" style="background: var(--good);"></span>
+                <span class="label">On time / Early</span>
+              </div>
+              <span class="val" id="goodText">—</span>
+            </div>
+
+            <div class="row">
+              <div class="left">
+                <span class="swatch" style="background: var(--bad);"></span>
+                <span class="label">Late</span>
+              </div>
+              <span class="val" id="badText">—</span>
+            </div>
+
+            <div class="mutedLine" id="footnote">
+              Late = booked into stock AFTER due date.
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -205,7 +275,9 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import {
+      getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy, limit
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
@@ -228,10 +300,110 @@
     const logoutBtn = document.getElementById("logoutBtn");
     const backBtn = document.getElementById("backBtn");
 
+    const donutSvg = document.getElementById("donutSvg");
+    const goodText = document.getElementById("goodText");
+    const badText = document.getElementById("badText");
+
     if (!companyId) {
       companyNameEl.textContent = "Missing company id (?c=...)";
       statusText.textContent = "Cannot load without ?c=";
       throw new Error("Missing ?c=");
+    }
+
+    function asDateMaybe(v){
+      if (!v) return null;
+      if (v?.toDate) return v.toDate();         // Firestore Timestamp
+      if (v instanceof Date) return v;
+      const d = new Date(v);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    // ✅ Pick your "booked into stock" timestamp here if needed:
+    function bookedDateFromJob(job){
+      // Try a few common field names (edit to match your schema)
+      return (
+        asDateMaybe(job.bookedAt) ||
+        asDateMaybe(job.bookedIntoStockAt) ||
+        asDateMaybe(job.bookedInAt) ||
+        asDateMaybe(job.stockBookedAt) ||
+        asDateMaybe(job.completedAt) ||
+        null
+      );
+    }
+
+    function dueDateFromJob(job){
+      return asDateMaybe(job.dueAt) || null;
+    }
+
+    function pct(n, d){
+      if (!d) return 0;
+      return Math.round((n / d) * 100);
+    }
+
+    // Draw a donut chart (2 segments) using SVG arcs
+    function polarToCartesian(cx, cy, r, angleDeg){
+      const a = (angleDeg - 90) * Math.PI / 180.0;
+      return { x: cx + (r * Math.cos(a)), y: cy + (r * Math.sin(a)) };
+    }
+    function arcPath(cx, cy, r, startAngle, endAngle){
+      const start = polarToCartesian(cx, cy, r, endAngle);
+      const end = polarToCartesian(cx, cy, r, startAngle);
+      const largeArcFlag = (endAngle - startAngle) <= 180 ? "0" : "1";
+      return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+    }
+
+    function renderDonut({ goodCount, badCount }){
+      const total = goodCount + badCount;
+
+      // empty state
+      if (!total){
+        donutSvg.innerHTML = `
+          <circle cx="110" cy="110" r="86" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="26"></circle>
+          <text x="110" y="106" text-anchor="middle" font-size="18" font-weight="950" fill="rgba(255,255,255,0.92)">No data</text>
+          <text x="110" y="128" text-anchor="middle" font-size="11" font-weight="800" fill="rgba(255,255,255,0.65)">Need dueAt + bookedAt</text>
+        `;
+        return;
+      }
+
+      const goodPct = pct(goodCount, total);
+      const badPct = 100 - goodPct;
+
+      // angles
+      const start = 0;
+      const goodAngle = (goodCount / total) * 360;
+      const goodEnd = start + goodAngle;
+      const badEnd = 360;
+
+      const goodStroke = getComputedStyle(document.documentElement).getPropertyValue("--good").trim() || "#2ecc71";
+      const badStroke  = getComputedStyle(document.documentElement).getPropertyValue("--bad").trim()  || "#d32f2f";
+
+      // If one slice is 100%, draw it as a circle stroke to avoid SVG arc edge cases
+      const isAllGood = badCount === 0;
+      const isAllBad  = goodCount === 0;
+
+      donutSvg.innerHTML = `
+        <!-- track -->
+        <circle cx="110" cy="110" r="86" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="26"></circle>
+
+        ${isAllGood ? `
+          <circle cx="110" cy="110" r="86" fill="none" stroke="${goodStroke}" stroke-width="26" stroke-linecap="butt"></circle>
+        ` : isAllBad ? `
+          <circle cx="110" cy="110" r="86" fill="none" stroke="${badStroke}" stroke-width="26" stroke-linecap="butt"></circle>
+        ` : `
+          <path d="${arcPath(110,110,86, start, goodEnd)}" fill="none" stroke="${goodStroke}" stroke-width="26" stroke-linecap="butt"></path>
+          <path d="${arcPath(110,110,86, goodEnd, badEnd)}" fill="none" stroke="${badStroke}" stroke-width="26" stroke-linecap="butt"></path>
+        `}
+
+        <!-- hole -->
+        <circle cx="110" cy="110" r="62" fill="rgba(7,24,38,0.85)"></circle>
+
+        <!-- center text -->
+        <text x="110" y="108" text-anchor="middle" font-size="34" font-weight="950" fill="rgba(255,255,255,0.95)">${goodPct}%</text>
+        <text x="110" y="132" text-anchor="middle" font-size="12" font-weight="900" fill="rgba(255,255,255,0.70)">On time</text>
+      `;
+
+      goodText.textContent = `${goodPct}% (${goodCount})`;
+      badText.textContent = `${badPct}% (${badCount})`;
     }
 
     async function loadCompanyBranding(companyId) {
@@ -240,7 +412,6 @@
         companyNameEl.textContent = `Company '${companyId}' not found`;
         return;
       }
-
       const company = snap.data() || {};
       const name = company.displayname || company.companyname || "Company";
       const logoUrl = company.Logourl || company.logoUrl || "";
@@ -250,7 +421,6 @@
         companyLogoEl.src = logoUrl;
         companyLogoEl.style.display = "block";
       }
-
       document.title = `${name} | Delivery Performance`;
     }
 
@@ -264,6 +434,46 @@
       if (!userCompany) throw new Error("User profile missing companycode.");
       if (userCompany !== companyId) throw new Error("Access denied for this company.");
       return true;
+    }
+
+    function watchDeliveryPerformance(){
+      // We read a chunk of jobs and compute late/on-time client-side
+      // (because querying for "bookedAt exists" isn't straightforward).
+      const jobsRef = collection(db, "companies", companyId, "jobs");
+      const qy = query(jobsRef, orderBy("dueAt", "desc"), limit(800));
+
+      return onSnapshot(qy, (snap) => {
+        let good = 0;
+        let bad = 0;
+        let usable = 0;
+
+        snap.forEach((ds) => {
+          const j = ds.data() || {};
+          const due = dueDateFromJob(j);
+          const booked = bookedDateFromJob(j);
+
+          if (!due || !booked) return;
+
+          usable++;
+          if (booked.getTime() > due.getTime()) bad++;
+          else good++;
+        });
+
+        renderDonut({ goodCount: good, badCount: bad });
+
+        const total = good + bad;
+        statusText.textContent = total
+          ? `Total: ${total} (usable: ${usable})`
+          : `No usable data yet`;
+      }, (err) => {
+        console.error(err);
+        statusText.textContent = "Error";
+        donutSvg.innerHTML = `
+          <text x="110" y="110" text-anchor="middle" font-size="12" font-weight="900" fill="#ffb4b4">
+            Error loading jobs
+          </text>
+        `;
+      });
     }
 
     // Buttons
@@ -286,7 +496,8 @@
       try{
         await enforceUserCompany(user, companyId);
         await loadCompanyBranding(companyId);
-        statusText.textContent = "Ready";
+        statusText.textContent = "Reading jobs…";
+        watchDeliveryPerformance();
       } catch (err){
         console.error(err);
         statusText.textContent = "Access denied";
