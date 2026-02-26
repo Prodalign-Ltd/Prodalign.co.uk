@@ -107,9 +107,7 @@ header{
   background:rgba(0,0,0,0.18);
 }
 
-.swatch{
-  width:10px;height:10px;border-radius:999px;
-}
+.swatch{ width:10px;height:10px;border-radius:999px; }
 .wip{background:var(--green)}
 .available{background:var(--amber)}
 .na{background:var(--gray)}
@@ -145,13 +143,13 @@ header{
 /* JOB CARDS */
 .sectionBody{
   padding: 14px;
-  display: block;
+  display:block;
   min-height: 180px;
 }
 
 .jobsGrid{
-  display: grid;
-  gap: 12px;
+  display:grid;
+  gap:12px;
 }
 
 .jobCard{
@@ -205,7 +203,6 @@ header{
   cursor: pointer;
   font-weight: 900;
 }
-
 .smallBtn:hover{
   background: rgba(255,255,255,0.12);
   transform: translateY(-1px);
@@ -215,7 +212,6 @@ header{
   border-color: rgba(46,125,50,0.45);
   background: linear-gradient(180deg, rgba(46,125,50,0.22), rgba(255,255,255,0.08));
 }
-
 .smallBtn.warn{
   border-color: rgba(249,168,37,0.55);
   background: linear-gradient(180deg, rgba(249,168,37,0.18), rgba(255,255,255,0.08));
@@ -280,7 +276,7 @@ header{
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, collection, onSnapshot,
+    getFirestore, doc, getDoc, setDoc, collection, onSnapshot,
     runTransaction, serverTimestamp, deleteDoc
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -303,8 +299,8 @@ header{
   // URL params
   const params = new URLSearchParams(window.location.search);
   const companyId = (params.get("c") || "").trim().toLowerCase();
+  const stationParam = (params.get("station") || "").trim();
 
-  // If missing company, bounce
   if (!companyId) {
     window.location.assign("/companylogin/");
     throw new Error("Missing ?c=");
@@ -327,13 +323,25 @@ header{
       .join(" ");
   }
 
-  function renderEmpty(el, text){
-    el.innerHTML = `<div class="emptyState">${escapeHtml(text)}</div>`;
-  }
-
   function getUserIdentifier(){
     const u = auth.currentUser;
     return u?.email || u?.displayName || u?.uid || "unknown";
+  }
+
+  function opsToString(ops, currentIndex){
+    if (!Array.isArray(ops) || ops.length === 0) return "Ops: —";
+    return ops
+      .map((o, i) => {
+        const code = String(o?.code || "").toUpperCase();
+        if (!code) return "";
+        return (i === currentIndex) ? `[${code}]` : code;
+      })
+      .filter(Boolean)
+      .join(" → ");
+  }
+
+  function renderEmpty(el, text){
+    el.innerHTML = `<div class="emptyState">${escapeHtml(text)}</div>`;
   }
 
   function normalizeOpsArray(ops){
@@ -347,15 +355,7 @@ header{
       .filter(Boolean);
   }
 
-  function opsToString(ops, currentIndex){
-    if (!Array.isArray(ops) || ops.length === 0) return "Ops: —";
-    return ops
-      .map((o, i) => (i === currentIndex ? `[${o.code}]` : o.code))
-      .filter(Boolean)
-      .join(" → ");
-  }
-
-  // Per-device kiosk session id
+  // ✅ Per-device kiosk session id
   function getKioskDeviceId() {
     let id = localStorage.getItem("kioskDeviceId");
     if (!id) {
@@ -374,43 +374,165 @@ header{
     window.location.assign("/companylogin/");
   }
 
-  async function enforceOperatorGate(user) {
-    // Profile check
+  // ✅ NEW: allow ADMIN to access station dashboards
+  async function enforceGate(user) {
+    // 1) Basic user profile check (company + role)
     const snap = await getDoc(doc(db, "users", user.uid));
     if (!snap.exists()) throw new Error("User profile missing.");
 
     const data = snap.data() || {};
     const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
     const role = String(data.role ?? "").trim().toLowerCase();
+    const license = String(data.license ?? "").trim().toLowerCase();
+    const isAdmin = Boolean(data.isAdmin) || role === "admin" || license === "admin";
 
     if (!userCompany || userCompany !== companyId) throw new Error("Wrong company.");
-    if (role !== "operator") throw new Error("Not an operator.");
 
-    // Station from kiosk session ONLY
+    // ✅ operators + admins can view
+    const allowed = (role === "operator") || isAdmin;
+    if (!allowed) throw new Error("Not allowed for this dashboard.");
+
+    // 2) Determine station:
+    // - Operators MUST use kiosk session
+    // - Admins can use kiosk session OR ?station= fallback
     const sessionId = getKioskSessionId(user.uid);
     const sessSnap = await getDoc(doc(db, "kioskSessions", sessionId));
 
-    if (!sessSnap.exists()) {
-      window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
-      return false;
+    let station = "";
+    let sessCompany = "";
+
+    if (sessSnap.exists()) {
+      const sess = sessSnap.data() || {};
+      station = String(sess.stationId || "").trim();
+      sessCompany = String(sess.companyId || "").trim().toLowerCase();
     }
 
-    const sess = sessSnap.data() || {};
-    const stationId = String(sess.stationId || "").trim();
-    const stationCode = String(sess.stationCode || "").trim().toUpperCase();
-    const sessCompany = String(sess.companyId || "").trim().toLowerCase();
+    // Admin fallback to URL param if session missing/invalid
+    if (isAdmin) {
+      if ((!station || sessCompany !== companyId) && stationParam) {
+        station = stationParam;
+        sessCompany = companyId;
 
-    if (!stationId || !stationCode || sessCompany !== companyId) {
-      window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
-      return false;
+        // best-effort session write (so future loads remember)
+        try {
+          await setDoc(doc(db, "kioskSessions", sessionId), {
+            uid: user.uid,
+            companyId: companyId,
+            stationId: station,
+            stationName: station,
+            stationCode: station,
+            updatedAt: serverTimestamp(),
+            createdAt: serverTimestamp()
+          }, { merge: true });
+        } catch (e) {
+          console.warn("Admin session write blocked (rules):", e);
+        }
+      }
     }
 
-    stationTitleEl.textContent = `${prettyStationName(stationId)} Dashboard`;
-    return { stationId, stationCode };
+    // If still no station -> send to pin
+    if (!station || sessCompany !== companyId) {
+      window.location.assign(`/company/StationPin.html?c=${encodeURIComponent(companyId)}`);
+      return null;
+    }
+
+    // Keep URL tidy (do NOT return false / do not break page)
+    const desiredUrl = `/company/FloorDashboard.html?c=${encodeURIComponent(companyId)}&station=${encodeURIComponent(station)}`;
+    const currentUrl = location.pathname + location.search;
+    if (currentUrl !== desiredUrl) {
+      window.location.replace(desiredUrl);
+      return null;
+    }
+
+    stationTitleEl.textContent = `${prettyStationName(station)} Dashboard`;
+    return { station };
+  }
+
+  function watchJobsForStation(stationId){
+    const stationCode = String(stationId || "").trim().toUpperCase();
+    if (!stationCode) return;
+
+    const jobsRef = collection(db, "companies", companyId, "jobs");
+
+    return onSnapshot(jobsRef, (snap) => {
+      const available = [];
+      const wip = [];
+      const notAvailable = [];
+
+      snap.forEach((d) => {
+        const job = d.data() || {};
+        const id = d.id;
+
+        const st = String(job.status || "").toLowerCase();
+        if (st === "complete" || st === "booked" || st === "to_book") return;
+
+        const ops = normalizeOpsArray(job.ops);
+        const currentOpIndex = Number(job.currentOpIndex ?? 0);
+
+        const myIndex = ops.findIndex(o => o.code === stationCode);
+        if (myIndex === -1) return;
+        if (currentOpIndex > myIndex) return;
+
+        const currentOpCode = String(job.currentOpCode || "").trim().toUpperCase();
+        const status = String(job.status || "").trim().toLowerCase();
+
+        const jobView = {
+          id,
+          itemCode: String(job.itemCode || "").toUpperCase(),
+          orderNo: String(job.orderNo || ""),
+          qty: Number(job.qty || 0),
+          ops,
+          currentOpIndex,
+          currentOpCode,
+          status,
+          assignedTo: String(job.assignedTo || ""),
+        };
+
+        if (currentOpIndex === myIndex) {
+          if (status === "ready") available.push(jobView);
+          else wip.push(jobView);
+        } else {
+          notAvailable.push(jobView);
+        }
+      });
+
+      renderJobLists({ stationCode, available, wip, notAvailable });
+    }, (err) => {
+      console.error("Jobs listener error:", err);
+      renderEmpty(availableBody, `Error loading jobs: ${err.message}`);
+      renderEmpty(wipBody, `Error loading jobs: ${err.message}`);
+      renderEmpty(naBody, `Error loading jobs: ${err.message}`);
+    });
+  }
+
+  function renderJobLists({ stationCode, available, wip, notAvailable }){
+    if (!available.length) renderEmpty(availableBody, "No jobs ready for this station.");
+    else {
+      availableBody.innerHTML = `<div class="jobsGrid">${
+        available.map(j => jobCardHtml(j, stationCode, "available")).join("")
+      }</div>`;
+      wireCardButtons(availableBody, stationCode);
+    }
+
+    if (!wip.length) renderEmpty(wipBody, "No jobs in progress at this station.");
+    else {
+      wipBody.innerHTML = `<div class="jobsGrid">${
+        wip.map(j => jobCardHtml(j, stationCode, "wip")).join("")
+      }</div>`;
+      wireCardButtons(wipBody, stationCode);
+    }
+
+    if (!notAvailable.length) renderEmpty(naBody, "Nothing waiting on previous operations.");
+    else {
+      naBody.innerHTML = `<div class="jobsGrid">${
+        notAvailable.map(j => jobCardHtml(j, stationCode, "na")).join("")
+      }</div>`;
+    }
   }
 
   function jobCardHtml(job, stationCode, bucket){
     const title = `${job.itemCode || "—"} × ${job.qty || 0}`;
+
     const meta = `
       <div class="jobMeta">
         <div><b>Order:</b> ${escapeHtml(job.orderNo || "—")}</div>
@@ -426,13 +548,13 @@ header{
     if (bucket === "available") {
       btns = `
         <div class="jobBtns">
-          <button class="smallBtn primary" type="button" data-start="${job.id}">Start</button>
+          <button class="smallBtn primary" data-start="${job.id}">Start</button>
         </div>
       `;
     } else if (bucket === "wip") {
       btns = `
         <div class="jobBtns">
-          <button class="smallBtn warn" type="button" data-complete="${job.id}">Complete / Move On</button>
+          <button class="smallBtn warn" data-complete="${job.id}">Complete / Move On</button>
         </div>
       `;
     }
@@ -478,89 +600,6 @@ header{
           btn.disabled = false;
         }
       });
-    });
-  }
-
-  function renderJobLists({ stationCode, available, wip, notAvailable }){
-    if (!available.length) renderEmpty(availableBody, "No jobs ready for this station.");
-    else {
-      availableBody.innerHTML = `<div class="jobsGrid">${
-        available.map(j => jobCardHtml(j, stationCode, "available")).join("")
-      }</div>`;
-      wireCardButtons(availableBody, stationCode);
-    }
-
-    if (!wip.length) renderEmpty(wipBody, "No jobs in progress at this station.");
-    else {
-      wipBody.innerHTML = `<div class="jobsGrid">${
-        wip.map(j => jobCardHtml(j, stationCode, "wip")).join("")
-      }</div>`;
-      wireCardButtons(wipBody, stationCode);
-    }
-
-    if (!notAvailable.length) renderEmpty(naBody, "Nothing waiting on previous operations.");
-    else {
-      naBody.innerHTML = `<div class="jobsGrid">${
-        notAvailable.map(j => jobCardHtml(j, stationCode, "na")).join("")
-      }</div>`;
-    }
-  }
-
-  function watchJobsForStation(stationCode){
-    const sc = String(stationCode || "").trim().toUpperCase();
-    if (!sc) return;
-
-    const jobsRef = collection(db, "companies", companyId, "jobs");
-
-    return onSnapshot(jobsRef, (snap) => {
-      const available = [];
-      const wip = [];
-      const notAvailable = [];
-
-      snap.forEach((d) => {
-        const job = d.data() || {};
-        const id = d.id;
-
-        const st = String(job.status || "").toLowerCase();
-        if (st === "complete" || st === "booked" || st === "to_book") return;
-
-        const ops = normalizeOpsArray(job.ops);
-        const currentOpIndex = Number(job.currentOpIndex ?? 0);
-
-        // Find my index in the flow
-        const myIndex = ops.findIndex(o => o.code === sc);
-        if (myIndex === -1) return;
-        if (currentOpIndex > myIndex) return;
-
-        const currentOpCode = String(job.currentOpCode || "").trim().toUpperCase();
-        const status = String(job.status || "").trim().toLowerCase();
-
-        const jobView = {
-          id,
-          itemCode: String(job.itemCode || "").toUpperCase(),
-          orderNo: String(job.orderNo || ""),
-          qty: Number(job.qty || 0),
-          ops,
-          currentOpIndex,
-          currentOpCode,
-          status,
-          assignedTo: String(job.assignedTo || ""),
-        };
-
-        if (currentOpIndex === myIndex) {
-          if (status === "ready") available.push(jobView);
-          else wip.push(jobView);
-        } else {
-          notAvailable.push(jobView);
-        }
-      });
-
-      renderJobLists({ stationCode: sc, available, wip, notAvailable });
-    }, (err) => {
-      console.error("Jobs listener error:", err);
-      renderEmpty(availableBody, `Error loading jobs: ${err.message}`);
-      renderEmpty(wipBody, `Error loading jobs: ${err.message}`);
-      renderEmpty(naBody, `Error loading jobs: ${err.message}`);
     });
   }
 
@@ -623,7 +662,6 @@ header{
     });
   }
 
-  // Auth gate
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.assign("/companylogin/");
@@ -631,39 +669,29 @@ header{
     }
 
     try {
-      const result = await enforceOperatorGate(user);
+      const result = await enforceGate(user);
       if (!result) return;
 
-      // IMPORTANT: use stationCode for job matching
-      const { stationCode } = result;
-      watchJobsForStation(stationCode);
+      watchJobsForStation(result.station);
 
     } catch (e) {
       console.error(e);
-      renderEmpty(availableBody, e?.message || "Access error.");
-      renderEmpty(wipBody, e?.message || "Access error.");
-      renderEmpty(naBody, e?.message || "Access error.");
       await hardKickToLogin();
     }
   });
 
-  // Logout button
+  // Logout button (clears kiosk session if possible)
   logoutBtn.addEventListener("click", async () => {
     try {
       const user = auth.currentUser;
       if (user) {
-        const kioskId = localStorage.getItem("kioskDeviceId");
-        if (kioskId) {
-          const sessionId = `${user.uid}_${kioskId}`;
-          await deleteDoc(doc(db, "kioskSessions", sessionId));
-        }
+        const sessionId = getKioskSessionId(user.uid);
+        try { await deleteDoc(doc(db, "kioskSessions", sessionId)); } catch {}
       }
-    } catch (e) {
-      console.error("Logout cleanup failed:", e);
-    }
+    } catch {}
 
-    await signOut(auth);
-    location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+    try { await signOut(auth); } catch {}
+    window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
   });
 </script>
 
