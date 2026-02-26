@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Delivery Performance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root{
+      --bg:#071826;
+      --panel:rgba(255,255,255,0.06);
+      --border:rgba(255,255,255,0.10);
+      --text:#fff;
+      --muted:rgba(255,255,255,0.75);
+      --orange:#f57c00;
+      --radius:14px;
+    }
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background:
+        radial-gradient(1200px 700px at 20% -10%, rgba(245,124,0,0.18), transparent 60%),
+        radial-gradient(900px 600px at 120% 0%, rgba(211,47,47,0.12), transparent 55%),
+        linear-gradient(180deg, var(--bg) 0%, #06131e 100%);
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 18px;
+      background: linear-gradient(90deg, rgba(16,44,68,0.95), rgba(9,27,42,0.92));
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      gap: 12px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width:0;
+    }
+    .brand img{
+      height: 44px;
+      max-width: 220px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      padding: 6px;
+      display:none;
+      border: 1px solid rgba(245,124,0,0.20);
+    }
+    .brand .name{
+      font-weight: 900;
+      font-size: 1.05rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 56vw;
+      letter-spacing: 0.2px;
+    }
+
+    .actions{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    button{
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+    button:hover{
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(245,124,0,0.35);
+      transform: translateY(-1px);
+    }
+    .btn-danger{
+      border-color: rgba(211,47,47,0.40);
+      background: linear-gradient(180deg, rgba(211,47,47,0.18), rgba(255,255,255,0.08));
+    }
+
+    .wrap{
+      padding: 14px;
+      flex: 1;
+      min-height: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow:hidden;
+      min-height: 0;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .panel-header{
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), transparent);
+    }
+
+    .panel-title{
+      font-weight: 900;
+      font-size: 0.92rem;
+      letter-spacing: 0.2px;
+      opacity: 0.95;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .panel-title .dot{
+      width: 8px; height: 8px; border-radius: 999px;
+      background: var(--orange);
+      box-shadow: 0 0 0 4px rgba(245,124,0,0.15);
+      display:inline-block;
+    }
+
+    .hint{
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 0.9rem;
+      line-height: 1.35;
+      white-space: nowrap;
+    }
+
+    .panel-body{
+      padding: 14px 12px;
+      min-height: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
+    .blank{
+      border: 1px dashed rgba(255,255,255,0.18);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.16);
+      padding: 18px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.85);
+    }
+
+    @media (max-width: 980px){
+      .brand .name{ max-width: 48vw; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="brand">
+      <img id="companyLogo" alt="Company Logo" />
+      <div class="name" id="companyName">Loading…</div>
+    </div>
+
+    <div class="actions">
+      <button id="backBtn" type="button">Back</button>
+      <button id="logoutBtn" class="btn-danger" type="button">Log out</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="dot"></span> Delivery Performance</div>
+        <div class="hint" id="statusText">Loading…</div>
+      </div>
+
+      <div class="panel-body">
+        <div class="blank">
+          Blank page ready. Build your Delivery Performance view here.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-ArzjlwKTZVpsH4ERg7n-MEgzCt6Nzno",
+      authDomain: "prodalign-ltd.firebaseapp.com",
+      projectId: "prodalign-ltd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // URL (?c=...)
+    const params = new URLSearchParams(window.location.search);
+    const companyId = (params.get("c") || "").trim().toLowerCase();
+
+    // UI refs
+    const companyLogoEl = document.getElementById("companyLogo");
+    const companyNameEl = document.getElementById("companyName");
+    const statusText = document.getElementById("statusText");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const backBtn = document.getElementById("backBtn");
+
+    if (!companyId) {
+      companyNameEl.textContent = "Missing company id (?c=...)";
+      statusText.textContent = "Cannot load without ?c=";
+      throw new Error("Missing ?c=");
+    }
+
+    async function loadCompanyBranding(companyId) {
+      const snap = await getDoc(doc(db, "companies", companyId));
+      if (!snap.exists()) {
+        companyNameEl.textContent = `Company '${companyId}' not found`;
+        return;
+      }
+
+      const company = snap.data() || {};
+      const name = company.displayname || company.companyname || "Company";
+      const logoUrl = company.Logourl || company.logoUrl || "";
+
+      companyNameEl.textContent = name;
+      if (logoUrl) {
+        companyLogoEl.src = logoUrl;
+        companyLogoEl.style.display = "block";
+      }
+
+      document.title = `${name} | Delivery Performance`;
+    }
+
+    async function enforceUserCompany(user, companyId) {
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      if (!userSnap.exists()) throw new Error("User profile missing (users/{uid}).");
+
+      const data = userSnap.data() || {};
+      const userCompany = String(data.companycode ?? data.companyCode ?? "").trim().toLowerCase();
+
+      if (!userCompany) throw new Error("User profile missing companycode.");
+      if (userCompany !== companyId) throw new Error("Access denied for this company.");
+      return true;
+    }
+
+    // Buttons
+    logoutBtn.addEventListener("click", async () => {
+      try { await signOut(auth); } catch {}
+      window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+    });
+
+    backBtn.addEventListener("click", () => {
+      window.location.assign(`./index.html?c=${encodeURIComponent(companyId)}`);
+    });
+
+    // Start
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+        return;
+      }
+
+      try{
+        await enforceUserCompany(user, companyId);
+        await loadCompanyBranding(companyId);
+        statusText.textContent = "Ready";
+      } catch (err){
+        console.error(err);
+        statusText.textContent = "Access denied";
+        try { await signOut(auth); } catch {}
+        window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
+      }
+    });
+  </script>
+</body>
+</html>
