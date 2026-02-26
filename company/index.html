@@ -62,7 +62,6 @@
     }
     button:hover{ background:rgba(255,255,255,0.12); border-color:rgba(245,124,0,0.35); }
     .btn-danger{ border-color:rgba(211,47,47,0.40); }
-    #settingsBtn[hidden]{ display:none !important; }
 
     .wrap{
       flex:1;
@@ -144,6 +143,7 @@
     }
     .tile .label{ font-weight: 900; font-size: 18px; }
     .tile .sub{ color: var(--muted); font-size: 13px; margin-top:-6px; }
+    .tile[hidden]{ display:none !important; }
 
     /* Orders to Book strip */
     .ordersStrip{
@@ -291,7 +291,6 @@
   </div>
 
   <div class="actions">
-    <button id="settingsBtn" type="button" hidden>Settings</button>
     <button id="logoutBtn" class="btn-danger" type="button">Log out</button>
   </div>
 </header>
@@ -333,10 +332,11 @@
           <div class="sub">Template tile</div>
         </div>
 
-        <div class="tile disabled" title="Do not use">
-          <div class="icon" style="color:#ff6b6b;">📈</div>
-          <div class="label">(DO NOT USE)</div>
-          <div class="sub">Disabled tile</div>
+        <!-- ✅ NEW: Company Workspace (admin only) -->
+        <div class="tile" id="workspaceTile" hidden>
+          <div class="icon" style="color:#ffd08a;">🏢</div>
+          <div class="label">Company Workspace</div>
+          <div class="sub">Settings & admin tools</div>
         </div>
 
         <div class="tile" id="ordersDueTile">
@@ -379,10 +379,10 @@
   const companyLogoEl = document.getElementById("companyLogo");
   const companyNameEl = document.getElementById("companyName");
   const logoutBtn = document.getElementById("logoutBtn");
-  const settingsBtn = document.getElementById("settingsBtn");
 
   const deliveryTile = document.getElementById("deliveryTile");
   const scrapTile = document.getElementById("scrapTile");
+  const workspaceTile = document.getElementById("workspaceTile");
   const ordersDueTile = document.getElementById("ordersDueTile");
 
   const ordersRow = document.getElementById("ordersRow");
@@ -449,7 +449,7 @@
         <div class="label">Op ${i}</div>
         <div class="sub">Template button</div>
       `;
-      btn.addEventListener("click", () => alert(`Operations Overview: Op ${i} (template)`));
+      btn.addEventListener("click", () => alert(\`Operations Overview: Op ${i} (template)\`));
       frag.appendChild(btn);
     }
 
@@ -532,10 +532,10 @@
 
       await loadCompanyBranding(companyId);
 
-      // Admin logic
+      // Admin-only tile visibility
       const license = String(profile.license ?? "").trim().toLowerCase();
       const isAdmin = Boolean(profile.isAdmin) || role === "admin" || license === "admin";
-      settingsBtn.hidden = !isAdmin;
+      workspaceTile.hidden = !isAdmin;
 
       // UI
       buildOpsGrid();
@@ -558,15 +558,16 @@
     window.location.assign(`/companylogin/`);
   });
 
-  settingsBtn.addEventListener("click", () => {
-    window.location.assign(`https://prodalign.co.uk/company/settings.html?c=${encodeURIComponent(companyId)}`);
+  // ✅ Company Workspace tile click (same destination as old settings)
+  workspaceTile.addEventListener("click", () => {
+    window.location.assign(`/company/settings.html?c=${encodeURIComponent(companyId)}`);
   });
 
   deliveryTile.addEventListener("click", () => alert("Delivery Performance (template)"));
   scrapTile.addEventListener("click", () => alert("Scrap Reasons (template)"));
 
   ordersDueTile.addEventListener("click", () => {
-    window.location.assign(`https://prodalign.co.uk/company/Ordersdue.html?c=${encodeURIComponent(companyId)}`);
+    window.location.assign(`/company/Ordersdue.html?c=${encodeURIComponent(companyId)}`);
   });
 </script>
 </body>
