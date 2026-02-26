@@ -145,7 +145,6 @@
     .tile .sub{ color: var(--muted); font-size: 13px; margin-top:-6px; }
     .tile[hidden]{ display:none !important; }
 
-    /* Orders to Book strip */
     .ordersStrip{
       width:min(1040px, 96vw);
       border-radius: 18px;
@@ -235,7 +234,6 @@
       line-height: 1.25;
     }
 
-    /* Operations grid */
     .opsGrid{
       display:grid;
       grid-template-columns: repeat(10, 1fr);
@@ -265,11 +263,21 @@
     .opsBtn .label{ font-weight: 900; font-size: 14px; }
     .opsBtn .sub{ color: var(--muted); font-size: 12px; margin-top:-6px; }
 
+    /* Visible error bar */
+    .errorBar{
+      width:min(1040px, 96vw);
+      border-radius: 14px;
+      border:1px solid rgba(211,47,47,0.35);
+      background: rgba(211,47,47,0.12);
+      padding: 12px 14px;
+      color: rgba(255,255,255,0.92);
+      font-weight: 850;
+      display:none;
+    }
+    .errorBar.show{ display:block; }
+
     @media (max-width: 1100px){
-      .opsGridWrap{
-        overflow-x:auto;
-        padding-bottom:6px;
-      }
+      .opsGridWrap{ overflow-x:auto; padding-bottom:6px; }
       .opsGrid{ width: 1200px; }
     }
     @media (max-width: 980px){
@@ -305,6 +313,8 @@
       </div>
     </div>
 
+    <div class="errorBar" id="errorBar"></div>
+
     <section class="ordersStrip">
       <div class="ordersStripHeader">
         <h2>Orders to Book</h2>
@@ -332,7 +342,7 @@
           <div class="sub">Template tile</div>
         </div>
 
-        <!-- ✅ NEW: Company Workspace (admin only) -->
+        <!-- Company Workspace (admin only) -->
         <div class="tile" id="workspaceTile" hidden>
           <div class="icon" style="color:#ffd08a;">🏢</div>
           <div class="label">Company Workspace</div>
@@ -388,6 +398,7 @@
   const ordersRow = document.getElementById("ordersRow");
   const ordersHint = document.getElementById("ordersHint");
   const opsGrid = document.getElementById("opsGrid");
+  const errorBar = document.getElementById("errorBar");
 
   // URL param
   const params = new URLSearchParams(window.location.search);
@@ -396,6 +407,14 @@
   if (!companyId) {
     companyNameEl.textContent = "Missing company id (?c=...)";
     throw new Error("Missing ?c=");
+  }
+
+  function showError(msg){
+    console.error(msg);
+    if (errorBar){
+      errorBar.textContent = String(msg || "Unknown error");
+      errorBar.classList.add("show");
+    }
   }
 
   function escapeHtml(s){
@@ -496,11 +515,13 @@
       ordersRow.innerHTML = `<div class="jobSub" style="padding:8px 6px;">
         Error loading orders to book: ${escapeHtml(err.message)}
       </div>`;
+      showError("Orders listener failed: " + err.message);
     });
   }
 
+  // ✅ Overview mode should NOT disable the main tiles
   function applyOverviewLockdown() {
-    document.querySelectorAll(".tile, .opsBtn, .jobCard").forEach((el) => {
+    document.querySelectorAll(".opsBtn, .jobCard").forEach((el) => {
       el.style.pointerEvents = "none";
       el.style.opacity = "0.90";
     });
@@ -535,21 +556,20 @@
       // Admin-only tile visibility
       const license = String(profile.license ?? "").trim().toLowerCase();
       const isAdmin = Boolean(profile.isAdmin) || role === "admin" || license === "admin";
-      if (workspaceTile) workspaceTile.hidden = false;
+      if (workspaceTile) workspaceTile.hidden = !isAdmin;
 
-      // UI
       buildOpsGrid();
       watchOrdersToBook();
 
-      // Overview view-only mode
       if (role === "overview") {
         applyOverviewLockdown();
       }
 
     } catch (e) {
-      console.error(e);
-      try { await signOut(auth); } catch {}
-      window.location.assign(`/companylogin/`);
+      showError(e?.message || e);
+      // Don't instantly kick you out; keep page visible with error
+      // try { await signOut(auth); } catch {}
+      // window.location.assign(`/companylogin/`);
     }
   });
 
@@ -558,7 +578,7 @@
     window.location.assign(`/companylogin/`);
   });
 
-  // ✅ Crash-proof click handlers
+  // Click handlers (safe)
   if (workspaceTile) {
     workspaceTile.addEventListener("click", () => {
       window.location.assign(`/company/settings.html?c=${encodeURIComponent(companyId)}`);
