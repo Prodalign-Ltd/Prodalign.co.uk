@@ -17,6 +17,7 @@
 
       --good:#2ecc71;
       --bad:#d32f2f;
+      --shadow: 0 18px 55px rgba(0,0,0,.35);
     }
     *{ box-sizing:border-box; }
 
@@ -158,12 +159,11 @@
       border: 1px solid rgba(255,255,255,0.12);
       background: rgba(0,0,0,0.16);
       padding: 14px;
-      box-shadow: 0 18px 55px rgba(0,0,0,.35);
+      box-shadow: var(--shadow);
       display:grid;
       place-items:center;
     }
 
-    /* Big donut */
     #donutSvg{
       width: min(420px, 80vw);
       height: auto;
@@ -179,6 +179,7 @@
       display:flex;
       flex-direction:column;
       gap: 10px;
+      box-shadow: 0 12px 34px rgba(0,0,0,.18);
     }
 
     .row{
@@ -213,8 +214,109 @@
       line-height: 1.35;
     }
 
+    /* === Lists === */
+    .listsGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      min-height: 0;
+    }
     @media (max-width: 980px){
       .brand .name{ max-width: 48vw; }
+      .listsGrid{ grid-template-columns: 1fr; }
+    }
+
+    .listCard{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.16);
+      box-shadow: 0 12px 34px rgba(0,0,0,.18);
+      overflow:hidden;
+      min-height: 240px;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .listHead{
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight: 950;
+    }
+    .listHead.good{
+      background: linear-gradient(180deg, rgba(46,204,113,0.18), rgba(0,0,0,0));
+    }
+    .listHead.bad{
+      background: linear-gradient(180deg, rgba(211,47,47,0.20), rgba(0,0,0,0));
+    }
+
+    .countPill{
+      font-size: 11px;
+      font-weight: 950;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.92);
+      white-space:nowrap;
+    }
+
+    .listBody{
+      padding: 10px 10px 12px;
+      overflow:auto;
+      min-height: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+
+    .miniRow{
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.05);
+      padding: 10px 10px 9px;
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+    }
+    .miniTop{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .ord{
+      font-weight: 950;
+      letter-spacing: .2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 70%;
+    }
+    .qty{
+      font-weight: 950;
+      color: rgba(255,255,255,0.92);
+      white-space:nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .miniSub{
+      color: var(--muted);
+      font-weight: 850;
+      font-size: 12px;
+      line-height: 1.25;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px 12px;
+    }
+    .tag{
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.14);
+      padding: 3px 8px;
+      border-radius: 999px;
+      white-space:nowrap;
     }
   </style>
 </head>
@@ -242,7 +344,6 @@
       <div class="panel-body">
         <div class="chartWrap">
           <div class="donutCard">
-            <!-- SVG donut gets rendered by JS -->
             <svg id="donutSvg" viewBox="0 0 220 220" role="img" aria-label="Delivery performance chart"></svg>
           </div>
 
@@ -268,6 +369,30 @@
             </div>
           </div>
         </div>
+
+        <!-- ✅ NEW: two lists underneath -->
+        <div class="listsGrid">
+          <div class="listCard">
+            <div class="listHead good">
+              <div>On time booked</div>
+              <div class="countPill" id="goodCountPill">0</div>
+            </div>
+            <div class="listBody" id="goodList">
+              <div class="mutedLine">Loading…</div>
+            </div>
+          </div>
+
+          <div class="listCard">
+            <div class="listHead bad">
+              <div>Overdue booked</div>
+              <div class="countPill" id="badCountPill">0</div>
+            </div>
+            <div class="listBody" id="badList">
+              <div class="mutedLine">Loading…</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -289,11 +414,9 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // URL (?c=...)
     const params = new URLSearchParams(window.location.search);
     const companyId = (params.get("c") || "").trim().toLowerCase();
 
-    // UI refs
     const companyLogoEl = document.getElementById("companyLogo");
     const companyNameEl = document.getElementById("companyName");
     const statusText = document.getElementById("statusText");
@@ -304,23 +427,33 @@
     const goodText = document.getElementById("goodText");
     const badText = document.getElementById("badText");
 
+    const goodList = document.getElementById("goodList");
+    const badList = document.getElementById("badList");
+    const goodCountPill = document.getElementById("goodCountPill");
+    const badCountPill = document.getElementById("badCountPill");
+
     if (!companyId) {
       companyNameEl.textContent = "Missing company id (?c=...)";
       statusText.textContent = "Cannot load without ?c=";
       throw new Error("Missing ?c=");
     }
 
+    function escapeHtml(s){
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[c]));
+    }
+
     function asDateMaybe(v){
       if (!v) return null;
-      if (v?.toDate) return v.toDate();         // Firestore Timestamp
+      if (v?.toDate) return v.toDate(); // Firestore Timestamp
       if (v instanceof Date) return v;
       const d = new Date(v);
       return Number.isNaN(d.getTime()) ? null : d;
     }
 
-    // ✅ Pick your "booked into stock" timestamp here if needed:
+    // ✅ Adjust these to match YOUR schema if needed:
     function bookedDateFromJob(job){
-      // Try a few common field names (edit to match your schema)
       return (
         asDateMaybe(job.bookedAt) ||
         asDateMaybe(job.bookedIntoStockAt) ||
@@ -335,12 +468,35 @@
       return asDateMaybe(job.dueAt) || null;
     }
 
+    function jobOrderNo(job, fallbackId){
+      return String(job.orderNo || job.orderno || job.order || fallbackId || "JOB").trim();
+    }
+
+    function jobPartNo(job){
+      return String(job.itemCode || job.partNo || job.part || job.item || "").trim().toUpperCase();
+    }
+
+    function jobQty(job){
+      const q = Number(job.qty ?? job.quantity ?? 0);
+      if (!Number.isFinite(q) || q <= 0) return 0;
+      return Math.floor(q);
+    }
+
+    function fmtDate(d){
+      if (!d) return "—";
+      // local YYYY-MM-DD
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
+      return `${y}-${m}-${day}`;
+    }
+
     function pct(n, d){
       if (!d) return 0;
       return Math.round((n / d) * 100);
     }
 
-    // Draw a donut chart (2 segments) using SVG arcs
+    // ===== Donut helpers =====
     function polarToCartesian(cx, cy, r, angleDeg){
       const a = (angleDeg - 90) * Math.PI / 180.0;
       return { x: cx + (r * Math.cos(a)), y: cy + (r * Math.sin(a)) };
@@ -355,20 +511,20 @@
     function renderDonut({ goodCount, badCount }){
       const total = goodCount + badCount;
 
-      // empty state
       if (!total){
         donutSvg.innerHTML = `
           <circle cx="110" cy="110" r="86" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="26"></circle>
           <text x="110" y="106" text-anchor="middle" font-size="18" font-weight="950" fill="rgba(255,255,255,0.92)">No data</text>
           <text x="110" y="128" text-anchor="middle" font-size="11" font-weight="800" fill="rgba(255,255,255,0.65)">Need dueAt + bookedAt</text>
         `;
+        goodText.textContent = "—";
+        badText.textContent = "—";
         return;
       }
 
       const goodPct = pct(goodCount, total);
       const badPct = 100 - goodPct;
 
-      // angles
       const start = 0;
       const goodAngle = (goodCount / total) * 360;
       const goodEnd = start + goodAngle;
@@ -377,12 +533,10 @@
       const goodStroke = getComputedStyle(document.documentElement).getPropertyValue("--good").trim() || "#2ecc71";
       const badStroke  = getComputedStyle(document.documentElement).getPropertyValue("--bad").trim()  || "#d32f2f";
 
-      // If one slice is 100%, draw it as a circle stroke to avoid SVG arc edge cases
       const isAllGood = badCount === 0;
       const isAllBad  = goodCount === 0;
 
       donutSvg.innerHTML = `
-        <!-- track -->
         <circle cx="110" cy="110" r="86" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="26"></circle>
 
         ${isAllGood ? `
@@ -394,16 +548,41 @@
           <path d="${arcPath(110,110,86, goodEnd, badEnd)}" fill="none" stroke="${badStroke}" stroke-width="26" stroke-linecap="butt"></path>
         `}
 
-        <!-- hole -->
         <circle cx="110" cy="110" r="62" fill="rgba(7,24,38,0.85)"></circle>
 
-        <!-- center text -->
         <text x="110" y="108" text-anchor="middle" font-size="34" font-weight="950" fill="rgba(255,255,255,0.95)">${goodPct}%</text>
         <text x="110" y="132" text-anchor="middle" font-size="12" font-weight="900" fill="rgba(255,255,255,0.70)">On time</text>
       `;
 
       goodText.textContent = `${goodPct}% (${goodCount})`;
       badText.textContent = `${badPct}% (${badCount})`;
+    }
+
+    function renderJobList(container, items){
+      if (!items.length){
+        container.innerHTML = `<div class="mutedLine">No jobs found.</div>`;
+        return;
+      }
+
+      container.innerHTML = items.map(j => {
+        const orderNo = escapeHtml(j.orderNo);
+        const partNo = escapeHtml(j.partNo);
+        const qty = j.qty;
+
+        return `
+          <div class="miniRow">
+            <div class="miniTop">
+              <div class="ord">Order: ${orderNo}</div>
+              <div class="qty">Qty: ${qty}</div>
+            </div>
+            <div class="miniSub">
+              <span class="tag">Part: ${partNo || "—"}</span>
+              <span class="tag">Due: ${escapeHtml(j.dueStr)}</span>
+              <span class="tag">Booked: ${escapeHtml(j.bookedStr)}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
     async function loadCompanyBranding(companyId) {
@@ -437,34 +616,56 @@
     }
 
     function watchDeliveryPerformance(){
-      // We read a chunk of jobs and compute late/on-time client-side
-      // (because querying for "bookedAt exists" isn't straightforward).
       const jobsRef = collection(db, "companies", companyId, "jobs");
       const qy = query(jobsRef, orderBy("dueAt", "desc"), limit(800));
 
       return onSnapshot(qy, (snap) => {
-        let good = 0;
-        let bad = 0;
-        let usable = 0;
+        const goodItems = [];
+        const badItems = [];
 
         snap.forEach((ds) => {
-          const j = ds.data() || {};
-          const due = dueDateFromJob(j);
-          const booked = bookedDateFromJob(j);
+          const data = ds.data() || {};
 
+          const due = dueDateFromJob(data);
+          const booked = bookedDateFromJob(data);
           if (!due || !booked) return;
 
-          usable++;
-          if (booked.getTime() > due.getTime()) bad++;
-          else good++;
+          const qty = jobQty(data);
+          const orderNo = jobOrderNo(data, ds.id);
+          const partNo = jobPartNo(data);
+
+          const model = {
+            id: ds.id,
+            orderNo,
+            partNo,
+            qty,
+            dueStr: fmtDate(due),
+            bookedStr: fmtDate(booked),
+            dueMs: due.getTime(),
+            bookedMs: booked.getTime()
+          };
+
+          if (model.bookedMs > model.dueMs) badItems.push(model);
+          else goodItems.push(model);
         });
 
-        renderDonut({ goodCount: good, badCount: bad });
+        // Sort: overdue worst first; on-time newest first (by booked date)
+        badItems.sort((a, b) => (b.bookedMs - b.dueMs) - (a.bookedMs - a.dueMs));
+        goodItems.sort((a, b) => b.bookedMs - a.bookedMs);
 
-        const total = good + bad;
-        statusText.textContent = total
-          ? `Total: ${total} (usable: ${usable})`
-          : `No usable data yet`;
+        // Update donut
+        renderDonut({ goodCount: goodItems.length, badCount: badItems.length });
+
+        // Update pills + lists (cap for performance)
+        const cap = 200;
+        goodCountPill.textContent = String(goodItems.length);
+        badCountPill.textContent = String(badItems.length);
+
+        renderJobList(goodList, goodItems.slice(0, cap));
+        renderJobList(badList, badItems.slice(0, cap));
+
+        const total = goodItems.length + badItems.length;
+        statusText.textContent = total ? `Total booked: ${total}` : `No usable data yet`;
       }, (err) => {
         console.error(err);
         statusText.textContent = "Error";
@@ -473,10 +674,11 @@
             Error loading jobs
           </text>
         `;
+        goodList.innerHTML = `<div class="mutedLine">Error loading.</div>`;
+        badList.innerHTML = `<div class="mutedLine">Error loading.</div>`;
       });
     }
 
-    // Buttons
     logoutBtn.addEventListener("click", async () => {
       try { await signOut(auth); } catch {}
       window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
@@ -486,7 +688,6 @@
       window.location.assign(`./index.html?c=${encodeURIComponent(companyId)}`);
     });
 
-    // Start
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.assign(`/companylogin/?c=${encodeURIComponent(companyId)}`);
