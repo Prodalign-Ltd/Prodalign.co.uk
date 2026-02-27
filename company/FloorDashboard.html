@@ -313,6 +313,15 @@
     }
     .meta b{ color: rgba(234,242,255,.92); font-weight: 950; }
 
+    /* Missing materials note */
+    .missing{
+      padding-left: 10px; /* align with accent bar */
+      color: var(--na);
+      font-weight: 900;
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
     /* Actions */
     .actions{
       padding-left: 10px;
@@ -655,9 +664,23 @@
           };
 
           if (currentOpIndex === myIndex) {
-            if (status === "ready") available.push(jobView);
-            else wip.push(jobView);
+            if (status === "ready") {
+              // When a job is ready at this station, ensure all required materials
+              // are available. If any components are short, move it to the
+              // notAvailable bucket and record the missing components.
+              const missing = getMissingMaterials(jobView.itemCode, jobView.qty);
+              if (Array.isArray(missing) && missing.length > 0) {
+                jobView.missingComponents = missing;
+                notAvailable.push(jobView);
+              } else {
+                available.push(jobView);
+              }
+            } else {
+              wip.push(jobView);
+            }
           } else {
+            // If currentOpIndex < myIndex, the job is waiting on previous operations
+            // or materials; it belongs in the notAvailable list.
             notAvailable.push(jobView);
           }
         });
@@ -693,7 +716,7 @@
         wireTileButtons(availableBody, stationCode);
       }
 
-      if (!notAvailable.length) renderEmpty(naBody, "Nothing waiting on previous operations.");
+      if (!notAvailable.length) renderEmpty(naBody, "Nothing waiting on previous operations or materials.");
       else {
         naBody.innerHTML = `<div class="tiles">${notAvailable.map(j => tileHtml(j, stationCode, "na")).join("")}</div>`;
       }
@@ -725,6 +748,13 @@
         </div>`;
       }
 
+      // Build missing materials note if provided
+      let missingHtml = "";
+      if (Array.isArray(job.missingComponents) && job.missingComponents.length > 0) {
+        const list = job.missingComponents.map(mc => `${escapeHtml(mc.code)} × ${escapeHtml(String(mc.missing))}`).join(", ");
+        missingHtml = `<div class="missing"><b>Missing:</b> ${list}</div>`;
+      }
+
       return `
         <div class="tile ${cls}">
           ${badge !== "" ? `<div class="badge">${escapeHtml(String(badge))}</div>` : ``}
@@ -736,6 +766,7 @@
               <div><b>Current:</b> ${escapeHtml(job.currentOpCode || "—")}</div>
               ${job.assignedTo ? `<div><b>Assigned:</b> ${escapeHtml(job.assignedTo)}</div>` : ``}
             </div>
+            ${missingHtml}
           </div>
 
           ${actions}
@@ -833,6 +864,8 @@
       try{
         const result = await enforceGate(user);
         if (!result) return;
+        // Start listening to items for this company so we can check materials availability.
+        watchItems(companyId);
         watchJobsForStation(result.station);
       }catch(e){
         console.error(e);
