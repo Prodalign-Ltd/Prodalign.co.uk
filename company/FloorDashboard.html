@@ -487,11 +487,24 @@
     }
 
     function normalizeOpsArray(ops){
-      if (!Array.isArray(ops)) return [];
-      return ops
+      // Normalise a list of operation entries into a consistent array of
+      // objects with `code` and `iph`. Firestore sometimes stores arrays as
+      // objects with numeric keys (e.g. {0: {...}, 1: {...}}). This helper
+      // supports both true arrays and object representations. If an entry
+      // lacks a valid code it will be filtered out.
+      let list;
+      if (Array.isArray(ops)) {
+        list = ops;
+      } else if (ops && typeof ops === "object") {
+        // Extract values from a keyed object representation
+        list = Object.values(ops);
+      } else {
+        return [];
+      }
+      return list
         .map(x => {
-          const code = String(x?.code || "").trim().toUpperCase();
-          const iph = Number(x?.iph);
+          const code = String(x?.code || x?.op || "").trim().toUpperCase();
+          const iph = Number(x?.iph || x?.rate);
           return code ? { code, iph: Number.isFinite(iph) ? iph : 0 } : null;
         })
         .filter(Boolean);
