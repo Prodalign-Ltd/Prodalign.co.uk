@@ -44,6 +44,10 @@ exports.handleOrderCreate = functions.firestore
       }
       const parentItem = parentSnap.data() || {};
       const contains = Array.isArray(parentItem.contains) ? parentItem.contains : [];
+
+      // We'll build a list of components to store on the parent order for reference
+      const compList = [];
+
       // Iterate through each component required by the BOM
       for (const comp of contains) {
         // comp can be a string (code) or an object {code, qty}
@@ -62,18 +66,17 @@ exports.handleOrderCreate = functions.firestore
         const compData = compSnap.exists ? compSnap.data() || {} : {};
         const currentStock = typeof compData.stockQty === 'number' && compData.stockQty >= 0 ? compData.stockQty : 0;
 
-        if (currentStock >= required) {
-          // Enough stock: reserve it by decrementing stockQty
-          tx.update(compRef, { stockQty: currentStock - required });
-        } else {
-          // Not enough: reserve what exists and create a sub‑order for the shortage
-          const missing = required - currentStock;
-          // Deplete current stock
-          if (currentStock > 0) {
-            tx.update(compRef, { stockQty: 0 });
-          }
-          // Create the sub‑order
+        // Determine how much stock will be consumed and how much is missing
+        const missing = Math.max(required - currentStock, 0);
+        const newStock = Math.max(currentStock - required, 0);
+        // Update stock for this component
+        tx.update(compRef, { stockQty: newStock });
+
+        // If there is any missing quantity, create a sub-order for that shortage
+        let subOrderId = null;
+        if (missing > 0) {
           const subOrderRef = db.collection(`companies/${companyId}/orders`).doc();
+          subOrderId = subOrderRef.id;
           tx.set(subOrderRef, {
             itemCode: compCode,
             quantity: missing,
@@ -83,7 +86,22 @@ exports.handleOrderCreate = functions.firestore
             createdAt: admin.firestore.FieldValue.serverTimestamp()
           });
         }
+
+        // Record component details on the parent order. This helps you reference
+        // child components and see the required vs missing quantities even if
+        // stock was sufficient.
+        compList.push({
+          itemCode: compCode,
+          requiredQty: required,
+          stockUsed: Math.min(currentStock, required),
+          missingQty: missing,
+          subOrderId
+        });
       }
+
+      // Attach the components list to the parent order so that it references
+      // its child components. Use merge:true to avoid overwriting other fields.
+      tx.set(snap.ref, { components: compList }, { merge: true });
     });
     return null;
   });
