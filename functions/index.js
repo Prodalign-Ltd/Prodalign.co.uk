@@ -169,7 +169,7 @@ exports.handleJobCreate = functions.firestore
           // No operations defined for this component; do not create a job
           continue;
         }
-        // Build the operations array in the same format used by the app
+        // Build the operations array and add meta fields similar to existing job schema.
         const normalizedOps = compOps
           .map(op => {
             const code = String(op.code || op.op || '').trim().toUpperCase();
@@ -181,15 +181,27 @@ exports.handleJobCreate = functions.firestore
           // Nothing usable
           continue;
         }
+        // Prepare op entries with additional metadata for consistency. Each op entry
+        // carries the order number, quantity and a per‑operation status. We
+        // initialise status to "ready" and copy the required quantity for this
+        // component. updatedAt will be updated when the op starts or completes.
+        const opsWithMeta = normalizedOps.map(op => ({
+          code: op.code,
+          iph: op.iph,
+          orderNo: jobData.orderNo || jobData.productionOrder || null,
+          qty: required,
+          status: 'ready',
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        }));
         // Create a new job document for the component
         const newJobRef = db.collection(`companies/${companyId}/jobs`).doc();
         await newJobRef.set({
           companyId,
           itemCode: compCode,
           qty: required,
-          ops: normalizedOps,
+          ops: opsWithMeta,
           currentOpIndex: 0,
-          currentOpCode: normalizedOps[0].code,
+          currentOpCode: opsWithMeta[0].code,
           status: 'ready',
           parentJobId: jobId,
           orderNo: jobData.orderNo || jobData.productionOrder || null,
