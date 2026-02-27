@@ -502,6 +502,102 @@
       return u?.email || u?.displayName || u?.uid || "unknown";
     }
 
+    // ---------------------------------------------------------------------------
+    // Inventory / BOM helpers
+    // ---------------------------------------------------------------------------
+    // We maintain a local cache of all items for this company. Each entry in
+    // `itemsCache` stores the current stock quantity and the normalized bill of
+    // materials (BOM) for that item. When a job becomes ready we look up its
+    // associated item in this cache to determine whether all components are
+    // available in sufficient quantity. If any component is short, the job
+    // will be moved to the "Not Available" bucket and the missing components
+    // will be displayed on the tile.
+    let itemsCache = new Map();
+
+    /**
+     * Normalize a raw BOM array into a list of objects with `code` and `qty`.
+     * In older data models `contains` could be an array of strings (codes) or
+     * an array of objects with a `code` field. This helper standardizes
+     * everything into the form `{ code: string, qty: number }`.
+     *
+     * @param {any[]} contains Raw BOM array from Firestore
+     * @returns {{ code: string, qty: number }[]}
+     */
+    function normalizeContains(contains) {
+      if (!Array.isArray(contains)) return [];
+      return contains
+        .map(entry => {
+          if (!entry) return null;
+          // If entry is a string, assume quantity 1
+          if (typeof entry === "string") {
+            const code = entry.trim().toUpperCase();
+            return code ? { code, qty: 1 } : null;
+          }
+          // If entry is an object, use its code and qty (default qty=1)
+          const code = String(entry.code || entry.itemCode || "").trim().toUpperCase();
+          const qty = Number(entry.qty || entry.quantity || 1);
+          return code ? { code, qty: Number.isFinite(qty) && qty > 0 ? qty : 1 } : null;
+        })
+        .filter(Boolean);
+    }
+
+    /**
+     * Start listening to the items collection for this company. On every
+     * snapshot update we rebuild the `itemsCache`. Errors are logged to the
+     * console but do not trigger a logout.
+     *
+     * @param {string} companyId The current company ID
+     */
+    function watchItems(companyId) {
+      const itemsRef = collection(db, "companies", companyId, "items");
+      return onSnapshot(itemsRef, (snap) => {
+        const cache = new Map();
+        snap.forEach(docSnap => {
+          const data = docSnap.data() || {};
+          const code = String(data.code || docSnap.id || "").trim().toUpperCase();
+          if (!code) return;
+          const stockQty = Number(data.stockQty || data.stockqty || 0);
+          const bom = normalizeContains(data.contains || data.bom || []);
+          cache.set(code, { stockQty: Number.isFinite(stockQty) ? stockQty : 0, contains: bom });
+        });
+        itemsCache = cache;
+      }, (err) => {
+        console.error("Items listener error:", err);
+        // Do not kick the user out for an items listener error. Instead keep
+        // the dashboard running with whatever cache we had. The jobs listener
+        // will still function, but missing materials cannot be computed.
+      });
+    }
+
+    /**
+     * Compute which components are missing to produce a given item quantity.
+     * Looks up the parent item in `itemsCache` and multiplies each component's
+     * required quantity by the job quantity. If the component itself is not
+     * present in the cache, treat its stock as 0. Only direct components are
+     * checked (no recursive explosion).
+     *
+     * @param {string} itemCode The top-level item code
+     * @param {number} qty Number of units required for the job
+     * @returns {{ code: string, missing: number }[]} List of missing components
+     */
+    function getMissingMaterials(itemCode, qty) {
+      if (!itemCode || !Number.isFinite(qty)) return [];
+      const item = itemsCache.get(itemCode.toUpperCase());
+      if (!item || !Array.isArray(item.contains)) return [];
+      const missing = [];
+      item.contains.forEach(entry => {
+        const compCode = String(entry.code || "").toUpperCase();
+        if (!compCode) return;
+        const required = Number(entry.qty || 1) * qty;
+        const comp = itemsCache.get(compCode);
+        const available = comp ? Number(comp.stockQty) : 0;
+        if (available < required) {
+          missing.push({ code: compCode, missing: required - available });
+        }
+      });
+      return missing;
+    }
+
     function renderEmpty(el, text){
       el.innerHTML = `<div class="empty">${escapeHtml(text)}</div>`;
     }
