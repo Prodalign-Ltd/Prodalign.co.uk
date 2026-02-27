@@ -87,3 +87,124 @@ exports.handleOrderCreate = functions.firestore
     });
     return null;
   });
+
+/**
+ * Firestore trigger: handleJobCreate
+ *
+ * When a new job document is created under companies/{companyId}/jobs/{jobId},
+ * this function examines the bill of materials (BOM) of the job’s item and
+ * automatically creates child jobs for any components that themselves have
+ * defined operations. It processes the entire BOM tree recursively: each
+ * component job created by this trigger will, in turn, trigger this
+ * function for its own BOM. To prevent duplicate processing, each job
+ * document is marked with a `bomProcessed: true` flag once its BOM has been
+ * exploded.
+ *
+ * Expected job document fields:
+ * - itemCode: string (code of the item being produced)
+ * - qty: number (quantity of the item being produced)
+ * - ops: array (operations list for this job; if empty, no sub‑jobs are created)
+ * - parentJobId: string (optional; id of the parent job that spawned this job)
+ * - bomProcessed: boolean (optional; set to true once processed)
+ */
+exports.handleJobCreate = functions.firestore
+  .document('companies/{companyId}/jobs/{jobId}')
+  .onCreate(async (snap, context) => {
+    const jobData = snap.data() || {};
+    const companyId = context.params.companyId;
+    const jobId = context.params.jobId;
+    // Skip if this job has already had its BOM processed
+    if (jobData.bomProcessed) {
+      return null;
+    }
+    const db = admin.firestore();
+    const itemCode = String(jobData.itemCode || '').trim().toUpperCase();
+    const qty = Number(jobData.qty || jobData.quantity || 0);
+    if (!itemCode || qty <= 0) {
+      console.warn('handleJobCreate: invalid job data', jobData);
+      await snap.ref.update({ bomProcessed: true });
+      return null;
+    }
+
+    try {
+      // Load the item document to read its BOM and operations
+      const itemRef = db.doc(`companies/${companyId}/items/${itemCode}`);
+      const itemSnap = await itemRef.get();
+      if (!itemSnap.exists) {
+        console.warn('handleJobCreate: item not found', itemCode);
+        await snap.ref.update({ bomProcessed: true });
+        return null;
+      }
+      const item = itemSnap.data() || {};
+      const bom = Array.isArray(item.contains) ? item.contains : [];
+
+      // For each component in the BOM, determine if we need to create a child job
+      for (const comp of bom) {
+        // Determine component code and quantity from the BOM entry
+        let compCode = '';
+        let compQty = 1;
+        if (typeof comp === 'string') {
+          compCode = comp.trim().toUpperCase();
+        } else if (comp && typeof comp === 'object') {
+          compCode = String(comp.code || comp.itemCode || '').trim().toUpperCase();
+          const q = Number(comp.qty || comp.quantity || 1);
+          compQty = Number.isFinite(q) && q > 0 ? Math.floor(q) : 1;
+        }
+        if (!compCode) continue;
+
+        // Calculate the total required quantity for this component
+        const required = qty * compQty;
+        if (required <= 0) continue;
+
+        // Load the component item to see if it has operations defined
+        const compItemRef = db.doc(`companies/${companyId}/items/${compCode}`);
+        const compItemSnap = await compItemRef.get();
+        if (!compItemSnap.exists) {
+          // Component item not found; treat as raw material only
+          continue;
+        }
+        const compItem = compItemSnap.data() || {};
+        const compOps = Array.isArray(compItem.operations) ? compItem.operations : [];
+        if (compOps.length === 0) {
+          // No operations defined for this component; do not create a job
+          continue;
+        }
+        // Build the operations array in the same format used by the app
+        const normalizedOps = compOps
+          .map(op => {
+            const code = String(op.code || op.op || '').trim().toUpperCase();
+            const iph = Number(op.iph || op.rate);
+            return code ? { code, iph: Number.isFinite(iph) ? iph : 0 } : null;
+          })
+          .filter(Boolean);
+        if (normalizedOps.length === 0) {
+          // Nothing usable
+          continue;
+        }
+        // Create a new job document for the component
+        const newJobRef = db.collection(`companies/${companyId}/jobs`).doc();
+        await newJobRef.set({
+          companyId,
+          itemCode: compCode,
+          qty: required,
+          ops: normalizedOps,
+          currentOpIndex: 0,
+          currentOpCode: normalizedOps[0].code,
+          status: 'ready',
+          parentJobId: jobId,
+          orderNo: jobData.orderNo || jobData.productionOrder || null,
+          bomProcessed: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          createdBy: jobData.createdBy || null
+        });
+      }
+      // Mark the original job as processed so we don't reprocess its BOM
+      await snap.ref.update({ bomProcessed: true });
+    } catch (err) {
+      console.error('handleJobCreate error:', err);
+      // Mark as processed anyway to avoid infinite retries on errors
+      await snap.ref.update({ bomProcessed: true });
+    }
+    return null;
+  });
