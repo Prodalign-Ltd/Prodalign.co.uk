@@ -164,7 +164,19 @@ exports.handleJobCreate = functions.firestore
           continue;
         }
         const compItem = compItemSnap.data() || {};
-        const compOps = Array.isArray(compItem.operations) ? compItem.operations : [];
+        // Retrieve the operations list from the component item. In Firestore
+        // arrays may sometimes be stored as objects with numeric keys (e.g.,
+        // {0: {...}, 1: {...}}). To support both representations we extract
+        // values if it's an object.
+        let compOps = [];
+        const rawOps = compItem.operations;
+        if (Array.isArray(rawOps)) {
+          compOps = rawOps;
+        } else if (rawOps && typeof rawOps === 'object') {
+          compOps = Object.values(rawOps);
+        } else {
+          compOps = [];
+        }
         if (compOps.length === 0) {
           // No operations defined for this component; do not create a job
           continue;
