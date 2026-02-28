@@ -1,3 +1,5 @@
-functions/node_modules/
-node_modules/
-.firebase/
+{
+  "projects": {
+    "default": "prodalign-ltd"
+  }
+}
