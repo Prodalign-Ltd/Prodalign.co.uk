@@ -23,16 +23,35 @@ admin.initializeApp();
  * - componentOf: string (optional; indicates this is a sub‑order of
  *   another order)
  */
+/**
+ * Production order trigger
+ *
+ * When a new production order document is created in `companies/{companyId}/orders/{orderId}`,
+ * this function explodes the bill of materials (BOM) on the parent item and ensures
+ * sufficient work‑in‑progress (WIP) inventory exists for each component. It subtracts
+ * available WIP quantities from each component and creates sub‑orders for any shortfall.
+ *
+ * Notes:
+ * - A configurable field name (wipField) is used to identify the inventory quantity on
+ *   each item. By default this is `wipQty` but falls back to `stockQty` for backward
+ *   compatibility.
+ * - The function skips processing for sub‑orders (those with a `componentOf` field) to
+ *   prevent infinite recursion. If you wish to explode multi‑level BOMs in the future,
+ *   remove this check and implement a recursion guard.
+ */
 exports.handleOrderCreate = functions.firestore
   .document('companies/{companyId}/orders/{orderId}')
   .onCreate(async (snap, context) => {
     const order = snap.data() || {};
-    // Skip processing for sub‑orders to avoid infinite recursion
+    // Skip sub‑orders to avoid recursive explosions
     if (order.componentOf) {
       return null;
     }
     const companyId = context.params.companyId;
     const db = admin.firestore();
+
+    // Which field on the item document stores available WIP inventory
+    const wipField = 'wipQty';
 
     await db.runTransaction(async (tx) => {
       // Load parent item and its BOM
@@ -45,18 +64,20 @@ exports.handleOrderCreate = functions.firestore
       const parentItem = parentSnap.data() || {};
       const contains = Array.isArray(parentItem.contains) ? parentItem.contains : [];
 
-      // We'll build a list of components to store on the parent order for reference
+      // Assemble a list of component details to attach back onto the parent order
       const compList = [];
 
-      // Iterate through each component required by the BOM
+      // Iterate through each component specified on the parent BOM
       for (const comp of contains) {
-        // comp can be a string (code) or an object {code, qty}
-        const compCode = typeof comp === 'string' ? comp.trim().toUpperCase() : String(comp.code || '').trim().toUpperCase();
+        // Determine component code and quantity multiplier
+        const compCode = typeof comp === 'string'
+          ? comp.trim().toUpperCase()
+          : String(comp.code || '').trim().toUpperCase();
         if (!compCode) continue;
         const compQty = (typeof comp === 'object' && typeof comp.qty === 'number' && comp.qty > 0)
           ? Math.floor(comp.qty)
           : 1;
-        // Calculate required quantity for this component based on the order quantity
+        // Required quantity for this component = order.quantity * component multiplier
         const orderQty = typeof order.quantity === 'number' && order.quantity > 0 ? order.quantity : 0;
         const required = orderQty * compQty;
         if (required <= 0) continue;
@@ -64,15 +85,24 @@ exports.handleOrderCreate = functions.firestore
         const compRef = db.doc(`companies/${companyId}/items/${compCode}`);
         const compSnap = await tx.get(compRef);
         const compData = compSnap.exists ? compSnap.data() || {} : {};
-        const currentStock = typeof compData.stockQty === 'number' && compData.stockQty >= 0 ? compData.stockQty : 0;
+        // Read available WIP inventory; fall back to stockQty if wipField is undefined
+        const available = (() => {
+          const wip = compData[wipField];
+          if (typeof wip === 'number' && wip >= 0) return wip;
+          const legacy = compData.stockQty;
+          return (typeof legacy === 'number' && legacy >= 0) ? legacy : 0;
+        })();
 
-        // Determine how much stock will be consumed and how much is missing
-        const missing = Math.max(required - currentStock, 0);
-        const newStock = Math.max(currentStock - required, 0);
-        // Update stock for this component
-        tx.update(compRef, { stockQty: newStock });
+        // Calculate shortage and new available quantity
+        const missing = Math.max(required - available, 0);
+        const newAvailable = Math.max(available - required, 0);
 
-        // If there is any missing quantity, create a sub-order for that shortage
+        // Persist the adjusted WIP inventory
+        const updateData = {};
+        updateData[wipField] = newAvailable;
+        tx.set(compRef, updateData, { merge: true });
+
+        // If there is a shortage, create a child sub‑order for the missing quantity
         let subOrderId = null;
         if (missing > 0) {
           const subOrderRef = db.collection(`companies/${companyId}/orders`).doc();
@@ -87,20 +117,17 @@ exports.handleOrderCreate = functions.firestore
           });
         }
 
-        // Record component details on the parent order. This helps you reference
-        // child components and see the required vs missing quantities even if
-        // stock was sufficient.
+        // Record the outcome for this component on the parent order
         compList.push({
           itemCode: compCode,
           requiredQty: required,
-          stockUsed: Math.min(currentStock, required),
+          stockUsed: Math.min(available, required),
           missingQty: missing,
           subOrderId
         });
       }
 
-      // Attach the components list to the parent order so that it references
-      // its child components. Use merge:true to avoid overwriting other fields.
+      // Write the components list back to the parent order using merge to retain other fields
       tx.set(snap.ref, { components: compList }, { merge: true });
     });
     return null;
